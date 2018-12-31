@@ -1,0 +1,137 @@
+from flask import render_template, request, redirect, url_for, flash, session
+from flask_login import login_user, current_user
+from flask_mail import Message
+from flask_babel import gettext
+
+from werkzeug.security import check_password_hash
+
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
+
+from app import app, login_manager, mail, babel
+from app.home import home
+import app.constants as constants
+from app.home.user_loging_manager import User
+
+from .forms import ActivateForm, ContactForm
+
+CONFIRM_LINK_TTL = 3600
+SALT_LINK = 'email-confirm'
+
+confirm_link_generator = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+
+
+def flash_success(text: str):
+    flash(text, 'success')
+
+
+def flash_error(text: str):
+    flash(text, 'danger')
+
+
+def send_email(email: str, subject: str, message: str):
+    config = app.config['PUBLIC_CONFIG']
+    msg = Message(subject, recipients=[config['support']['contact_email']])
+    msg.body = 'From: {0} <{0}> {1}'.format(email, message)
+    mail.send(msg)
+
+
+# routes
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.objects(pk=user_id).first()
+
+
+@home.route('/', methods=['POST', 'GET'])
+def start():
+    languages = constants.AVAILABLE_LOCALES_PAIRS
+    return render_template('index.html', languages=languages)
+
+
+@app.route('/contact', methods=['GET', 'POST'])
+def contact():
+    form = ContactForm()
+
+    if request.method == 'POST':
+        if not form.validate_on_submit():
+            flash('All fields are required.')
+            return render_template('contact.html', form=form)
+
+        send_email(form.email.data, form.subject.data, form.message.data)
+        return render_template('contact.html', success=True)
+
+    elif request.method == 'GET':
+        return render_template('contact.html', form=form)
+
+
+@home.route('/language/<language>')
+def set_language(language=constants.DEFAULT_LOCALE):
+    founded = next((x for x in constants.AVAILABLE_LOCALES if x == language), None)
+    if founded:
+        session['language'] = founded
+
+    return redirect(url_for('home.start'))
+
+
+@home.route('/confirm_email/<token>')
+def confirm_email(token):
+    try:
+        email = confirm_link_generator.loads(token, salt=SALT_LINK, max_age=CONFIRM_LINK_TTL)
+        confirm_user = User.objects(email=email).first()
+        if confirm_user:
+            confirm_user.status = User.Status.ACTIVE
+            confirm_user.save()
+            login_user(confirm_user)
+            return redirect(url_for('home.login'))
+        else:
+            return '<h1>We can\'t find user.</h1>'
+    except SignatureExpired:
+        return '<h1>The token is expired!</h1>'
+
+
+def activate_service(form: ActivateForm):
+    if not form.validate_on_submit():
+        return render_template('home/activate.html', form=form)
+
+    license = form.license.data
+    return start()
+
+
+@home.route('/activate', methods=['POST', 'GET'])
+def activate():
+    form = ActivateForm()
+    if request.method == 'POST':
+        return activate_service(form)
+
+    return render_template('home/activate.html', form=form)
+
+
+@home.route('/private_policy')
+def private_policy():
+    config = app.config['PUBLIC_CONFIG']
+    return render_template('home/private_policy.html', contact_email=config['support']['contact_email'],
+                           title=config['site']['title'])
+
+
+@home.route('/term_of_use')
+def term_of_use():
+    config = app.config['PUBLIC_CONFIG']
+    return render_template('home/term_of_use.html', contact_email=config['support']['contact_email'],
+                           title=config['site']['title'])
+
+
+@babel.localeselector
+def get_locale():
+    # if a user is logged in, use the locale from the user settings
+    if current_user and current_user.is_authenticated:
+        lc = current_user.settings.locale
+        return lc
+
+    if session.get('language'):
+        lang = session['language']
+        return lang
+
+    # otherwise try to guess the language from the user accept
+    # header the browser transmits.  We support de/fr/en in this
+    # example.  The best match wins.
+    return request.accept_languages.best_match(constants.AVAILABLE_LOCALES)

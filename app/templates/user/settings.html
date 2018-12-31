@@ -1,0 +1,40 @@
+{% extends 'layouts/layout_user.html' %}
+{% import "bootstrap/utils.html" as util %}
+{% from 'bootstrap/wtf.html' import form_field %}
+{% macro render_bootstrap_field(field) %}
+<div class="row">
+    <label class="col-md-4">{{ field.label }}</label>
+    <div class="col-md-8">
+        {{ field(class='form-control')|safe }}
+    </div>
+</div>
+{% endmacro %}
+
+{% block title %}
+Settings | {{ config['PUBLIC_CONFIG'].site.title }}
+{% endblock %}
+{% block styles %}
+{{super()}}
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-11">
+            <p>{% trans %}Settings{% endtrans %}</p>
+        </div>
+    </div>
+</div>
+<br>
+{{ util.flashed_messages(dismissible=True, container=False) }}
+<div class="container well">
+    <form action="" method="post" class="form" role="form">
+        {{ form.hidden_tag() }}
+        {{ render_bootstrap_field(form.locale) }}
+        {{ form_field(form.submit, class="btn btn-success") }}
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{% endblock %}

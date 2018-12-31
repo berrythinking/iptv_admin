@@ -1,0 +1,31 @@
+<!-- args: total, available_currencies, currency -->
+{% extends 'layouts/layout_user.html' %}
+{% block title %}
+Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
+{% endblock %}
+
+{% block styles %}
+{{super()}}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-10">
+            <p>{% trans %}Welcome{% endtrans %} {{ current_user.email }}</p>
+        </div>
+        <div class="col-md-1">
+            <a href="{{ url_for('user.settings') }}" class="btn btn-info" role="button">{% trans %}Settings{% endtrans
+                %}</a>
+        </div>
+        <div class="col-md-1">
+            <a href="{{ url_for('user.logout') }}" class="btn btn-info" role="button">{% trans %}Logout{% endtrans
+                %}</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{% endblock %}

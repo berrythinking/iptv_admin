@@ -1,0 +1,41 @@
+{% extends 'layouts/layout.html' %}
+
+{% block title %}
+{{ config['PUBLIC_CONFIG'].site.title }}
+{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='assets/css/index.css') }}"/>
+{% endblock %}
+
+{% block content %}
+
+<main>
+    <!--Section About-->
+    <section id="about-main" class="vertical-align">
+        <div class="container">
+            <a href={{ url_for('home.activate') }} target="_blank">activate</a>
+        </div>
+    </section>
+</main>
+<footer>
+    <div class="container">
+        <div class="jumbotron text-center">
+            <p class="keep-left">Address: {{config['PUBLIC_CONFIG'].support.contact_address }}</p>
+            <p class="keep-left">Copyright © 2014-2018 <a
+                    href="{{ config['PUBLIC_CONFIG'].company.domain }}">FastoGT</a>. All rights reserved.</p>
+            <p> Website development -
+                <a href="/">
+                    <img src="{{ url_for('static', filename='assets/images/fastogt.png') }}">
+                </a>
+            </p>
+        </div>
+    </div>
+</footer>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='assets/js/script.js') }}"></script>
+{% endblock %}

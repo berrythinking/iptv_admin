@@ -1,0 +1,184 @@
+body {
+    color: #fff !important;
+    letter-spacing: 0.3px;
+    line-height: 3rem !important;
+}
+
+.navbar {
+    padding: 13px 0 11px;
+    font-size: 20px !important;
+    letter-spacing: 1.2px;
+    background-color: rgba(61, 97, 155, 0.9) !important;
+}
+
+.navbar-default, .navbar-collapse {
+    border-color: transparent !important;
+    box-shadow: inset 0 0 0 rgba(255, 255, 255, .1) !important;
+}
+
+.navbar-brand {
+    font-size: 26px !important;
+    font-weight: 900;
+    color: rgb(255, 255, 255) !important;
+}
+
+.navbar-brand img {
+    position: relative;
+    top: -16px;
+    margin-right: 15px;
+    float: left;
+}
+
+.navbar-nav {
+    text-align: center;
+}
+
+.navbar-nav li a {
+    color: white !important;
+    margin: 0 15px !important;
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: 12px;
+}
+
+.navbar-nav li a:hover {
+    border-bottom: 3px solid white;
+    padding-bottom: 9px;
+}
+
+.navbar-toggle {
+    border: none !important;
+    padding: 9px 0 !important;
+}
+
+.navbar-toggle:focus, .navbar-toggle:hover {
+    background-color: transparent !important;
+}
+
+.dropdown {
+    margin-left: 20px;
+    letter-spacing: normal;
+}
+
+.dropdown .btn-default {
+    margin-top: 8px;
+    border: 1px solid white;
+    background-color: transparent;
+    padding: 6px 20px;
+    color: white;
+}
+
+.dropdown-menu {
+    min-width: 118px;
+    border: none;
+}
+
+.dropdown .btn-default:hover {
+    background-color: white;
+    color: black;
+}
+
+.dropdown .btn-default:active:focus, .open > .dropdown-toggle.btn-default:focus, .open > .dropdown-toggle.btn-default {
+    background-color: white;
+    border-color: white;
+    outline: none;
+    box-shadow: none;
+}
+
+.icon-bar {
+    background-color: white !important;
+    height: 3px !important;
+    width: 25px !important;
+    border-radius: 0 !important;
+}
+
+section {
+    min-height: 100vh;
+/ / min-height: 600 px;
+}
+
+#about-main {
+    background: url(../images/bg-section-main.jpg) no-repeat top center scroll;
+    background-size: cover;
+}
+
+.vertical-align {
+    display: flex;
+    align-items: center;
+}
+
+.main-buttons {
+    padding-left: 70px;
+    padding-right: 70px;
+}
+
+.conditions {
+    line-height: 1.7rem;
+    margin: 0 -30px;
+}
+
+.conditions a {
+    color: rgb(255, 255, 255);
+    border-bottom: 1px dotted rgb(255, 255, 255);
+}
+
+.conditions a:hover {
+    border-bottom: 1px solid rgb(255, 255, 255);
+    text-decoration: none;
+}
+
+.jumbotron {
+    color: rgb(75, 75, 75);
+    background-color: inherit !important;
+}
+
+.jumbotron h1 {
+    font-size: 53px;
+}
+
+hr {
+    border-top: 1px solid rgb(220, 220, 220);
+}
+
+.hr img {
+    position: relative;
+    top: -46px;
+}
+
+#what-we-do, #team {
+    background-color: rgb(247, 247, 247);
+}
+
+#participate {
+    background: url(../images/bg-section-participate.png) no-repeat 5% 100% scroll;
+}
+
+#participate .btn {
+    padding: 17px 70px !important;
+}
+
+#team p {
+    font-size: 18px;
+    line-height: 27px;
+    letter-spacing: 0.4px;
+    padding: 0 20px;
+}
+
+#team h1 {
+    margin-bottom: 50px;
+}
+
+#team img {
+    width: 150px;
+    height: 150px;
+    border-radius: 100%;
+}
+
+#advantages, #what-we-do, #team {
+    color: rgb(75, 75, 75);
+}
+
+.advantages-title {
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
