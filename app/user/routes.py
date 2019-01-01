@@ -1,9 +1,9 @@
-from flask import render_template, redirect, url_for, jsonify, request, session
+from flask import render_template, redirect, url_for, request, session
 from flask_login import logout_user, login_required, current_user
 
-from app.user import user
+from app.user import user, cloud
 
-from .forms import SettingsForm
+from .forms import SettingsForm, ActivateForm
 
 
 def get_runtime_settings():
@@ -38,3 +38,23 @@ def logout():
     session.pop('currency', None)
     logout_user()
     return redirect(url_for('home.start'))
+
+
+# activate license
+def activate_service(form: ActivateForm):
+    if not form.validate_on_submit():
+        return render_template('user/activate.html', form=form)
+
+    license = form.license.data
+    cloud.activate(license)
+    return dashboard()
+
+
+@user.route('/activate', methods=['POST', 'GET'])
+@login_required
+def activate():
+    form = ActivateForm()
+    if request.method == 'POST':
+        return activate_service(form)
+
+    return render_template('user/activate.html', form=form)

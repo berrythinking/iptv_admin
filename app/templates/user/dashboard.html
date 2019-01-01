@@ -19,6 +19,10 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                 %}</a>
         </div>
         <div class="col-md-1">
+            <a href="{{ url_for('user.activate') }}" class="btn btn-info" role="button">{% trans %}Activate{% endtrans
+                %}</a>
+        </div>
+        <div class="col-md-1">
             <a href="{{ url_for('user.logout') }}" class="btn btn-info" role="button">{% trans %}Logout{% endtrans
                 %}</a>
         </div>

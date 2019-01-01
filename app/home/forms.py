@@ -38,6 +38,4 @@ class ContactForm(FlaskForm):
     submit = SubmitField(lazy_gettext(u'Send'))
 
 
-class ActivateForm(FlaskForm):
-    license = StringField(lazy_gettext(u'License:'), validators=[InputRequired(), Length(min=6, max=80)])
-    submit = SubmitField(lazy_gettext(u'Activate'))
+

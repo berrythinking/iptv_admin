@@ -33,6 +33,5 @@ login_manager.login_view = "home.login"
 
 @app.route('/robots.txt')
 @app.route('/sitemap.xml')
-@app.route('/googlee08bc4f482dc3039.html')
 def static_from_root():
     return send_from_directory(app.static_folder, request.path[1:])
