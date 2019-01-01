@@ -3,6 +3,8 @@ import struct
 import json
 import threading
 
+from abc import ABC, abstractmethod
+
 ACTIVE_SERVICE_ID = "0"
 
 
@@ -74,24 +76,26 @@ def generate_json_rpc_responce_message(result, command_id: str) -> dict:
     }
 
 
-def generate_json_rpc_responce_error(error, command_id: str) -> dict:
+def generate_json_rpc_responce_error(message: str, code: int, command_id: str) -> dict:
     return {
-        "result": error,
+        "error": {"code": code, "message": message},
         "jsonrpc": "2.0",
         "id": command_id,
     }
 
 
-class Handler:
+class IClientHandler(ABC):
+    @abstractmethod
     def process_response(self, resp: Response):
         pass
 
+    @abstractmethod
     def process_request(self, req: Request):
         pass
 
 
 class Client:
-    def __init__(self, host: str, port: int, handler=None):
+    def __init__(self, host: str, port: int, handler: IClientHandler):
         self.host = host
         self.port = port
         self._handler = handler
@@ -108,6 +112,7 @@ class Client:
     def disconnect(self):
         self._stop_listen = True
         self._listen_thread.join()
+        self._socket.close()
 
     def activate(self, license_key: str):
         command_args = {'license_key': license_key}
