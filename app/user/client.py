@@ -8,14 +8,14 @@ from abc import ABC, abstractmethod
 ACTIVE_SERVICE_ID = "0"
 
 
-class SeqType:
-    REQUEST = 0
-    RESPONSE = 1
-
-
 class Command:
     ACTIVATE_COMMAND = 'activate_request'
     CLIENT_PING_COMMAND = 'client_ping'
+    STATE_SERVICE_COMMAND = 'state_service'
+    STOP_SERVICE_COMMAND = 'stop_service'
+    START_STREAM_COMMAND = 'start_stream'
+    STOP_STREAM_COMMAND = 'stop_stream'
+    RESTART_STREAM_COMMAND = 'restart_stream'
 
 
 class Request:
@@ -38,6 +38,7 @@ class Response:
         return self.result
 
 
+# rpc functions
 def parse_response_or_request(data: str) -> (Request, Response):
     resp_req = json.loads(data)
     if 'id' not in resp_req:
@@ -84,6 +85,7 @@ def generate_json_rpc_responce_error(message: str, code: int, command_id: str) -
     }
 
 
+# handler for client
 class IClientHandler(ABC):
     @abstractmethod
     def process_response(self, resp: Response):
@@ -115,12 +117,45 @@ class Client:
         self._socket.close()
 
     def activate(self, license_key: str):
-        command_args = {'license_key': license_key}
+        command_args = {"license_key": license_key}
         self._send_request(Command.ACTIVATE_COMMAND, command_args, ACTIVE_SERVICE_ID)
 
     def is_active(self):
         return self.active
 
+    def service_state(self, command_id: str, jobs_directory: str, timeshifts_directory: str, hls_directory: str,
+                      playlists_directory: str, dvb_directory: str, capture_card_directory: str):
+        if not self.is_active():
+            return
+
+        command_args = {
+            "jobs_directory": jobs_directory,
+            "timeshifts_directory": timeshifts_directory,
+            "hls_directory": hls_directory,
+            "playlists_directory": playlists_directory,
+            "dvb_directory": dvb_directory,
+            "capture_card_directory": capture_card_directory
+        }
+        self._send_request(Command.STATE_SERVICE_COMMAND, command_args, command_id)
+
+    def stop_service(self, command_id: str, delay: int):
+        command_args = {"delay": delay}
+        self._send_request(Command.STOP_SERVICE_COMMAND, command_args, command_id)
+
+    def start_stream(self, command_id: str, feedback_dir: str, log_level: int, config: dict):
+        command_args = {"command_line": "feedback_dir='{0}' log_level={1}".format(feedback_dir, log_level),
+                        "config": config}
+        self._send_request(Command.START_STREAM_COMMAND, command_args, command_id)
+
+    def stop_stream(self, command_id: str, stream_id: str):
+        command_args = {"id": stream_id}
+        self._send_request(Command.STOP_STREAM_COMMAND, command_args, command_id)
+
+    def restart_stream(self, command_id: str, stream_id: str):
+        command_args = {"id": stream_id}
+        self._send_request(Command.RESTART_STREAM_COMMAND, command_args, command_id)
+
+    # private
     def _pong(self, command_id: str):
         if not self.is_active():
             return
