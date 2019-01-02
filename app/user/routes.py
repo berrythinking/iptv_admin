@@ -58,3 +58,11 @@ def activate():
         return activate_service(form)
 
     return render_template('user/activate.html', form=form)
+
+
+# stop service
+@user.route('/stop_service')
+@login_required
+def stop_service():
+    cloud.stop_service(1)
+    return dashboard()

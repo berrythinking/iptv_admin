@@ -11,7 +11,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
 {% block content %}
 <div class="container">
     <div class="row">
-        <div class="col-md-10">
+        <div class="col-md-8">
             <p>{% trans %}Welcome{% endtrans %} {{ current_user.email }}</p>
         </div>
         <div class="col-md-1">
@@ -20,6 +20,11 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         </div>
         <div class="col-md-1">
             <a href="{{ url_for('user.activate') }}" class="btn btn-info" role="button">{% trans %}Activate{% endtrans
+                %}</a>
+        </div>
+        <div class="col-md-1">
+            <a href="{{ url_for('user.stop_service') }}" class="btn btn-info" role="button">{% trans %}Stop service{%
+                endtrans
                 %}</a>
         </div>
         <div class="col-md-1">
