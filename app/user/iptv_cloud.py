@@ -6,7 +6,7 @@ class IptvCloud:
         self.id = id
         self._client = client.Client(host, port, handler)
         self._client.connect()
-        self._id = 1
+        self._id = client.ACTIVE_SERVICE_ID + 1
 
     def id(self):
         return self.id
@@ -32,5 +32,5 @@ class IptvCloud:
         return self._client.restart_stream(self._gen_request_id(), stream_id)
 
     # private
-    def _gen_request_id(self) -> str:
-        return str(++self._id)
+    def _gen_request_id(self) -> int:
+        return ++self._id

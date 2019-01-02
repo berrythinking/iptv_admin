@@ -5,7 +5,7 @@ import threading
 
 from abc import ABC, abstractmethod
 
-ACTIVE_SERVICE_ID = "0"
+ACTIVE_SERVICE_ID = 0
 
 
 class Command:
@@ -19,14 +19,14 @@ class Command:
 
 
 class Request:
-    def __init__(self, command_id: int, command: Command, params: dict):
+    def __init__(self, command_id: str, command: Command, params: dict):
         self.id = command_id
         self.command = command
         self.params = params
 
 
 class Response:
-    def __init__(self, command_id: int, result=None, error=None):
+    def __init__(self, command_id: str, result=None, error=None):
         self.id = command_id
         self.result = result
         self.error = error
@@ -58,6 +58,11 @@ def parse_response_or_request(data: str) -> (Request, Response):
         return None, Response(resp_req['id'], None, resp_req['error'])
 
     return None, None
+
+
+def generate_seq_id(command_id: int) -> str:  # uint64_t
+    converted_bytes = command_id.to_bytes(8, byteorder='big')
+    return converted_bytes.hex()
 
 
 def generate_json_rpc_request(method: str, params, command_id: str) -> dict:
@@ -123,7 +128,7 @@ class Client:
     def is_active(self):
         return self.active
 
-    def service_state(self, command_id: str, jobs_directory: str, timeshifts_directory: str, hls_directory: str,
+    def service_state(self, command_id: int, jobs_directory: str, timeshifts_directory: str, hls_directory: str,
                       playlists_directory: str, dvb_directory: str, capture_card_directory: str):
         if not self.is_active():
             return
@@ -138,39 +143,39 @@ class Client:
         }
         self._send_request(Command.STATE_SERVICE_COMMAND, command_args, command_id)
 
-    def stop_service(self, command_id: str, delay: int):
+    def stop_service(self, command_id: int, delay: int):
         command_args = {"delay": delay}
         self._send_request(Command.STOP_SERVICE_COMMAND, command_args, command_id)
 
-    def start_stream(self, command_id: str, feedback_dir: str, log_level: int, config: dict):
+    def start_stream(self, command_id: int, feedback_dir: str, log_level: int, config: dict):
         command_args = {"command_line": "feedback_dir='{0}' log_level={1}".format(feedback_dir, log_level),
                         "config": config}
         self._send_request(Command.START_STREAM_COMMAND, command_args, command_id)
 
-    def stop_stream(self, command_id: str, stream_id: str):
+    def stop_stream(self, command_id: int, stream_id: str):
         command_args = {"id": stream_id}
         self._send_request(Command.STOP_STREAM_COMMAND, command_args, command_id)
 
-    def restart_stream(self, command_id: str, stream_id: str):
+    def restart_stream(self, command_id: int, stream_id: str):
         command_args = {"id": stream_id}
         self._send_request(Command.RESTART_STREAM_COMMAND, command_args, command_id)
 
     # private
-    def _pong(self, command_id: str):
+    def _pong(self, command_id: int):
         if not self.is_active():
             return
 
         self._send_responce({}, command_id)
 
-    def _send_request(self, method: str, params, command_id: str):
-        data = json.dumps(generate_json_rpc_request(method, params, command_id))
+    def _send_request(self, method: str, params, command_id: int):
+        data = json.dumps(generate_json_rpc_request(method, params, generate_seq_id(command_id)))
         data_len = socket.ntohl(len(data))
         array = struct.pack("I", data_len)
         data_to_send_bytes = array + data.encode()
         self._socket.send(data_to_send_bytes)
 
-    def _send_responce(self, params, command_id: str):
-        data = json.dumps(generate_json_rpc_responce_message(params, command_id))
+    def _send_responce(self, params, command_id: int):
+        data = json.dumps(generate_json_rpc_responce_message(params, generate_seq_id(command_id)))
         data_len = socket.ntohl(len(data))
         array = struct.pack("I", data_len)
         data_to_send_bytes = array + data.encode()
