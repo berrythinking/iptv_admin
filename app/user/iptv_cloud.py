@@ -6,17 +6,20 @@ class IptvCloud:
         self.id = id
         self._client = client.Client(host, port, handler)
         self._client.connect()
-        self._id = client.ACTIVE_SERVICE_ID + 1
+        self._id = 0
 
     def id(self):
         return self.id
 
     def activate(self, license_key: str):
-        return self._client.activate(license_key)
+        return self._client.activate(self._gen_request_id(), license_key)
 
-    def service_state(self, jobs_directory: str, timeshifts_directory: str, hls_directory: str,
+    def service_ping(self):
+        return self._client.ping_service()
+
+    def state_service(self, jobs_directory: str, timeshifts_directory: str, hls_directory: str,
                       playlists_directory: str, dvb_directory: str, capture_card_directory: str):
-        return self._client.service_state(self._gen_request_id(), jobs_directory, timeshifts_directory, hls_directory,
+        return self._client.state_service(self._gen_request_id(), jobs_directory, timeshifts_directory, hls_directory,
                                           playlists_directory, dvb_directory, capture_card_directory)
 
     def stop_service(self, delay: int):
