@@ -160,11 +160,11 @@ class Client:
     def is_active(self):
         return self.active
 
-    def ping_service(self):
+    def ping_service(self, command_id: int):
         if not self.is_active():
             return
 
-        self._send_notification(Command.SERVICE_PING_COMMAND, {"timestamp": make_utc_timestamp()})
+        self._send_request(command_id, Command.SERVICE_PING_COMMAND, {"timestamp": make_utc_timestamp()})
 
     def state_service(self, command_id: int, jobs_directory: str, timeshifts_directory: str, hls_directory: str,
                       playlists_directory: str, dvb_directory: str, capture_card_directory: str):
@@ -260,6 +260,8 @@ class Client:
         data = self._socket.recv(8 * 1024)
         if data:
             var = data[4:]
-            return parse_response_or_request(var.decode())
+            decoded_data = var.decode()
+            # print(decoded_data)
+            return parse_response_or_request(decoded_data)
 
         return None, None

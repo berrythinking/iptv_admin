@@ -14,8 +14,8 @@ class IptvCloud:
     def activate(self, license_key: str):
         return self._client.activate(self._gen_request_id(), license_key)
 
-    def service_ping(self):
-        return self._client.ping_service()
+    def ping_service(self):
+        return self._client.ping_service(self._gen_request_id())
 
     def state_service(self, jobs_directory: str, timeshifts_directory: str, hls_directory: str,
                       playlists_directory: str, dvb_directory: str, capture_card_directory: str):
@@ -36,4 +36,6 @@ class IptvCloud:
 
     # private
     def _gen_request_id(self) -> int:
-        return ++self._id
+        old_val = self._id
+        self._id += 1
+        return old_val

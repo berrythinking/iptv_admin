@@ -66,3 +66,11 @@ def activate():
 def stop_service():
     cloud.stop_service(1)
     return dashboard()
+
+
+# stop service
+@user.route('/ping_service')
+@login_required
+def ping_service():
+    cloud.ping_service()
+    return dashboard()
