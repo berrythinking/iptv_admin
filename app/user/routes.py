@@ -2,6 +2,7 @@ from flask import render_template, redirect, url_for, request, session
 from flask_login import logout_user, login_required, current_user
 
 from app.user import user, cloud
+from app import socketio
 
 from .forms import SettingsForm, ActivateForm
 
@@ -74,3 +75,20 @@ def stop_service():
 def ping_service():
     cloud.ping_service()
     return dashboard()
+
+
+# socketio
+@socketio.on('test')
+def socketio_test(message):
+    print(message)
+
+
+@socketio.on('connect')
+def socketio_connect():
+    print('Client connected')
+    socketio.emit('newnumber', {'number': 11})
+
+
+@socketio.on('disconnect')
+def socketio_disconnect():
+    print('Client disconnected')

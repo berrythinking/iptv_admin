@@ -15,14 +15,17 @@ class Command:
     ACTIVATE_COMMAND = 'activate_request'
     STATE_SERVICE_COMMAND = 'state_service'
     STOP_SERVICE_COMMAND = 'stop_service'
+    SERVICE_PING_COMMAND = 'ping_service'
     START_STREAM_COMMAND = 'start_stream'
     STOP_STREAM_COMMAND = 'stop_stream'
     RESTART_STREAM_COMMAND = 'restart_stream'
     CLIENT_PING_COMMAND = 'ping_client'
-    SERVICE_PING_COMMAND = 'ping_service'
 
 
 class Request:
+    def __str__(self):
+        return str(self.to_dict())
+
     def __init__(self, command_id, method: str, params: dict):
         self.id = command_id
         self.method = method
@@ -51,6 +54,9 @@ class Request:
 
 
 class Response:
+    def __str__(self):
+        return str(self.to_dict())
+
     def __init__(self, command_id: str, result=None, error=None):
         self.id = command_id
         self.result = result
@@ -79,6 +85,8 @@ class Response:
                 "jsonrpc": "2.0",
                 "id": self.id,
             }
+
+        return dict()
 
 
 # rpc functions
@@ -124,7 +132,7 @@ def generate_json_rpc_responce_error(message: str, code: int, command_id: str) -
 # handler for client
 class IClientHandler(ABC):
     @abstractmethod
-    def process_response(self, resp: Response):
+    def process_response(self, req: Request, resp: Response):
         pass
 
     @abstractmethod
@@ -254,14 +262,13 @@ class Client:
                     self.active = True
 
                 if self._handler:
-                    self._handler.process_response(resp)
+                    self._handler.process_response(saved_req, resp)
 
     def _read_response_or_request(self) -> (Request, Response):
         data = self._socket.recv(8 * 1024)
         if data:
             var = data[4:]
             decoded_data = var.decode()
-            # print(decoded_data)
             return parse_response_or_request(decoded_data)
 
         return None, None

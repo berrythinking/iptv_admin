@@ -4,6 +4,7 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from flask_bootstrap import Bootstrap
 from flask_babel import Babel
+from flask_socketio import SocketIO
 
 app = Flask(__name__, static_folder='static')
 
@@ -16,6 +17,7 @@ bootstrap = Bootstrap(app)
 babel = Babel(app)
 db = MongoEngine(app)
 mail = Mail(app)
+socketio = SocketIO(app)
 
 login_manager = LoginManager(app)
 

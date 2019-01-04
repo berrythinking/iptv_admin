@@ -1,10 +1,10 @@
-from . import client
+from .client import Client, IClientHandler, Request, Response
 
 
-class IptvCloud:
-    def __init__(self, id: str, host: str, port: int, handler=None):
+class IptvCloud(IClientHandler):
+    def __init__(self, id: str, host: str, port: int):
         self.id = id
-        self._client = client.Client(host, port, handler)
+        self._client = Client(host, port, self)
         self._client.connect()
         self._id = 0
 
@@ -33,6 +33,15 @@ class IptvCloud:
 
     def restart_stream(self, stream_id: str):
         return self._client.restart_stream(self._gen_request_id(), stream_id)
+
+    # handler
+    def process_response(self, req: Request, resp: Response):
+        print(resp)
+        pass
+
+    def process_request(self, req: Request):
+        print(req)
+        pass
 
     # private
     def _gen_request_id(self) -> int:

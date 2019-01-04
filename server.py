@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from app import app
+from app import socketio
 import argparse
 
 HOST = '127.0.0.1'
@@ -12,4 +13,5 @@ if __name__ == '__main__':
     parser.add_argument('--host', help='host (default: {0})'.format(HOST), default=HOST)
     argv = parser.parse_args()
 
-    app.run(host=argv.host, port=argv.port, debug=True, use_reloader=False)  # debug=True, use_reloader=False
+    #app.run(host=argv.host, port=argv.port, debug=True, use_reloader=False)  # debug=True, use_reloader=False
+    socketio.run(app, host=argv.host, port=argv.port, debug=True, use_reloader=False)

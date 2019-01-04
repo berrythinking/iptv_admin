@@ -40,4 +40,14 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
 
 {% block scripts %}
 {{ super() }}
+<script type="text/javascript"
+        src="{{ url_for('static', filename='assets/js/socket.io/1.7.4/socket.io.min.js') }}"></script>
+<script type="text/javascript" charset="utf-8">
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+    socket.on('connect', function() {
+    });
+    socket.on('newnumber', function() {
+        socket.emit('test', {data: 'hey'});
+    });
+</script>
 {% endblock %}
