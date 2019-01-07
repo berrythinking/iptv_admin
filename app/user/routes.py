@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, request, session, jsonify
 from flask_login import logout_user, login_required, current_user
 
-from app.user import user, cloud
+from app.user import user, cloud, streams
 from app import socketio
 from app.home.stream_entry import StreamEntry
 
@@ -18,6 +18,7 @@ def add_stream_entry(method: str):
     form = StreamEntryForm()
     if method == 'POST' and form.validate_on_submit():
         new_entry = form.make_entry()
+        streams.append(new_entry)
         return jsonify(status='ok'), 200
 
     return render_template('user/stream/add.html', form=form)
@@ -37,7 +38,7 @@ def edit_stream_entry(method: str, entry: StreamEntry):
 @user.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('user/dashboard.html', streams=[])
+    return render_template('user/dashboard.html', streams=streams)
 
 
 @user.route('/settings', methods=['GET', 'POST'])

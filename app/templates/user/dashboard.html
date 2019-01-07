@@ -101,7 +101,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             url: url,
             type: "POST",
             dataType: 'json',
-            data: $('#money_entry_form').serialize(),
+            data: $('#stream_entry_form').serialize(),
             success: function (response) {
                 console.log(response);
                 $('#money_dialog').modal('hide');
@@ -119,7 +119,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             url: url,
             type: "POST",
             dataType: 'json',
-            data: $('#money_entry_form').serialize(),
+            data: $('#stream_entry_form').serialize(),
             success: function (response) {
                 console.log(response);
                 $('#money_dialog').modal('hide');
