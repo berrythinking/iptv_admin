@@ -1,10 +1,11 @@
-from flask import render_template, redirect, url_for, request, session
+from flask import render_template, redirect, url_for, request, session, jsonify
 from flask_login import logout_user, login_required, current_user
 
 from app.user import user, cloud
 from app import socketio
+from app.home.stream_entry import StreamEntry
 
-from .forms import SettingsForm, ActivateForm
+from .forms import SettingsForm, ActivateForm, StreamEntryForm
 
 
 def get_runtime_settings():
@@ -13,11 +14,30 @@ def get_runtime_settings():
     return locale
 
 
+def add_stream_entry(method: str):
+    form = StreamEntryForm()
+    if method == 'POST' and form.validate_on_submit():
+        new_entry = form.make_entry()
+        return jsonify(status='ok'), 200
+
+    return render_template('user/stream/add.html', form=form)
+
+
+def edit_stream_entry(method: str, entry: StreamEntry):
+    form = StreamEntryForm(obj=entry)
+
+    if method == 'POST' and form.validate_on_submit():
+        entry = form.update_entry(entry)
+        return jsonify(status='ok'), 200
+
+    return render_template('user/stream/edit.html', form=form)
+
+
 # routes
 @user.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('user/dashboard.html')
+    return render_template('user/dashboard.html', streams=[])
 
 
 @user.route('/settings', methods=['GET', 'POST'])
@@ -75,6 +95,32 @@ def stop_service():
 def ping_service():
     cloud.ping_service()
     return dashboard()
+
+
+# stream
+@user.route('/stream/add', methods=['GET', 'POST'])
+@login_required
+def add_stream():
+    return add_stream_entry(request.method)
+
+
+@user.route('/stream/edit/<mid>', methods=['GET', 'POST'])
+@login_required
+def edit_stream(mid):
+    for entry in current_user.entries:
+        if str(entry.id) == mid:
+            return edit_stream_entry(request.method, entry)
+
+    responce = {"status": "failed"}
+    return jsonify(responce), 404
+
+
+@user.route('/stream/remove', methods=['POST'])
+@login_required
+def remove_stream():
+    stream_id = request.form['stream_id']
+    response = {"stream_id": stream_id}
+    return jsonify(response), 200
 
 
 # socketio

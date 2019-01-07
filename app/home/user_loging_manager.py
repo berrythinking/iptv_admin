@@ -4,7 +4,6 @@ from enum import IntEnum
 from flask_login import UserMixin
 
 from app import db
-import app.constants as constants
 from .settings import Settings
 
 

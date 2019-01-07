@@ -5,7 +5,7 @@ class IptvCloud(IClientHandler):
     def __init__(self, id: str, host: str, port: int):
         self.id = id
         self._client = Client(host, port, self)
-        self._client.connect()
+        # self._client.connect()
         self._id = 0
 
     def id(self):

@@ -35,6 +35,52 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                 %}</a>
         </div>
     </div>
+
+
+    <div class="row">
+        <div class="col-md-6">
+            <h4 class="card-title">{% trans %}Streams:{% endtrans %}</h4>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th class="number">#</th>
+                    <th class="value">{% trans %}Name{% endtrans %}</th>
+                    <th class="value">{% trans %}Type{% endtrans %}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for rev in streams %}
+                <td>{{ loop.index }}</td>
+                <td>{{ rev.name }}</td>
+                <td>{{ rev.type }}</td>
+                <td>
+                    <button type="submit" class="btn btn-success btn-xs"
+                            onclick="edit_stream('{{ rev.id }}')">
+                        {% trans %}Edit{% endtrans %}
+                    </button>
+                    <button type="submit" class="btn btn-danger btn-xs"
+                            onclick="remove_stream('{{ rev.id }}')">
+                        {% trans %}Remove{% endtrans %}
+                    </button>
+                </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <div class="row">
+                <button class="btn btn-success btn-send col-md-2" onclick="add_stream()">
+                    {% trans %}Add{% endtrans %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="money_dialog" class="modal fade" tabindex=-1 role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        </div>
+    </div>
 </div>
 {% endblock %}
 
@@ -49,5 +95,98 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
     socket.on('newnumber', function() {
         socket.emit('test', {data: 'hey'});
     });
+    // stream
+     function add_stream_entry(url) {
+        $.ajax({
+            url: url,
+            type: "POST",
+            dataType: 'json',
+            data: $('#money_entry_form').serialize(),
+            success: function (response) {
+                console.log(response);
+                $('#money_dialog').modal('hide');
+                window.location.reload();
+            },
+            error: function (error) {
+                console.error(error);
+                $('#money_dialog .modal-content').html(data);
+            }
+        });
+    }
+
+    function edit_stream_entry(url) {
+        $.ajax({
+            url: url,
+            type: "POST",
+            dataType: 'json',
+            data: $('#money_entry_form').serialize(),
+            success: function (response) {
+                console.log(response);
+                $('#money_dialog').modal('hide');
+                window.location.reload();
+            },
+            error: function (error) {
+                console.error(error);
+                $('#money_dialog .modal-content').html(data);
+            }
+        });
+    }
+
+    function remove_stream(stream_id) {
+        $.ajax({
+            url: "/user/stream/remove",
+            type: "POST",
+            dataType: 'json',
+            data: {"stream_id":stream_id},
+            success: function (response) {
+                console.log(response);
+                window.location.reload();
+            },
+            error: function (error) {
+                console.error(error);
+            }
+        });
+    }
+
+    function add_stream() {
+        var url = "{{ url_for('user.add_stream') }}";
+        $.get(url, function(data) {
+            $('#money_dialog .modal-content').html(data);
+            $('#money_dialog').modal();
+
+            $('#submit').click(function(event) {
+                event.preventDefault();
+                add_stream_entry(url);
+            })
+        });
+    }
+        function edit_stream(stream_id) {
+        var url = "/user/stream/edit/" + stream_id;
+        $.get(url, function(data) {
+            $('#money_dialog .modal-content').html(data);
+            $('#money_dialog').modal();
+
+            $('#submit').click(function(event) {
+                event.preventDefault();
+                edit_stream_entry(url);
+            })
+        });
+    }
+    function remove_stream(stream_id) {
+        $.ajax({
+            url: "/user/stream/remove",
+            type: "POST",
+            dataType: 'json',
+            data: {"stream_id":stream_id},
+            success: function (response) {
+                console.log(response);
+                window.location.reload();
+            },
+            error: function (error) {
+                console.error(error);
+            }
+        });
+    }
+
 </script>
 {% endblock %}
