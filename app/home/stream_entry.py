@@ -11,9 +11,17 @@ class Stream(db.Document):
     type = db.IntField(default=constants.StreamType.RELAY, required=True)
     input_url = db.StringField(max_length=constants.MAX_URL_LENGHT, required=True)
     created_date = db.DateTimeField(default=datetime.now)  # for inner use
+    log_level = db.IntField(default=constants.StreamLogLevel.LOG_LEVEL_INFO, required=True)
 
     # runtime
     status = constants.StreamStatus.NEW
+
+    def config(self) -> dict:
+        return dict()
+
+    def generate_feedback_dir(self):
+        return '{0}/{1}/{2}'.format(constants.DEFAULT_FEEDBACK_DIR_PATH,
+                                    constants.AVAILABLE_STREAM_TYPES_PAIRS[self.type][1], self.id)
 
 
 class StreamsHolder:

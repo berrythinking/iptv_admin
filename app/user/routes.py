@@ -18,24 +18,25 @@ def get_runtime_settings():
 
 
 def add_stream_entry(method: str):
-    form = StreamEntryForm()
+    stream = Stream()
+    form = StreamEntryForm(obj=stream)
     if method == 'POST' and form.validate_on_submit():
         new_entry = form.make_entry()
         streams_holder.add_stream(new_entry)
         return jsonify(status='ok'), 200
 
-    return render_template('user/stream/add.html', form=form)
+    return render_template('user/stream/add.html', form=form, feedback_dir=stream.generate_feedback_dir())
 
 
-def edit_stream_entry(method: str, entry: Stream):
-    form = StreamEntryForm(obj=entry)
+def edit_stream_entry(method: str, stream: Stream):
+    form = StreamEntryForm(obj=stream)
 
     if method == 'POST' and form.validate_on_submit():
-        entry = form.update_entry(entry)
-        entry.save()
+        stream = form.update_entry(stream)
+        stream.save()
         return jsonify(status='ok'), 200
 
-    return render_template('user/stream/edit.html', form=form)
+    return render_template('user/stream/edit.html', form=form, feedback_dir=stream.generate_feedback_dir())
 
 
 # routes
@@ -142,7 +143,7 @@ def start_stream():
     sid = request.form['sid']
     stream = streams_holder.find_stream_by_id(sid)
     if stream:
-        cloud.start_stream()
+        cloud.start_stream(stream.generate_feedback_dir(), stream.log_level, stream.config())
 
     response = {"sid": sid}
     return jsonify(response), 200

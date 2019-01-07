@@ -34,13 +34,14 @@ class ActivateForm(FlaskForm):
 class StreamEntryForm(FlaskForm):
     name = StringField(lazy_gettext(u'Name:'),
                        validators=[InputRequired(),
-                                   Length(min=constants.MIN_STREAM_NAME_LENGHT, max=constants.MAX_STREAM_NAME_LENGHT)],
-                       default=constants.DEFAULT_STREAM_NAME)
-    type = SelectField(lazy_gettext(u'Type:'), validators=[], default=constants.StreamType.RELAY,
+                                   Length(min=constants.MIN_STREAM_NAME_LENGHT, max=constants.MAX_STREAM_NAME_LENGHT)])
+    type = SelectField(lazy_gettext(u'Type:'), validators=[],
                        choices=constants.AVAILABLE_STREAM_TYPES_PAIRS, coerce=constants.StreamType.coerce)
     input_url = StringField(lazy_gettext(u'Url:'),
                             validators=[InputRequired(),
                                         Length(min=constants.MIN_URL_LENGHT, max=constants.MAX_URL_LENGHT)])
+    log_level = SelectField(lazy_gettext(u'Log level:'), validators=[],
+                            choices=constants.AVAILABLE_LOG_LEVELS_PAIRS, coerce=constants.StreamLogLevel.coerce)
     submit = SubmitField(lazy_gettext(u'Confirm'))
 
     def __init__(self, **kwargs):
@@ -54,4 +55,5 @@ class StreamEntryForm(FlaskForm):
         entry.name = self.name.data
         entry.type = self.type.data
         entry.input_url = self.input_url.data
+        entry.log_level = self.log_level.data
         return entry

@@ -26,6 +26,17 @@
         {{ render_bootstrap_field(form.type) }}
         <br>
         {{ render_bootstrap_field(form.input_url) }}
+        <br>
+
+        <div class="row">
+            <label class="col-md-4">Logs directory:</label>
+            <div class="col-md-8">
+                <input class="form-control" id="feedback_dir" name="feedback_dir" value="{{ feedback_dir }}" readonly
+                       type="text">
+            </div>
+        </div>
+        <br>
+        {{ render_bootstrap_field(form.log_level) }}
     </div>
     <div class="modal-footer">
         {% block footer %}

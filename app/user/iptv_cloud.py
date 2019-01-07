@@ -1,5 +1,5 @@
 from .client import Client, IClientHandler, Request, Response
-
+import app.constants as constants
 
 class IptvCloud(IClientHandler):
     def __init__(self, id: str, host: str, port: int):
@@ -27,7 +27,7 @@ class IptvCloud(IClientHandler):
     def stop_service(self, delay: int):
         return self._client.stop_service(self._gen_request_id(), delay)
 
-    def start_stream(self, feedback_dir: str, log_level: int, config: dict):
+    def start_stream(self, feedback_dir: str, log_level: constants.StreamLogLevel, config: dict):
         return self._client.start_stream(self._gen_request_id(), feedback_dir, log_level, config)
 
     def stop_stream(self, stream_id: str):

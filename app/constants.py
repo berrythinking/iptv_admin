@@ -1,4 +1,3 @@
-from _ast import In
 from enum import IntEnum
 
 
@@ -31,10 +30,34 @@ class StreamStatus(IntEnum):
     WAITING = 6
 
 
+class StreamLogLevel(IntEnum):
+    LOG_LEVEL_EMERG = 0
+    LOG_LEVEL_ALERT = 1
+    LOG_LEVEL_CRIT = 2
+    LOG_LEVEL_ERR = 3
+    LOG_LEVEL_WARNING = 4
+    LOG_LEVEL_NOTICE = 5
+    LOG_LEVEL_INFO = 6
+    LOG_LEVEL_DEBUG = 7
+
+    @classmethod
+    def choices(cls):
+        return [(choice, choice.name) for choice in cls]
+
+    @classmethod
+    def coerce(cls, item):
+        return cls(int(item)) if not isinstance(item, cls) else item
+
+    def __str__(self):
+        return str(self.value)
+
+
 MIN_URL_LENGHT = 3
 MAX_URL_LENGHT = 80
 MIN_STREAM_NAME_LENGHT = 3
 MAX_STREAM_NAME_LENGHT = 30
+MIN_PATH_LENGHT = 1
+MAX_PATH_LENGHT = 255
 
 PRECISION = 2
 
@@ -45,9 +68,17 @@ AVAILABLE_LOCALES = DEFAULT_LOCALE, 'ru'
 AVAILABLE_LOCALES_PAIRS = [(DEFAULT_LOCALE, 'English'), ('ru', 'Russian')]
 
 DEFAULT_STREAM_NAME = 'Stream'
+DEFAULT_FEEDBACK_DIR_PATH = '~'
 AVAILABLE_STREAM_TYPES_PAIRS = [(StreamType.RELAY, 'relay'), (StreamType.ENCODING, 'encoding'),
                                 (StreamType.TIMESHIFT_PLAYER, 'timeshift_player'),
                                 (StreamType.TIMESHIFT_RECORDER, 'timeshift_record'), (StreamType.CATCHUP, 'catchup')]
+AVAILABLE_LOG_LEVELS_PAIRS = [(StreamLogLevel.LOG_LEVEL_EMERG, 'EVERG'), (StreamLogLevel.LOG_LEVEL_ALERT, 'ALERT'),
+                              (StreamLogLevel.LOG_LEVEL_CRIT, 'CRITICAL'),
+                              (StreamLogLevel.LOG_LEVEL_ERR, 'ERROR'),
+                              (StreamLogLevel.LOG_LEVEL_WARNING, 'WARNING'),
+                              (StreamLogLevel.LOG_LEVEL_NOTICE, 'NOTICE'),
+                              (StreamLogLevel.LOG_LEVEL_INFO, 'INFO'),
+                              (StreamLogLevel.LOG_LEVEL_DEBUG, 'DEBUG')]
 
 
 def round_value(value: float):
