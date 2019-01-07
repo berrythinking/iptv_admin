@@ -1,3 +1,4 @@
+from _ast import In
 from enum import IntEnum
 
 
@@ -19,6 +20,21 @@ class StreamType(IntEnum):
     def __str__(self):
         return str(self.value)
 
+
+class StreamStatus(IntEnum):
+    NEW = 0
+    NULL = 1
+    STARTED = 2
+    READY = 3
+    PLAYING = 4
+    FROZEN = 5
+    WAITING = 6
+
+
+MIN_URL_LENGHT = 3
+MAX_URL_LENGHT = 80
+MIN_STREAM_NAME_LENGHT = 3
+MAX_STREAM_NAME_LENGHT = 30
 
 PRECISION = 2
 

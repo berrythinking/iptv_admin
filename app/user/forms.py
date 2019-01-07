@@ -2,11 +2,11 @@ from flask_wtf import FlaskForm
 from flask_babel import lazy_gettext
 
 from wtforms.validators import InputRequired, Length
-from wtforms.fields import StringField, SubmitField, SelectField, IntegerField
+from wtforms.fields import StringField, SubmitField, SelectField
 
 import app.constants as constants
 from app.home.settings import Settings
-from app.home.stream_entry import StreamEntry
+from app.home.stream_entry import Stream
 
 LICENSE_KEY_LENGTH = 64
 
@@ -32,19 +32,26 @@ class ActivateForm(FlaskForm):
 
 
 class StreamEntryForm(FlaskForm):
-    name = StringField(lazy_gettext(u'Name:'), validators=[InputRequired()], default=constants.DEFAULT_STREAM_NAME)
+    name = StringField(lazy_gettext(u'Name:'),
+                       validators=[InputRequired(),
+                                   Length(min=constants.MIN_STREAM_NAME_LENGHT, max=constants.MAX_STREAM_NAME_LENGHT)],
+                       default=constants.DEFAULT_STREAM_NAME)
     type = SelectField(lazy_gettext(u'Type:'), validators=[], default=constants.StreamType.RELAY,
                        choices=constants.AVAILABLE_STREAM_TYPES_PAIRS, coerce=constants.StreamType.coerce)
+    input_url = StringField(lazy_gettext(u'Url:'),
+                            validators=[InputRequired(),
+                                        Length(min=constants.MIN_URL_LENGHT, max=constants.MAX_URL_LENGHT)])
     submit = SubmitField(lazy_gettext(u'Confirm'))
 
     def __init__(self, **kwargs):
         super(StreamEntryForm, self).__init__(**kwargs)
 
     def make_entry(self):
-        entry = StreamEntry()
+        entry = Stream()
         return self.update_entry(entry)
 
-    def update_entry(self, entry: StreamEntry):
+    def update_entry(self, entry: Stream):
         entry.name = self.name.data
         entry.type = self.type.data
+        entry.input_url = self.input_url.data
         return entry

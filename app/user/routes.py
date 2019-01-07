@@ -1,11 +1,15 @@
 from flask import render_template, redirect, url_for, request, session, jsonify
 from flask_login import logout_user, login_required, current_user
 
-from app.user import user, cloud, streams
+from app.user import user, cloud
 from app import socketio
-from app.home.stream_entry import StreamEntry
+from app.home.stream_entry import Stream
 
 from .forms import SettingsForm, ActivateForm, StreamEntryForm
+
+
+def find_stream_by_id(sid) -> Stream:
+    return Stream.objects(id=sid).first()
 
 
 def get_runtime_settings():
@@ -18,17 +22,18 @@ def add_stream_entry(method: str):
     form = StreamEntryForm()
     if method == 'POST' and form.validate_on_submit():
         new_entry = form.make_entry()
-        streams.append(new_entry)
+        new_entry.save()
         return jsonify(status='ok'), 200
 
     return render_template('user/stream/add.html', form=form)
 
 
-def edit_stream_entry(method: str, entry: StreamEntry):
+def edit_stream_entry(method: str, entry: Stream):
     form = StreamEntryForm(obj=entry)
 
     if method == 'POST' and form.validate_on_submit():
         entry = form.update_entry(entry)
+        entry.save()
         return jsonify(status='ok'), 200
 
     return render_template('user/stream/edit.html', form=form)
@@ -38,6 +43,7 @@ def edit_stream_entry(method: str, entry: StreamEntry):
 @user.route('/dashboard')
 @login_required
 def dashboard():
+    streams = Stream.objects()
     return render_template('user/dashboard.html', streams=streams)
 
 
@@ -57,7 +63,6 @@ def settings():
 @user.route('/logout')
 @login_required
 def logout():
-    session.pop('currency', None)
     logout_user()
     return redirect(url_for('home.start'))
 
@@ -105,12 +110,12 @@ def add_stream():
     return add_stream_entry(request.method)
 
 
-@user.route('/stream/edit/<mid>', methods=['GET', 'POST'])
+@user.route('/stream/edit/<sid>', methods=['GET', 'POST'])
 @login_required
-def edit_stream(mid):
-    for entry in current_user.entries:
-        if str(entry.id) == mid:
-            return edit_stream_entry(request.method, entry)
+def edit_stream(sid):
+    stream = find_stream_by_id(sid)
+    if stream:
+        return edit_stream_entry(request.method, stream)
 
     responce = {"status": "failed"}
     return jsonify(responce), 404
@@ -119,8 +124,46 @@ def edit_stream(mid):
 @user.route('/stream/remove', methods=['POST'])
 @login_required
 def remove_stream():
-    stream_id = request.form['stream_id']
-    response = {"stream_id": stream_id}
+    sid = request.form['sid']
+    stream = find_stream_by_id(sid)
+    stream.delete()
+    response = {"sid": sid}
+    return jsonify(response), 200
+
+
+@user.route('/stream/start', methods=['POST'])
+@login_required
+def start_stream():
+    sid = request.form['sid']
+    stream = find_stream_by_id(sid)
+    if stream:
+        cloud.start_stream()
+
+    response = {"sid": sid}
+    return jsonify(response), 200
+
+
+@user.route('/stream/stop', methods=['POST'])
+@login_required
+def stop_stream():
+    sid = request.form['sid']
+    stream = find_stream_by_id(sid)
+    if stream:
+        cloud.stop_stream(sid)
+
+    response = {"sid": sid}
+    return jsonify(response), 200
+
+
+@user.route('/stream/restart', methods=['POST'])
+@login_required
+def restart_stream():
+    sid = request.form['sid']
+    stream = find_stream_by_id(sid)
+    if stream:
+        cloud.restart_stream(sid)
+
+    response = {"sid": sid}
     return jsonify(response), 200
 
 
