@@ -146,7 +146,7 @@ class Client:
         self.port = port
         self._handler = handler
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.active = False
+        self._active = False
         self._listen_thread = threading.Thread(target=self._listen_commands)
         self._listen_thread.daemon = True
         self._stop_listen = False
@@ -166,7 +166,7 @@ class Client:
         self._send_request(command_id, Command.ACTIVATE_COMMAND, command_args)
 
     def is_active(self):
-        return self.active
+        return self._active
 
     def ping_service(self, command_id: int):
         if not self.is_active():
@@ -259,7 +259,7 @@ class Client:
             elif resp:
                 saved_req = self._request_queue.pop(resp.id, None)
                 if saved_req and saved_req.method == Command.ACTIVATE_COMMAND and resp.is_message():
-                    self.active = True
+                    self._active = True
 
                 if self._handler:
                     self._handler.process_response(saved_req, resp)

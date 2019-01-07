@@ -1,15 +1,14 @@
-from flask import render_template, redirect, url_for, request, session, jsonify
+from flask import render_template, redirect, url_for, request, jsonify
 from flask_login import logout_user, login_required, current_user
 
 from app.user import user, cloud
 from app import socketio
-from app.home.stream_entry import Stream
+from app.home.stream_entry import StreamsHolder, Stream
 
 from .forms import SettingsForm, ActivateForm, StreamEntryForm
+import app.constants as constants
 
-
-def find_stream_by_id(sid) -> Stream:
-    return Stream.objects(id=sid).first()
+streams_holder = StreamsHolder()
 
 
 def get_runtime_settings():
@@ -22,7 +21,7 @@ def add_stream_entry(method: str):
     form = StreamEntryForm()
     if method == 'POST' and form.validate_on_submit():
         new_entry = form.make_entry()
-        new_entry.save()
+        streams_holder.add_stream(new_entry)
         return jsonify(status='ok'), 200
 
     return render_template('user/stream/add.html', form=form)
@@ -43,7 +42,7 @@ def edit_stream_entry(method: str, entry: Stream):
 @user.route('/dashboard')
 @login_required
 def dashboard():
-    streams = Stream.objects()
+    streams = streams_holder.get_streams()
     return render_template('user/dashboard.html', streams=streams)
 
 
@@ -74,6 +73,13 @@ def activate_service(form: ActivateForm):
 
     license = form.license.data
     cloud.activate(license)
+    return dashboard()
+
+
+@user.route('/connect')
+@login_required
+def connect():
+    cloud.connect()
     return dashboard()
 
 
@@ -113,7 +119,7 @@ def add_stream():
 @user.route('/stream/edit/<sid>', methods=['GET', 'POST'])
 @login_required
 def edit_stream(sid):
-    stream = find_stream_by_id(sid)
+    stream = streams_holder.find_stream_by_id(sid)
     if stream:
         return edit_stream_entry(request.method, stream)
 
@@ -125,8 +131,7 @@ def edit_stream(sid):
 @login_required
 def remove_stream():
     sid = request.form['sid']
-    stream = find_stream_by_id(sid)
-    stream.delete()
+    streams_holder.remove_stream(sid)
     response = {"sid": sid}
     return jsonify(response), 200
 
@@ -135,7 +140,7 @@ def remove_stream():
 @login_required
 def start_stream():
     sid = request.form['sid']
-    stream = find_stream_by_id(sid)
+    stream = streams_holder.find_stream_by_id(sid)
     if stream:
         cloud.start_stream()
 
@@ -147,7 +152,7 @@ def start_stream():
 @login_required
 def stop_stream():
     sid = request.form['sid']
-    stream = find_stream_by_id(sid)
+    stream = streams_holder.find_stream_by_id(sid)
     if stream:
         cloud.stop_stream(sid)
 
@@ -159,7 +164,7 @@ def stop_stream():
 @login_required
 def restart_stream():
     sid = request.form['sid']
-    stream = find_stream_by_id(sid)
+    stream = streams_holder.find_stream_by_id(sid)
     if stream:
         cloud.restart_stream(sid)
 

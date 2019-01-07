@@ -18,6 +18,10 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                 %}</a>
         </div>
         <div class="col-md-1">
+            <a href="{{ url_for('user.connect') }}" class="btn btn-info" role="button">{% trans %}Connect{% endtrans
+                %}</a>
+        </div>
+        <div class="col-md-1">
             <a href="{{ url_for('user.activate') }}" class="btn btn-info" role="button">{% trans %}Activate{% endtrans
                 %}</a>
         </div>
@@ -37,7 +41,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
 
 
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-12">
             <h4 class="card-title">{% trans %}Streams:{% endtrans %}</h4>
             <table class="table">
                 <thead>
@@ -173,7 +177,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
 
     function remove_stream(sid) {
         $.ajax({
-            url: "/user/stream/remove",
+            url: "{{ url_for('user.remove_stream') }}",
             type: "POST",
             dataType: 'json',
             data: {"sid":sid},
@@ -188,7 +192,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
     }
     function start_stream(sid) {
         $.ajax({
-            url: "/user/stream/start",
+            url: "{{ url_for('user.start_stream') }}",
             type: "POST",
             dataType: 'json',
             data: {"sid":sid},
@@ -203,7 +207,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
     }
     function stop_stream(sid) {
         $.ajax({
-            url: "/user/stream/stop",
+            url: "{{ url_for('user.stop_stream') }}",
             type: "POST",
             dataType: 'json',
             data: {"sid":sid},
@@ -218,7 +222,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
     }
     function restart_stream(sid) {
         $.ajax({
-            url: "/user/stream/restart",
+            url: "{{ url_for('user.restart_stream') }}",
             type: "POST",
             dataType: 'json',
             data: {"sid":sid},
@@ -231,7 +235,5 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             }
         });
     }
-
-
 </script>
 {% endblock %}

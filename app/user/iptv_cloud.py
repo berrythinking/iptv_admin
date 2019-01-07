@@ -5,11 +5,13 @@ class IptvCloud(IClientHandler):
     def __init__(self, id: str, host: str, port: int):
         self.id = id
         self._client = Client(host, port, self)
-        # self._client.connect()
         self._id = 0
 
     def id(self):
         return self.id
+
+    def connect(self):
+        self._client.connect()
 
     def activate(self, license_key: str):
         return self._client.activate(self._gen_request_id(), license_key)
