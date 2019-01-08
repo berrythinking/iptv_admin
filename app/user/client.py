@@ -13,7 +13,7 @@ def make_utc_timestamp() -> int:
 
 class Command:
     ACTIVATE_COMMAND = 'activate_request'
-    STATE_SERVICE_COMMAND = 'state_service'
+    PREPARE_SERVICE_COMMAND = 'prepare_service'
     STOP_SERVICE_COMMAND = 'stop_service'
     SERVICE_PING_COMMAND = 'ping_service'
     START_STREAM_COMMAND = 'start_stream'
@@ -174,20 +174,20 @@ class Client:
 
         self._send_request(command_id, Command.SERVICE_PING_COMMAND, {"timestamp": make_utc_timestamp()})
 
-    def state_service(self, command_id: int, jobs_directory: str, timeshifts_directory: str, hls_directory: str,
-                      playlists_directory: str, dvb_directory: str, capture_card_directory: str):
+    def prepare_service(self, command_id: int, feedback_directory: str, timeshifts_directory: str, hls_directory: str,
+                        playlists_directory: str, dvb_directory: str, capture_card_directory: str):
         if not self.is_active():
             return
 
         command_args = {
-            "jobs_directory": jobs_directory,
+            "feedback_directory": feedback_directory,
             "timeshifts_directory": timeshifts_directory,
             "hls_directory": hls_directory,
             "playlists_directory": playlists_directory,
             "dvb_directory": dvb_directory,
             "capture_card_directory": capture_card_directory
         }
-        self._send_request(command_id, Command.STATE_SERVICE_COMMAND, command_args)
+        self._send_request(command_id, Command.PREPARE_SERVICE_COMMAND, command_args)
 
     def stop_service(self, command_id: int, delay: int):
         if not self.is_active():
@@ -196,12 +196,11 @@ class Client:
         command_args = {"delay": delay}
         self._send_request(command_id, Command.STOP_SERVICE_COMMAND, command_args)
 
-    def start_stream(self, command_id: int, feedback_dir: str, log_level: int, config: dict):
+    def start_stream(self, command_id: int, config: dict):
         if not self.is_active():
             return
 
-        command_args = {"command_line": "feedback_dir='{0}' log_level={1}".format(feedback_dir, log_level),
-                        "config": config}
+        command_args = {"config": config}
         self._send_request(command_id, Command.START_STREAM_COMMAND, command_args)
 
     def stop_stream(self, command_id: int, stream_id: str):

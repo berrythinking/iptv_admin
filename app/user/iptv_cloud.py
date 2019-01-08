@@ -1,5 +1,6 @@
-from .client import Client, IClientHandler, Request, Response
+from .client import Client, IClientHandler, Request, Response, Command
 import app.constants as constants
+
 
 class IptvCloud(IClientHandler):
     def __init__(self, id: str, host: str, port: int):
@@ -19,16 +20,17 @@ class IptvCloud(IClientHandler):
     def ping_service(self):
         return self._client.ping_service(self._gen_request_id())
 
-    def state_service(self, jobs_directory: str, timeshifts_directory: str, hls_directory: str,
-                      playlists_directory: str, dvb_directory: str, capture_card_directory: str):
-        return self._client.state_service(self._gen_request_id(), jobs_directory, timeshifts_directory, hls_directory,
-                                          playlists_directory, dvb_directory, capture_card_directory)
+    def prepare_service(self, feedback_directory: str, timeshifts_directory: str, hls_directory: str,
+                        playlists_directory: str, dvb_directory: str, capture_card_directory: str):
+        return self._client.prepare_service(self._gen_request_id(), feedback_directory, timeshifts_directory,
+                                            hls_directory,
+                                            playlists_directory, dvb_directory, capture_card_directory)
 
     def stop_service(self, delay: int):
         return self._client.stop_service(self._gen_request_id(), delay)
 
-    def start_stream(self, feedback_dir: str, log_level: constants.StreamLogLevel, config: dict):
-        return self._client.start_stream(self._gen_request_id(), feedback_dir, log_level, config)
+    def start_stream(self, config: dict):
+        return self._client.start_stream(self._gen_request_id(), config)
 
     def stop_stream(self, stream_id: str):
         return self._client.stop_stream(self._gen_request_id(), stream_id)
@@ -38,6 +40,11 @@ class IptvCloud(IClientHandler):
 
     # handler
     def process_response(self, req: Request, resp: Response):
+        if req and req.method == Command.ACTIVATE_COMMAND and resp.is_message():
+            self.prepare_service(constants.DEFAULT_FEEDBACK_DIR_PATH, constants.DEFAULT_TIMESHIFTS_DIR_PATH,
+                                 constants.DEFAULT_HLS_DIR_PATH, constants.DEFAULT_PLAYLISTS_DIR_PATH,
+                                 constants.DEFAULT_DVB_DIR_PATH, constants.DEFAULT_CAPTURE_DIR_PATH)
+
         print(resp)
         pass
 

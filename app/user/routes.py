@@ -143,7 +143,7 @@ def start_stream():
     sid = request.form['sid']
     stream = streams_holder.find_stream_by_id(sid)
     if stream:
-        cloud.start_stream(stream.generate_feedback_dir(), stream.log_level, stream.config())
+        cloud.start_stream(stream.config())
 
     response = {"sid": sid}
     return jsonify(response), 200

@@ -3,6 +3,11 @@ from datetime import datetime
 import app.constants as constants
 from bson.objectid import ObjectId
 
+ID_FIELD = "id"
+TYPE_FIELD = "type"
+FEEDBACK_DIR_FIELD = "feedback_dir"
+LOG_LEVEL_FIELD = "log_level"
+
 
 class Stream(db.Document):
     meta = {'collection': 'streams', 'auto_create_index': False}
@@ -17,11 +22,22 @@ class Stream(db.Document):
     status = constants.StreamStatus.NEW
 
     def config(self) -> dict:
-        return dict()
+        conf = {ID_FIELD: self.get_id(), TYPE_FIELD: self.get_type(), FEEDBACK_DIR_FIELD: self.generate_feedback_dir(),
+                LOG_LEVEL_FIELD: self.get_log_level()}
+        return conf
 
     def generate_feedback_dir(self):
         return '{0}/{1}/{2}'.format(constants.DEFAULT_FEEDBACK_DIR_PATH,
-                                    constants.AVAILABLE_STREAM_TYPES_PAIRS[self.type][1], self.id)
+                                    self.get_type(), self.get_id())
+
+    def get_log_level(self):
+        return self.log_level
+
+    def get_id(self):
+        return str(self.id)
+
+    def get_type(self):
+        return constants.AVAILABLE_STREAM_TYPES_PAIRS[self.type][1]
 
 
 class StreamsHolder:

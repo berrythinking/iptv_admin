@@ -68,7 +68,6 @@ AVAILABLE_LOCALES = DEFAULT_LOCALE, 'ru'
 AVAILABLE_LOCALES_PAIRS = [(DEFAULT_LOCALE, 'English'), ('ru', 'Russian')]
 
 DEFAULT_STREAM_NAME = 'Stream'
-DEFAULT_FEEDBACK_DIR_PATH = '~'
 AVAILABLE_STREAM_TYPES_PAIRS = [(StreamType.RELAY, 'relay'), (StreamType.ENCODING, 'encoding'),
                                 (StreamType.TIMESHIFT_PLAYER, 'timeshift_player'),
                                 (StreamType.TIMESHIFT_RECORDER, 'timeshift_record'), (StreamType.CATCHUP, 'catchup')]
@@ -79,6 +78,14 @@ AVAILABLE_LOG_LEVELS_PAIRS = [(StreamLogLevel.LOG_LEVEL_EMERG, 'EVERG'), (Stream
                               (StreamLogLevel.LOG_LEVEL_NOTICE, 'NOTICE'),
                               (StreamLogLevel.LOG_LEVEL_INFO, 'INFO'),
                               (StreamLogLevel.LOG_LEVEL_DEBUG, 'DEBUG')]
+
+DEFAULT_SERVICE_ROOT_DIR_PATH = '~/streamer'
+DEFAULT_FEEDBACK_DIR_PATH = DEFAULT_SERVICE_ROOT_DIR_PATH + '/feedback'
+DEFAULT_TIMESHIFTS_DIR_PATH = DEFAULT_SERVICE_ROOT_DIR_PATH + '/timeshifts'
+DEFAULT_HLS_DIR_PATH = DEFAULT_SERVICE_ROOT_DIR_PATH + '/hls'
+DEFAULT_PLAYLISTS_DIR_PATH = DEFAULT_SERVICE_ROOT_DIR_PATH + '/playlists'
+DEFAULT_DVB_DIR_PATH = DEFAULT_SERVICE_ROOT_DIR_PATH + '/dvb'
+DEFAULT_CAPTURE_DIR_PATH = DEFAULT_SERVICE_ROOT_DIR_PATH + '/capture_card'
 
 
 def round_value(value: float):
