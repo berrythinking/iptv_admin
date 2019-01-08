@@ -1,12 +1,13 @@
 from flask_wtf import FlaskForm
 from flask_babel import lazy_gettext
+from wtforms import Form
 
 from wtforms.validators import InputRequired, Length
-from wtforms.fields import StringField, SubmitField, SelectField
+from wtforms.fields import StringField, SubmitField, SelectField, FieldList, IntegerField, FormField
 
 import app.constants as constants
 from app.home.settings import Settings
-from app.home.stream_entry import Stream
+from app.home.stream_entry import Stream, Urls, Url
 
 LICENSE_KEY_LENGTH = 64
 
@@ -31,21 +32,29 @@ class ActivateForm(FlaskForm):
     submit = SubmitField(lazy_gettext(u'Activate'))
 
 
+class UrlForm(Form):
+    id = IntegerField(lazy_gettext(u'Id:'),
+                      validators=[InputRequired()])
+    uri = StringField(lazy_gettext(u'Url:'),
+                      validators=[InputRequired(),
+                                  Length(min=constants.MIN_URL_LENGHT, max=constants.MAX_URL_LENGHT)])
+
+
+class UrlsForm(Form):
+    urls = FieldList(FormField(UrlForm, lazy_gettext(u'Urls:')), min_entries=1, max_entries=10)
+
+
 class StreamEntryForm(FlaskForm):
     name = StringField(lazy_gettext(u'Name:'),
                        validators=[InputRequired(),
                                    Length(min=constants.MIN_STREAM_NAME_LENGHT, max=constants.MAX_STREAM_NAME_LENGHT)])
     type = SelectField(lazy_gettext(u'Type:'), validators=[],
                        choices=constants.AVAILABLE_STREAM_TYPES_PAIRS, coerce=constants.StreamType.coerce)
-    input_url = StringField(lazy_gettext(u'Url:'),
-                            validators=[InputRequired(),
-                                        Length(min=constants.MIN_URL_LENGHT, max=constants.MAX_URL_LENGHT)])
+    input = FormField(UrlsForm, lazy_gettext(u'Input:'))
+    output = FormField(UrlsForm, lazy_gettext(u'Output:'))
     log_level = SelectField(lazy_gettext(u'Log level:'), validators=[],
                             choices=constants.AVAILABLE_LOG_LEVELS_PAIRS, coerce=constants.StreamLogLevel.coerce)
     submit = SubmitField(lazy_gettext(u'Confirm'))
-
-    def __init__(self, **kwargs):
-        super(StreamEntryForm, self).__init__(**kwargs)
 
     def make_entry(self):
         entry = Stream()
@@ -54,6 +63,15 @@ class StreamEntryForm(FlaskForm):
     def update_entry(self, entry: Stream):
         entry.name = self.name.data
         entry.type = self.type.data
-        entry.input_url = self.input_url.data
+        input_urls = Urls()
+        for url in self.input.data['urls']:
+            input_urls.urls.append(Url(url['id'], url['uri']))
+        entry.input = input_urls
+
+        output_urls = Urls()
+        for url in self.output.data['urls']:
+            output_urls.urls.append(Url(url['id'], url['uri']))
+        entry.output = output_urls
+
         entry.log_level = self.log_level.data
         return entry

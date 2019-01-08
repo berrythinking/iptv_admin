@@ -7,6 +7,25 @@ ID_FIELD = "id"
 TYPE_FIELD = "type"
 FEEDBACK_DIR_FIELD = "feedback_dir"
 LOG_LEVEL_FIELD = "log_level"
+INPUT_FIELD = "input"
+OUTPUT_FIELD = "output"
+
+
+class Url(db.EmbeddedDocument):
+    _next_url_id = 0
+
+    id = db.IntField(default=lambda: Url.generate_id(), required=True)
+    uri = db.StringField(default='test', max_length=constants.MAX_URL_LENGHT, required=True)
+
+    @staticmethod
+    def generate_id():
+        current_value = Url._next_url_id
+        Url._next_url_id += 1
+        return current_value
+
+
+class Urls(db.EmbeddedDocument):
+    urls = db.ListField(db.EmbeddedDocumentField(Url))
 
 
 class Stream(db.Document):
@@ -14,16 +33,21 @@ class Stream(db.Document):
     name = db.StringField(default=constants.DEFAULT_STREAM_NAME, max_length=constants.MAX_STREAM_NAME_LENGHT,
                           required=True)
     type = db.IntField(default=constants.StreamType.RELAY, required=True)
-    input_url = db.StringField(max_length=constants.MAX_URL_LENGHT, required=True)
     created_date = db.DateTimeField(default=datetime.now)  # for inner use
     log_level = db.IntField(default=constants.StreamLogLevel.LOG_LEVEL_INFO, required=True)
+
+    input = db.EmbeddedDocumentField(Urls,
+                                     default=Urls())  # "input": {"urls": [{"id": 80,"uri": "tcp://localhost:1935"}]}
+    output = db.EmbeddedDocumentField(Urls,
+                                      default=Urls())  # "output": {"urls": [{"id": 81,"uri": "tcp://localhost:1935"}]}
 
     # runtime
     status = constants.StreamStatus.NEW
 
     def config(self) -> dict:
         conf = {ID_FIELD: self.get_id(), TYPE_FIELD: self.get_type(), FEEDBACK_DIR_FIELD: self.generate_feedback_dir(),
-                LOG_LEVEL_FIELD: self.get_log_level()}
+                LOG_LEVEL_FIELD: self.get_log_level(), INPUT_FIELD: self.input.to_mongo(),
+                OUTPUT_FIELD: self.output.to_mongo()}
         return conf
 
     def generate_feedback_dir(self):
@@ -38,6 +62,20 @@ class Stream(db.Document):
 
     def get_type(self):
         return constants.AVAILABLE_STREAM_TYPES_PAIRS[self.type][1]
+
+
+def make_relay_stream() -> Stream:
+    stream = Stream(type=constants.StreamType.RELAY)
+    stream.input = Urls(urls=[Url(id=Url.generate_id())])
+    stream.output = Urls(urls=[Url(id=Url.generate_id())])
+    return stream
+
+
+def make_encode_stream() -> Stream:
+    stream = Stream(type=constants.StreamType.ENCODING)
+    stream.input = Urls(urls=[Url(id=Url.generate_id())])
+    stream.output = Urls(urls=[Url(id=Url.generate_id())])
+    return stream
 
 
 class StreamsHolder:

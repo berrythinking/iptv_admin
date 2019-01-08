@@ -3,7 +3,7 @@ from flask_login import logout_user, login_required, current_user
 
 from app.user import user, cloud
 from app import socketio
-from app.home.stream_entry import StreamsHolder, Stream
+from app.home.stream_entry import StreamsHolder, Stream, make_relay_stream
 
 from .forms import SettingsForm, ActivateForm, StreamEntryForm
 import app.constants as constants
@@ -18,7 +18,7 @@ def get_runtime_settings():
 
 
 def add_stream_entry(method: str):
-    stream = Stream()
+    stream = make_relay_stream()
     form = StreamEntryForm(obj=stream)
     if method == 'POST' and form.validate_on_submit():
         new_entry = form.make_entry()
