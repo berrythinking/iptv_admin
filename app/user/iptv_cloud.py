@@ -1,12 +1,17 @@
 from .client import Client, IClientHandler, Request, Response, Command
 import app.constants as constants
+from .stream_handler import IStreamHandler
 
 
 class IptvCloud(IClientHandler):
-    def __init__(self, id: str, host: str, port: int):
+    def __init__(self, id: str, host: str, port: int, handler=None):
         self.id = id
         self._client = Client(host, port, self)
         self._id = 0
+        self._handler = handler
+
+    def set_handler(self, handler: IStreamHandler):
+        self._handler = handler
 
     def id(self):
         return self.id
@@ -45,12 +50,14 @@ class IptvCloud(IClientHandler):
                                  constants.DEFAULT_HLS_DIR_PATH, constants.DEFAULT_PLAYLISTS_DIR_PATH,
                                  constants.DEFAULT_DVB_DIR_PATH, constants.DEFAULT_CAPTURE_DIR_PATH)
 
-        print(resp)
-        pass
-
     def process_request(self, req: Request):
-        print(req)
-        pass
+        if req:
+            if req.method == Command.STATISTIC_STREAM_COMMAND:
+                if self._handler:
+                    self._handler.on_stream_statistic_received(req.params)
+            elif req.method == Command.CHANGED_STREAM_COMMAND:
+                if self._handler:
+                    self._handler.on_stream_sources_changed(req.params)
 
     # private
     def _gen_request_id(self) -> int:

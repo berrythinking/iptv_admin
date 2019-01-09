@@ -34,7 +34,7 @@ class ActivateForm(FlaskForm):
 
 class UrlForm(Form):
     id = IntegerField(lazy_gettext(u'Id:'),
-                      validators=[InputRequired()])
+                      validators=[InputRequired()], render_kw={'readonly': 'true'})
     uri = StringField(lazy_gettext(u'Url:'),
                       validators=[InputRequired(),
                                   Length(min=constants.MIN_URL_LENGHT, max=constants.MAX_URL_LENGHT)])
@@ -49,7 +49,8 @@ class StreamEntryForm(FlaskForm):
                        validators=[InputRequired(),
                                    Length(min=constants.MIN_STREAM_NAME_LENGHT, max=constants.MAX_STREAM_NAME_LENGHT)])
     type = SelectField(lazy_gettext(u'Type:'), validators=[],
-                       choices=constants.AVAILABLE_STREAM_TYPES_PAIRS, coerce=constants.StreamType.coerce)
+                       choices=constants.AVAILABLE_STREAM_TYPES_PAIRS, coerce=constants.StreamType.coerce,
+                       render_kw={'disabled': 'disabled'})
     input = FormField(UrlsForm, lazy_gettext(u'Input:'))
     output = FormField(UrlsForm, lazy_gettext(u'Output:'))
     log_level = SelectField(lazy_gettext(u'Log level:'), validators=[],

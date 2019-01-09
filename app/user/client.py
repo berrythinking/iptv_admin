@@ -21,6 +21,9 @@ class Command:
     RESTART_STREAM_COMMAND = 'restart_stream'
     CLIENT_PING_COMMAND = 'ping_client'
 
+    CHANGED_STREAM_COMMAND = 'changed_source_stream'
+    STATISTIC_STREAM_COMMAND = 'statistic_stream'
+
 
 class Request:
     def __str__(self):

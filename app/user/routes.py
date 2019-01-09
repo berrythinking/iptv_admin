@@ -1,14 +1,39 @@
 from flask import render_template, redirect, url_for, request, jsonify
 from flask_login import logout_user, login_required, current_user
+import json
 
 from app.user import user, cloud
 from app import socketio
-from app.home.stream_entry import StreamsHolder, Stream, make_relay_stream
+from app.home.stream_entry import StreamsHolder, Stream, make_relay_stream, make_encode_stream
 
 from .forms import SettingsForm, ActivateForm, StreamEntryForm
 import app.constants as constants
+from .stream_handler import IStreamHandler
 
 streams_holder = StreamsHolder()
+
+
+class StreamHandler(IStreamHandler):
+    def __init__(self):
+        pass
+
+    def on_stream_statistic_received(self, params: dict):
+        sid = params['id']
+        stream = streams_holder.find_stream_by_id(sid)
+        if stream:
+            stream.status = constants.StreamStatus(params['status'])
+
+        params_str = json.dumps(params)
+        socketio.emit('stream_statistic_received', params_str)
+
+    def on_stream_sources_changed(self, params: dict):
+        # sid = params['id']
+        params_str = json.dumps(params)
+        socketio.emit('stream_sources_changed', params_str)
+
+
+shandler = StreamHandler()
+cloud.set_handler(shandler)
 
 
 def get_runtime_settings():
@@ -17,7 +42,18 @@ def get_runtime_settings():
     return locale
 
 
-def add_stream_entry(method: str):
+def _add_encode_stream(method: str):
+    stream = make_encode_stream()
+    form = StreamEntryForm(obj=stream)
+    if method == 'POST' and form.validate_on_submit():
+        new_entry = form.make_entry()
+        streams_holder.add_stream(new_entry)
+        return jsonify(status='ok'), 200
+
+    return render_template('user/stream/add_relay.html', form=form, feedback_dir=stream.generate_feedback_dir())
+
+
+def _add_relay_stream(method: str):
     stream = make_relay_stream()
     form = StreamEntryForm(obj=stream)
     if method == 'POST' and form.validate_on_submit():
@@ -25,10 +61,10 @@ def add_stream_entry(method: str):
         streams_holder.add_stream(new_entry)
         return jsonify(status='ok'), 200
 
-    return render_template('user/stream/add.html', form=form, feedback_dir=stream.generate_feedback_dir())
+    return render_template('user/stream/add_relay.html', form=form, feedback_dir=stream.generate_feedback_dir())
 
 
-def edit_stream_entry(method: str, stream: Stream):
+def edit_relay_stream(method: str, stream: Stream):
     form = StreamEntryForm(obj=stream)
 
     if method == 'POST' and form.validate_on_submit():
@@ -36,7 +72,7 @@ def edit_stream_entry(method: str, stream: Stream):
         stream.save()
         return jsonify(status='ok'), 200
 
-    return render_template('user/stream/edit.html', form=form, feedback_dir=stream.generate_feedback_dir())
+    return render_template('user/stream/edit_relay.html', form=form, feedback_dir=stream.generate_feedback_dir())
 
 
 # routes
@@ -111,10 +147,16 @@ def ping_service():
 
 
 # stream
-@user.route('/stream/add', methods=['GET', 'POST'])
+@user.route('/stream/add_relay', methods=['GET', 'POST'])
 @login_required
-def add_stream():
-    return add_stream_entry(request.method)
+def add_relay_stream():
+    return _add_relay_stream(request.method)
+
+
+@user.route('/stream/add_encode', methods=['GET', 'POST'])
+@login_required
+def add_encode_stream():
+    return _add_encode_stream(request.method)
 
 
 @user.route('/stream/edit/<sid>', methods=['GET', 'POST'])
@@ -122,7 +164,7 @@ def add_stream():
 def edit_stream(sid):
     stream = streams_holder.find_stream_by_id(sid)
     if stream:
-        return edit_stream_entry(request.method, stream)
+        return edit_relay_stream(request.method, stream)
 
     responce = {"status": "failed"}
     return jsonify(responce), 404

@@ -85,8 +85,13 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                 </tbody>
             </table>
             <div class="row">
-                <button class="btn btn-success btn-send col-md-2" onclick="add_stream()">
-                    {% trans %}Add{% endtrans %}
+                <button class="btn btn-success btn-send col-md-2" onclick="add_relay_stream()">
+                    {% trans %}Add relay{% endtrans %}
+                </button>
+            </div>
+            <div class="row">
+                <button class="btn btn-success btn-send col-md-2" onclick="add_encode_stream()">
+                    {% trans %}Add encode{% endtrans %}
                 </button>
             </div>
         </div>
@@ -148,8 +153,20 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             }
         });
     }
-    function add_stream() {
-        var url = "{{ url_for('user.add_stream') }}";
+    function add_relay_stream() {
+        var url = "{{ url_for('user.add_relay_stream') }}";
+        $.get(url, function(data) {
+            $('#money_dialog .modal-content').html(data);
+            $('#money_dialog').modal();
+
+            $('#submit').click(function(event) {
+                event.preventDefault();
+                add_stream_entry(url);
+            })
+        });
+    }
+    function add_encode_stream() {
+        var url = "{{ url_for('user.add_encode_stream') }}";
         $.get(url, function(data) {
             $('#money_dialog .modal-content').html(data);
             $('#money_dialog').modal();

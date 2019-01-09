@@ -3,7 +3,7 @@ from enum import IntEnum
 
 class StreamType(IntEnum):
     RELAY = 0
-    ENCODING = 1
+    ENCODE = 1
     TIMESHIFT_PLAYER = 2
     TIMESHIFT_RECORDER = 3
     CATCHUP = 4
@@ -68,7 +68,7 @@ AVAILABLE_LOCALES = DEFAULT_LOCALE, 'ru'
 AVAILABLE_LOCALES_PAIRS = [(DEFAULT_LOCALE, 'English'), ('ru', 'Russian')]
 
 DEFAULT_STREAM_NAME = 'Stream'
-AVAILABLE_STREAM_TYPES_PAIRS = [(StreamType.RELAY, 'relay'), (StreamType.ENCODING, 'encoding'),
+AVAILABLE_STREAM_TYPES_PAIRS = [(StreamType.RELAY, 'relay'), (StreamType.ENCODE, 'encode'),
                                 (StreamType.TIMESHIFT_PLAYER, 'timeshift_player'),
                                 (StreamType.TIMESHIFT_RECORDER, 'timeshift_record'), (StreamType.CATCHUP, 'catchup')]
 AVAILABLE_LOG_LEVELS_PAIRS = [(StreamLogLevel.LOG_LEVEL_EMERG, 'EVERG'), (StreamLogLevel.LOG_LEVEL_ALERT, 'ALERT'),

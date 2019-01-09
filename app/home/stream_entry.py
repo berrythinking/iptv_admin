@@ -72,13 +72,13 @@ def make_relay_stream() -> Stream:
 
 
 def make_encode_stream() -> Stream:
-    stream = Stream(type=constants.StreamType.ENCODING)
+    stream = Stream(type=constants.StreamType.ENCODE)
     stream.input = Urls(urls=[Url(id=Url.generate_id())])
     stream.output = Urls(urls=[Url(id=Url.generate_id())])
     return stream
 
 
-class StreamsHolder:
+class StreamsHolder():
     def __init__(self):
         self._streams = []
         self._reload_from_db()
