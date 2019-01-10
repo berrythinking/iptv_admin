@@ -5,24 +5,11 @@ import threading
 
 from datetime import datetime
 from abc import ABC, abstractmethod
+from .client_commands import Commands
 
 
 def make_utc_timestamp() -> int:
     return int(datetime.utcnow().timestamp() * 1000)
-
-
-class Command:
-    ACTIVATE_COMMAND = 'activate_request'
-    PREPARE_SERVICE_COMMAND = 'prepare_service'
-    STOP_SERVICE_COMMAND = 'stop_service'
-    SERVICE_PING_COMMAND = 'ping_service'
-    START_STREAM_COMMAND = 'start_stream'
-    STOP_STREAM_COMMAND = 'stop_stream'
-    RESTART_STREAM_COMMAND = 'restart_stream'
-    CLIENT_PING_COMMAND = 'ping_client'
-
-    CHANGED_STREAM_COMMAND = 'changed_source_stream'
-    STATISTIC_STREAM_COMMAND = 'statistic_stream'
 
 
 class Request:
@@ -166,7 +153,7 @@ class Client:
 
     def activate(self, command_id: int, license_key: str):
         command_args = {"license_key": license_key}
-        self._send_request(command_id, Command.ACTIVATE_COMMAND, command_args)
+        self._send_request(command_id, Commands.ACTIVATE_COMMAND, command_args)
 
     def is_active(self):
         return self._active
@@ -175,7 +162,7 @@ class Client:
         if not self.is_active():
             return
 
-        self._send_request(command_id, Command.SERVICE_PING_COMMAND, {"timestamp": make_utc_timestamp()})
+        self._send_request(command_id, Commands.SERVICE_PING_COMMAND, {"timestamp": make_utc_timestamp()})
 
     def prepare_service(self, command_id: int, feedback_directory: str, timeshifts_directory: str, hls_directory: str,
                         playlists_directory: str, dvb_directory: str, capture_card_directory: str):
@@ -190,35 +177,35 @@ class Client:
             "dvb_directory": dvb_directory,
             "capture_card_directory": capture_card_directory
         }
-        self._send_request(command_id, Command.PREPARE_SERVICE_COMMAND, command_args)
+        self._send_request(command_id, Commands.PREPARE_SERVICE_COMMAND, command_args)
 
     def stop_service(self, command_id: int, delay: int):
         if not self.is_active():
             return
 
         command_args = {"delay": delay}
-        self._send_request(command_id, Command.STOP_SERVICE_COMMAND, command_args)
+        self._send_request(command_id, Commands.STOP_SERVICE_COMMAND, command_args)
 
     def start_stream(self, command_id: int, config: dict):
         if not self.is_active():
             return
 
         command_args = {"config": config}
-        self._send_request(command_id, Command.START_STREAM_COMMAND, command_args)
+        self._send_request(command_id, Commands.START_STREAM_COMMAND, command_args)
 
     def stop_stream(self, command_id: int, stream_id: str):
         if not self.is_active():
             return
 
         command_args = {"id": stream_id}
-        self._send_request(command_id, Command.STOP_STREAM_COMMAND, command_args)
+        self._send_request(command_id, Commands.STOP_STREAM_COMMAND, command_args)
 
     def restart_stream(self, command_id: int, stream_id: str):
         if not self.is_active():
             return
 
         command_args = {"id": stream_id}
-        self._send_request(command_id, Command.RESTART_STREAM_COMMAND, command_args)
+        self._send_request(command_id, Commands.RESTART_STREAM_COMMAND, command_args)
 
     # private
     def _pong(self, command_id: str):
@@ -253,14 +240,14 @@ class Client:
         while not self._stop_listen:
             req, resp = self._read_response_or_request()
             if req:
-                if req.method == Command.CLIENT_PING_COMMAND:
+                if req.method == Commands.CLIENT_PING_COMMAND:
                     self._pong(req.id)
 
                 if self._handler:
                     self._handler.process_request(req)
             elif resp:
                 saved_req = self._request_queue.pop(resp.id, None)
-                if saved_req and saved_req.method == Command.ACTIVATE_COMMAND and resp.is_message():
+                if saved_req and saved_req.method == Commands.ACTIVATE_COMMAND and resp.is_message():
                     self._active = True
 
                 if self._handler:

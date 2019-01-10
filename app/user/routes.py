@@ -9,6 +9,7 @@ from app.home.stream_entry import StreamsHolder, Stream, make_relay_stream, make
 from .forms import SettingsForm, ActivateForm, StreamEntryForm
 import app.constants as constants
 from .stream_handler import IStreamHandler
+from .client_commands import Commands
 
 streams_holder = StreamsHolder()
 
@@ -24,12 +25,17 @@ class StreamHandler(IStreamHandler):
             stream.status = constants.StreamStatus(params['status'])
 
         params_str = json.dumps(params)
-        socketio.emit('stream_statistic_received', params_str)
+        socketio.emit(Commands.STATISTIC_STREAM_COMMAND, params_str)
 
     def on_stream_sources_changed(self, params: dict):
         # sid = params['id']
         params_str = json.dumps(params)
-        socketio.emit('stream_sources_changed', params_str)
+        socketio.emit(Commands.CHANGED_STREAM_COMMAND, params_str)
+
+    def on_service_statistic_received(self, params: dict):
+        # nid = params['id']
+        params_str = json.dumps(params)
+        socketio.emit(Commands.STATISTIC_SERVICE_COMMAND, params_str)
 
 
 shandler = StreamHandler()
