@@ -22,7 +22,7 @@ class StreamType(IntEnum):
 
 class StreamStatus(IntEnum):
     NEW = 0
-    NULL = 1
+    INIT = 1
     STARTED = 2
     READY = 3
     PLAYING = 4
@@ -52,12 +52,12 @@ class StreamLogLevel(IntEnum):
         return str(self.value)
 
 
-MIN_URL_LENGHT = 3
-MAX_URL_LENGHT = 80
-MIN_STREAM_NAME_LENGHT = 3
-MAX_STREAM_NAME_LENGHT = 30
-MIN_PATH_LENGHT = 1
-MAX_PATH_LENGHT = 255
+MIN_URL_LENGTH = 3
+MAX_URL_LENGTH = 80
+MIN_STREAM_NAME_LENGTH = 3
+MAX_STREAM_NAME_LENGTH = 30
+MIN_PATH_LENGTH = 1
+MAX_PATH_LENGTH = 255
 
 PRECISION = 2
 

@@ -15,7 +15,7 @@ class Url(db.EmbeddedDocument):
     _next_url_id = 0
 
     id = db.IntField(default=lambda: Url.generate_id(), required=True)
-    uri = db.StringField(default='test', max_length=constants.MAX_URL_LENGHT, required=True)
+    uri = db.StringField(default='test', max_length=constants.MAX_URL_LENGTH, required=True)
 
     @staticmethod
     def generate_id():
@@ -30,7 +30,7 @@ class Urls(db.EmbeddedDocument):
 
 class Stream(db.Document):
     meta = {'collection': 'streams', 'auto_create_index': False}
-    name = db.StringField(default=constants.DEFAULT_STREAM_NAME, max_length=constants.MAX_STREAM_NAME_LENGHT,
+    name = db.StringField(default=constants.DEFAULT_STREAM_NAME, max_length=constants.MAX_STREAM_NAME_LENGTH,
                           required=True)
     type = db.IntField(default=constants.StreamType.RELAY, required=True)
     created_date = db.DateTimeField(default=datetime.now)  # for inner use

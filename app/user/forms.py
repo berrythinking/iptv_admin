@@ -37,7 +37,7 @@ class UrlForm(Form):
                       validators=[InputRequired()], render_kw={'readonly': 'true'})
     uri = StringField(lazy_gettext(u'Url:'),
                       validators=[InputRequired(),
-                                  Length(min=constants.MIN_URL_LENGHT, max=constants.MAX_URL_LENGHT)])
+                                  Length(min=constants.MIN_URL_LENGTH, max=constants.MAX_URL_LENGTH)])
 
 
 class UrlsForm(Form):
@@ -47,7 +47,7 @@ class UrlsForm(Form):
 class StreamEntryForm(FlaskForm):
     name = StringField(lazy_gettext(u'Name:'),
                        validators=[InputRequired(),
-                                   Length(min=constants.MIN_STREAM_NAME_LENGHT, max=constants.MAX_STREAM_NAME_LENGHT)])
+                                   Length(min=constants.MIN_STREAM_NAME_LENGTH, max=constants.MAX_STREAM_NAME_LENGTH)])
     type = SelectField(lazy_gettext(u'Type:'), validators=[],
                        choices=constants.AVAILABLE_STREAM_TYPES_PAIRS, coerce=constants.StreamType.coerce,
                        render_kw={'disabled': 'disabled'})
