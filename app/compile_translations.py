@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import constants as constants
 
 import subprocess
 

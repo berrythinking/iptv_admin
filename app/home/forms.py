@@ -21,14 +21,6 @@ class SigninForm(FlaskForm):
 
 class ContactForm(FlaskForm):
     email = StringField(lazy_gettext(u'Email:'),
-                        validators=[InputRequired(), Email(message=lazy_gettext(u'Invalid email')), Length(max=30)])
-    subject = StringField(lazy_gettext(u'Subject:'), validators=[InputRequired(), Length(min=1, max=80)])
-    message = StringField(lazy_gettext(u'Message:'), validators=[InputRequired(), Length(min=1, max=500)])
-    submit = SubmitField(lazy_gettext(u'Send'))
-
-
-class ContactForm(FlaskForm):
-    email = StringField(lazy_gettext(u'Email:'),
                         validators=[InputRequired(), Email(message=lazy_gettext(u'Please enter your email address.')),
                                     Length(max=30)])
     subject = StringField(lazy_gettext(u'Subject:'),
@@ -36,6 +28,3 @@ class ContactForm(FlaskForm):
     message = TextAreaField(lazy_gettext(u'Message:'), validators=[InputRequired(message=lazy_gettext(
         u'Please enter a message.')), Length(min=1, max=500)])
     submit = SubmitField(lazy_gettext(u'Send'))
-
-
-

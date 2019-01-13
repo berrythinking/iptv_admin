@@ -9,3 +9,4 @@ requests>=2.11.1
 wtforms>=2.2.1
 python-dateutil>=2.7.3
 Flask-Babel>=0.11.2
+bson>=0.5.7

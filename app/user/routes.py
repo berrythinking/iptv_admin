@@ -37,8 +37,8 @@ class StreamHandler(IStreamHandler):
         socketio.emit(Commands.STATISTIC_SERVICE_COMMAND, params_str)
 
 
-shandler = StreamHandler()
-cloud.set_handler(shandler)
+stream_handler = StreamHandler()
+cloud.set_handler(stream_handler)
 
 
 def get_runtime_settings():
@@ -113,8 +113,8 @@ def activate_service(form: ActivateForm):
     if not form.validate_on_submit():
         return render_template('user/activate.html', form=form)
 
-    license = form.license.data
-    cloud.activate(license)
+    lic = form.license.data
+    cloud.activate(lic)
     return dashboard()
 
 

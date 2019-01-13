@@ -8,8 +8,8 @@ import app.constants as constants
 
 
 class IptvCloud(IClientHandler):
-    def __init__(self, id: str, host: str, port: int, handler=None):
-        self.id = id
+    def __init__(self, cid: str, host: str, port: int, handler=None):
+        self.id = cid
         self._client = Client(host, port, self)
         self._id = 0
         self._handler = handler

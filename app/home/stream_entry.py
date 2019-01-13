@@ -78,7 +78,7 @@ def make_encode_stream() -> Stream:
     return stream
 
 
-class StreamsHolder():
+class StreamsHolder:
     def __init__(self):
         self._streams = []
         self._reload_from_db()
@@ -97,7 +97,7 @@ class StreamsHolder():
     def get_streams(self):
         return self._streams
 
-    def find_stream_by_id(self, sid: str) -> Stream:
+    def find_stream_by_id(self, sid: str):
         for stream in self._streams:
             if stream.id == ObjectId(sid):
                 return stream
