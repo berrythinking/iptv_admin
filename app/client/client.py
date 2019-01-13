@@ -153,10 +153,14 @@ class Client:
                     self._handler.process_response(saved_req, resp)
 
     def _read_response_or_request(self) -> (Request, Response):
-        data = self._socket.recv(8 * 1024)
-        if data:
-            var = data[4:]
-            decoded_data = var.decode()
-            return parse_response_or_request(decoded_data)
+        data_size_bytes = self._socket.recv(4)
+        if data_size_bytes:
+            unp = struct.unpack("I", data_size_bytes)
+            data_size = socket.ntohl(unp[0])
+            if data_size < 8 * 1024:
+                data = self._socket.recv(data_size)
+                if data:
+                    decoded_data = data.decode()
+                    return parse_response_or_request(decoded_data)
 
         return None, None

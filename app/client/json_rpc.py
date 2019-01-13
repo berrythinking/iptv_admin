@@ -78,7 +78,7 @@ def parse_response_or_request(data: str) -> (Request, Response):
             params = resp_req['params']
 
         command_id = None
-        if 'params' in resp_req:
+        if 'id' in resp_req:
             command_id = resp_req['id']
 
         return Request(command_id, resp_req['method'], params), None
