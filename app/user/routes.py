@@ -9,7 +9,7 @@ from app.home.stream_entry import StreamsHolder, Stream, make_relay_stream, make
 from .forms import SettingsForm, ActivateForm, StreamEntryForm
 import app.constants as constants
 from .stream_handler import IStreamHandler
-from .client_commands import Commands
+from app.client.commands import Commands
 
 streams_holder = StreamsHolder()
 

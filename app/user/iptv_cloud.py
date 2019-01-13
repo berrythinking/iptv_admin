@@ -1,5 +1,7 @@
-from .client import Client, IClientHandler, Request, Response
-from .client_commands import Commands
+from app.client.client import Client
+from app.client.client_handler import IClientHandler
+from app.client.json_rpc import Request, Response
+from app.client.commands import Commands
 import app.constants as constants
 from .stream_handler import IStreamHandler
 
