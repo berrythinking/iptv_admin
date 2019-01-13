@@ -4,9 +4,9 @@ import json
 import threading
 
 from datetime import datetime
-from .commands import Commands
-from .client_handler import IClientHandler
-from .json_rpc import Request, Response, parse_response_or_request
+from app.client.commands import Commands
+from app.client.client_handler import IClientHandler
+from app.client.json_rpc import Request, Response, parse_response_or_request
 
 
 def make_utc_timestamp() -> int:

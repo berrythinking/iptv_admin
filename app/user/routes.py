@@ -1,13 +1,12 @@
 from flask import render_template, redirect, url_for, request, jsonify
 from flask_login import logout_user, login_required, current_user
 import json
+import app.constants as constants
 
 from app.user import user, cloud
 from app import socketio
 from app.home.stream_entry import StreamsHolder, Stream, make_relay_stream, make_encode_stream
-
 from .forms import SettingsForm, ActivateForm, StreamEntryForm
-import app.constants as constants
 from .stream_handler import IStreamHandler
 from app.client.commands import Commands
 

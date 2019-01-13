@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from .json_rpc import Request, Response
+from app.client.json_rpc import Request, Response
 
 
 # handler for client
