@@ -14,5 +14,5 @@ class IClientHandler(ABC):
         pass
 
     @abstractmethod
-    def on_state_changed(self, status: Status):
+    def on_client_state_changed(self, status: Status):
         pass

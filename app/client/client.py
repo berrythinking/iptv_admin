@@ -22,11 +22,11 @@ def generate_seq_id(command_id):  # uint64_t
     return converted_bytes.hex()
 
 
-def generate_json_rpc_responce_message(result, command_id: str) -> Response:
+def generate_json_rpc_response_message(result, command_id: str) -> Response:
     return Response(command_id, result)
 
 
-def generate_json_rpc_responce_error(message: str, code: int, command_id: str) -> Response:
+def generate_json_rpc_response_error(message: str, code: int, command_id: str) -> Response:
     return Response(command_id, None, {"code": code, "message": message})
 
 
@@ -136,13 +136,13 @@ class Client:
     def _set_state(self, status: Status):
         self._state = status
         if self._handler:
-            self._handler.on_state_changed(status)
+            self._handler.on_client_state_changed(status)
 
     def _pong(self, command_id: str):
         if not self.is_active():
             return
 
-        self._send_responce(command_id, {"timestamp": make_utc_timestamp()})
+        self._send_response(command_id, {"timestamp": make_utc_timestamp()})
 
     def _send_request(self, command_id, method: str, params):
         if not self.is_connected():
@@ -161,8 +161,8 @@ class Client:
     def _send_notification(self, method: str, params):
         return self._send_request(None, method, params)
 
-    def _send_responce(self, command_id, params):
-        resp = generate_json_rpc_responce_message(params, command_id)
+    def _send_response(self, command_id, params):
+        resp = generate_json_rpc_response_message(params, command_id)
         data = json.dumps(resp.to_dict())
         data_len = socket.ntohl(len(data))
         array = struct.pack("I", data_len)

@@ -17,5 +17,9 @@ class IStreamHandler(ABC):
         pass
 
     @abstractmethod
-    def on_state_changed(self, status: Status):
+    def on_stream_status(self, params: dict):
+        pass
+
+    @abstractmethod
+    def on_client_state_changed(self, status: Status):
         pass

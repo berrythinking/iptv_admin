@@ -36,8 +36,15 @@ class StreamHandler(IStreamHandler):
         params_str = json.dumps(params)
         socketio.emit(Commands.STATISTIC_SERVICE_COMMAND, params_str)
 
-    def on_state_changed(self, status: Status):
+    def on_client_state_changed(self, status: Status):
         pass
+
+    def on_stream_status(self, params: dict):
+        # sid = params['id']
+        # stream = streams_holder.find_stream_by_id(sid)
+
+        params_str = json.dumps(params)
+        socketio.emit(Commands.STATUS_STREAM_COMMAND, params_str)
 
 
 stream_handler = StreamHandler()
@@ -181,8 +188,8 @@ def edit_stream(sid):
     if stream:
         return edit_relay_stream(request.method, stream)
 
-    responce = {"status": "failed"}
-    return jsonify(responce), 404
+    response = {"status": "failed"}
+    return jsonify(response), 404
 
 
 @user.route('/stream/remove', methods=['POST'])
