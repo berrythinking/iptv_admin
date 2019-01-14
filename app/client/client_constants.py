@@ -1,3 +1,6 @@
+from enum import IntEnum
+
+
 class Commands:
     ACTIVATE_COMMAND = 'activate_request'
     PREPARE_SERVICE_COMMAND = 'prepare_service'
@@ -11,3 +14,9 @@ class Commands:
     CHANGED_STREAM_COMMAND = 'changed_source_stream'
     STATISTIC_STREAM_COMMAND = 'statistic_stream'
     STATISTIC_SERVICE_COMMAND = 'statistic_service'
+
+
+class Status(IntEnum):
+    INIT = 0
+    CONNECTED = 1
+    ACTIVE = 2

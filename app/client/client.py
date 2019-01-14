@@ -5,10 +5,9 @@ import threading
 import select
 
 from datetime import datetime
-from app.client.commands import Commands
+from app.client.client_constants import Commands, Status
 from app.client.client_handler import IClientHandler
 from app.client.json_rpc import Request, Response, parse_response_or_request
-from enum import IntEnum
 
 
 def make_utc_timestamp() -> int:
@@ -29,12 +28,6 @@ def generate_json_rpc_responce_message(result, command_id: str) -> Response:
 
 def generate_json_rpc_responce_error(message: str, code: int, command_id: str) -> Response:
     return Response(command_id, None, {"code": code, "message": message})
-
-
-class Status(IntEnum):
-    INIT = 0
-    CONNECTED = 1
-    ACTIVE = 2
 
 
 class Client:
@@ -66,7 +59,7 @@ class Client:
         thread = threading.Thread(target=self._listen_commands, daemon=True)
         thread.start()
         self._listen_thread = thread
-        self._state = Status.CONNECTED
+        self._set_state(Status.CONNECTED)
 
     def is_connected(self):
         return self._state != Status.INIT
@@ -80,7 +73,7 @@ class Client:
         self._listen_thread = None
         self._socket.close()
         self._socket = None
-        self._state = Status.INIT
+        self._set_state(Status.INIT)
         self._stop_listen = False
 
     def activate(self, command_id: int, license_key: str):
@@ -140,6 +133,11 @@ class Client:
         self._send_request(command_id, Commands.RESTART_STREAM_COMMAND, command_args)
 
     # private
+    def _set_state(self, status: Status):
+        self._state = status
+        if self._handler:
+            self._handler.on_state_changed(status)
+
     def _pong(self, command_id: str):
         if not self.is_active():
             return
@@ -183,7 +181,7 @@ class Client:
             elif resp:
                 saved_req = self._request_queue.pop(resp.id, None)
                 if saved_req and saved_req.method == Commands.ACTIVATE_COMMAND and resp.is_message():
-                    self._state = Status.ACTIVE
+                    self._set_state(Status.ACTIVE)
 
                 if self._handler:
                     self._handler.process_response(saved_req, resp)

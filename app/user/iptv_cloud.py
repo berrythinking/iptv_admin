@@ -1,7 +1,7 @@
-from app.client.client import Client, Status
+from app.client.client import Client
 from app.client.client_handler import IClientHandler
 from app.client.json_rpc import Request, Response
-from app.client.commands import Commands
+from app.client.client_constants import Commands, Status
 from app.user.stream_handler import IStreamHandler
 
 import app.constants as constants
@@ -10,9 +10,9 @@ import app.constants as constants
 class IptvCloud(IClientHandler):
     def __init__(self, cid: str, host: str, port: int, handler=None):
         self.id = cid
-        self._client = Client(host, port, self)
         self._request_id = 0
         self._handler = handler
+        self._client = Client(host, port, self)
 
     def set_handler(self, handler: IStreamHandler):
         self._handler = handler
@@ -71,6 +71,10 @@ class IptvCloud(IClientHandler):
             elif req.method == Commands.STATISTIC_SERVICE_COMMAND:
                 if self._handler:
                     self._handler.on_service_statistic_received(req.params)
+
+    def on_state_changed(self, status: Status):
+        if self._handler:
+            self._handler.on_state_changed(status)
 
     # private
     def _gen_request_id(self) -> int:

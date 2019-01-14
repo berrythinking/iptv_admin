@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from app.client.client_constants import Status
 
 
 # handler for iptv
@@ -13,4 +14,8 @@ class IStreamHandler(ABC):
 
     @abstractmethod
     def on_service_statistic_received(self, params: dict):
+        pass
+
+    @abstractmethod
+    def on_state_changed(self, status: Status):
         pass

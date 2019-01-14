@@ -8,7 +8,7 @@ from app import socketio
 from app.home.stream_entry import StreamsHolder, Stream, make_relay_stream, make_encode_stream
 from .forms import SettingsForm, ActivateForm, StreamEntryForm
 from .stream_handler import IStreamHandler
-from app.client.commands import Commands
+from app.client.client_constants import Commands, Status
 
 streams_holder = StreamsHolder()
 
@@ -35,6 +35,9 @@ class StreamHandler(IStreamHandler):
         # nid = params['id']
         params_str = json.dumps(params)
         socketio.emit(Commands.STATISTIC_SERVICE_COMMAND, params_str)
+
+    def on_state_changed(self, status: Status):
+        pass
 
 
 stream_handler = StreamHandler()
@@ -115,21 +118,21 @@ def activate_service(form: ActivateForm):
 
     lic = form.license.data
     cloud.activate(lic)
-    return dashboard()
+    return redirect(url_for('user.dashboard'))
 
 
 @user.route('/connect')
 @login_required
 def connect():
     cloud.connect()
-    return dashboard()
+    return redirect(url_for('user.dashboard'))
 
 
 @user.route('/disconnect')
 @login_required
 def disconnect():
     cloud.disconnect()
-    return dashboard()
+    return redirect(url_for('user.dashboard'))
 
 
 @user.route('/activate', methods=['POST', 'GET'])
@@ -147,7 +150,7 @@ def activate():
 @login_required
 def stop_service():
     cloud.stop_service(1)
-    return dashboard()
+    return redirect(url_for('user.dashboard'))
 
 
 # stop service
@@ -155,7 +158,7 @@ def stop_service():
 @login_required
 def ping_service():
     cloud.ping_service()
-    return dashboard()
+    return redirect(url_for('user.dashboard'))
 
 
 # stream

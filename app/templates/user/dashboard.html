@@ -33,7 +33,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
 
         <div class="col-md-1">
             <a href="{{ url_for('user.activate') }}" role="button"
-               {% if (status== 0) %}
+               {% if (status== status.INIT) %}
                class="btn btn-info disabled"
                {% else %}
                class="btn btn-info"
@@ -43,7 +43,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         </div>
         <div class="col-md-1">
             <a href="{{ url_for('user.ping_service') }}" role="button"
-               {% if (status== 2) %}
+               {% if (status== status.ACTIVE) %}
                class="btn btn-info"
                {% else %}
                class="btn btn-info disabled"
@@ -53,7 +53,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         </div>
         <div class="col-md-1">
             <a href="{{ url_for('user.stop_service') }}" role="button"
-               {% if (status== 2) %}
+               {% if (status== status.ACTIVE) %}
                class="btn btn-info"
                {% else %}
                class="btn btn-info disabled"
