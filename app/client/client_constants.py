@@ -8,7 +8,7 @@ class Commands:
     RESTART_STREAM_COMMAND = 'restart_stream'
     CHANGED_STREAM_COMMAND = 'changed_source_stream'
     STATISTIC_STREAM_COMMAND = 'statistic_stream'
-    STATUS_STREAM_COMMAND = 'status_stream'
+    QUIT_STATUS_STREAM_COMMAND = 'quit_status_stream'
 
     # service
     ACTIVATE_COMMAND = 'activate_request'

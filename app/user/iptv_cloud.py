@@ -71,9 +71,9 @@ class IptvCloud(IClientHandler):
             elif req.method == Commands.STATISTIC_SERVICE_COMMAND:
                 if self._handler:
                     self._handler.on_service_statistic_received(req.params)
-            elif req.method == Commands.STATUS_STREAM_COMMAND:
+            elif req.method == Commands.QUIT_STATUS_STREAM_COMMAND:
                 if self._handler:
-                    self._handler.on_stream_status(req.params)
+                    self._handler.on_quit_status_stream(req.params)
 
     def on_client_state_changed(self, status: Status):
         if self._handler:

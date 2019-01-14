@@ -17,7 +17,7 @@ class IStreamHandler(ABC):
         pass
 
     @abstractmethod
-    def on_stream_status(self, params: dict):
+    def on_quit_status_stream(self, params: dict):
         pass
 
     @abstractmethod

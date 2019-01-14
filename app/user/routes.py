@@ -36,15 +36,15 @@ class StreamHandler(IStreamHandler):
         params_str = json.dumps(params)
         socketio.emit(Commands.STATISTIC_SERVICE_COMMAND, params_str)
 
-    def on_client_state_changed(self, status: Status):
-        pass
-
-    def on_stream_status(self, params: dict):
+    def on_quit_status_stream(self, params: dict):
         # sid = params['id']
         # stream = streams_holder.find_stream_by_id(sid)
 
         params_str = json.dumps(params)
-        socketio.emit(Commands.STATUS_STREAM_COMMAND, params_str)
+        socketio.emit(Commands.QUIT_STATUS_STREAM_COMMAND, params_str)
+
+    def on_client_state_changed(self, status: Status):
+        pass
 
 
 stream_handler = StreamHandler()
