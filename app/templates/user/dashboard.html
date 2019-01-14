@@ -17,21 +17,49 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             <a href="{{ url_for('user.settings') }}" class="btn btn-info" role="button">{% trans %}Settings{% endtrans
                 %}</a>
         </div>
+
+        {% if (status == 0) %}
         <div class="col-md-1">
             <a href="{{ url_for('user.connect') }}" class="btn btn-info" role="button">{% trans %}Connect{% endtrans
                 %}</a>
         </div>
+        {% else %}
         <div class="col-md-1">
-            <a href="{{ url_for('user.activate') }}" class="btn btn-info" role="button">{% trans %}Activate{% endtrans
+            <a href="{{ url_for('user.disconnect') }}" class="btn btn-info" role="button">{% trans %}Disconnect{%
+                endtrans
                 %}</a>
         </div>
+        {% endif %}
+
         <div class="col-md-1">
-            <a href="{{ url_for('user.ping_service') }}" class="btn btn-info" role="button">{% trans %}Ping{% endtrans
-                %}</a>
+            <a href="{{ url_for('user.activate') }}" role="button"
+               {% if (status== 0) %}
+               class="btn btn-info disabled"
+               {% else %}
+               class="btn btn-info"
+               {% endif %}>
+                {% trans %}Activate{% endtrans %}
+            </a>
         </div>
         <div class="col-md-1">
-            <a href="{{ url_for('user.stop_service') }}" class="btn btn-info" role="button">{% trans %}Stop{% endtrans
-                %}</a>
+            <a href="{{ url_for('user.ping_service') }}" role="button"
+               {% if (status== 2) %}
+               class="btn btn-info"
+               {% else %}
+               class="btn btn-info disabled"
+               {% endif %}>
+                {% trans %}Ping{% endtrans %}
+            </a>
+        </div>
+        <div class="col-md-1">
+            <a href="{{ url_for('user.stop_service') }}" role="button"
+               {% if (status== 2) %}
+               class="btn btn-info"
+               {% else %}
+               class="btn btn-info disabled"
+               {% endif %}>
+                {% trans %}Stop{% endtrans %}
+            </a>
         </div>
         <div class="col-md-1">
             <a href="{{ url_for('user.logout') }}" class="btn btn-info" role="button">{% trans %}Logout{% endtrans
@@ -252,5 +280,21 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             }
         });
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </script>
 {% endblock %}

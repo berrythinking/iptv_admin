@@ -2,11 +2,13 @@ import socket
 import struct
 import json
 import threading
+import select
 
 from datetime import datetime
 from app.client.commands import Commands
 from app.client.client_handler import IClientHandler
 from app.client.json_rpc import Request, Response, parse_response_or_request
+from enum import IntEnum
 
 
 def make_utc_timestamp() -> int:
@@ -29,33 +31,64 @@ def generate_json_rpc_responce_error(message: str, code: int, command_id: str) -
     return Response(command_id, None, {"code": code, "message": message})
 
 
+class Status(IntEnum):
+    INIT = 0
+    CONNECTED = 1
+    ACTIVE = 2
+
+
 class Client:
     def __init__(self, host: str, port: int, handler: IClientHandler):
         self.host = host
         self.port = port
         self._handler = handler
-        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._active = False
-        self._listen_thread = threading.Thread(target=self._listen_commands)
-        self._listen_thread.daemon = True
+        self._socket = None
+        self._listen_thread = None
         self._stop_listen = False
         self._request_queue = dict()
+        self._state = Status.INIT
+
+    def status(self) -> Status:
+        return self._state
 
     def connect(self):
-        self._socket.connect((self.host, self.port))
-        self._listen_thread.start()
+        if self.is_connected():
+            return
+
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.connect((self.host, self.port))
+        except socket.error as exc:
+            print('Caught exception socket.error : {0}'.format(exc))
+            return
+
+        self._socket = sock
+        thread = threading.Thread(target=self._listen_commands, daemon=True)
+        thread.start()
+        self._listen_thread = thread
+        self._state = Status.CONNECTED
+
+    def is_connected(self):
+        return self._state != Status.INIT
 
     def disconnect(self):
+        if not self.is_connected():
+            return
+
         self._stop_listen = True
         self._listen_thread.join()
+        self._listen_thread = None
         self._socket.close()
+        self._socket = None
+        self._state = Status.INIT
+        self._stop_listen = False
 
     def activate(self, command_id: int, license_key: str):
         command_args = {"license_key": license_key}
         self._send_request(command_id, Commands.ACTIVATE_COMMAND, command_args)
 
     def is_active(self):
-        return self._active
+        return self._state == Status.ACTIVE
 
     def ping_service(self, command_id: int):
         if not self.is_active():
@@ -114,6 +147,9 @@ class Client:
         self._send_responce(command_id, {"timestamp": make_utc_timestamp()})
 
     def _send_request(self, command_id, method: str, params):
+        if not self.is_connected():
+            return
+
         cid = generate_seq_id(command_id)
         req = Request(cid, method, params)
         data = json.dumps(req.to_dict())
@@ -147,20 +183,22 @@ class Client:
             elif resp:
                 saved_req = self._request_queue.pop(resp.id, None)
                 if saved_req and saved_req.method == Commands.ACTIVATE_COMMAND and resp.is_message():
-                    self._active = True
+                    self._state = Status.ACTIVE
 
                 if self._handler:
                     self._handler.process_response(saved_req, resp)
 
-    def _read_response_or_request(self) -> (Request, Response):
-        data_size_bytes = self._socket.recv(4)
-        if data_size_bytes:
-            unp = struct.unpack("I", data_size_bytes)
-            data_size = socket.ntohl(unp[0])
-            if data_size < 8 * 1024:
-                data = self._socket.recv(data_size)
-                if data:
-                    decoded_data = data.decode()
-                    return parse_response_or_request(decoded_data)
+    def _read_response_or_request(self, timeout=1) -> (Request, Response):
+        ready = select.select([self._socket], [], [], timeout)
+        if ready[0]:
+            data_size_bytes = self._socket.recv(4)
+            if data_size_bytes:
+                unp = struct.unpack("I", data_size_bytes)
+                data_size = socket.ntohl(unp[0])
+                if data_size < 8 * 1024:
+                    data = self._socket.recv(data_size)
+                    if data:
+                        decoded_data = data.decode()
+                        return parse_response_or_request(decoded_data)
 
         return None, None

@@ -85,7 +85,7 @@ def edit_relay_stream(method: str, stream: Stream):
 @login_required
 def dashboard():
     streams = streams_holder.get_streams()
-    return render_template('user/dashboard.html', streams=streams)
+    return render_template('user/dashboard.html', streams=streams, status=cloud.status())
 
 
 @user.route('/settings', methods=['GET', 'POST'])
@@ -122,6 +122,13 @@ def activate_service(form: ActivateForm):
 @login_required
 def connect():
     cloud.connect()
+    return dashboard()
+
+
+@user.route('/disconnect')
+@login_required
+def disconnect():
+    cloud.disconnect()
     return dashboard()
 
 

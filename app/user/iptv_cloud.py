@@ -1,4 +1,4 @@
-from app.client.client import Client
+from app.client.client import Client, Status
 from app.client.client_handler import IClientHandler
 from app.client.json_rpc import Request, Response
 from app.client.commands import Commands
@@ -11,7 +11,7 @@ class IptvCloud(IClientHandler):
     def __init__(self, cid: str, host: str, port: int, handler=None):
         self.id = cid
         self._client = Client(host, port, self)
-        self._id = 0
+        self._request_id = 0
         self._handler = handler
 
     def set_handler(self, handler: IStreamHandler):
@@ -22,6 +22,12 @@ class IptvCloud(IClientHandler):
 
     def connect(self):
         self._client.connect()
+
+    def status(self) -> Status:
+        return self._client.status()
+
+    def disconnect(self):
+        self._client.disconnect()
 
     def activate(self, license_key: str):
         return self._client.activate(self._gen_request_id(), license_key)
@@ -68,6 +74,6 @@ class IptvCloud(IClientHandler):
 
     # private
     def _gen_request_id(self) -> int:
-        old_val = self._id
-        self._id += 1
-        return old_val
+        current_value = self._request_id
+        self._request_id += 1
+        return current_value
