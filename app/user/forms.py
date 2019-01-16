@@ -2,8 +2,8 @@ from flask_wtf import FlaskForm
 from flask_babel import lazy_gettext
 from wtforms import Form
 
-from wtforms.validators import InputRequired, Length
-from wtforms.fields import StringField, SubmitField, SelectField, FieldList, IntegerField, FormField
+from wtforms.validators import InputRequired, Length, NumberRange
+from wtforms.fields import StringField, SubmitField, SelectField, FieldList, IntegerField, FormField, BooleanField
 
 import app.constants as constants
 from app.home.settings import Settings
@@ -55,6 +55,10 @@ class StreamEntryForm(FlaskForm):
     output = FormField(UrlsForm, lazy_gettext(u'Output:'))
     log_level = SelectField(lazy_gettext(u'Log level:'), validators=[],
                             choices=constants.AVAILABLE_LOG_LEVELS_PAIRS, coerce=constants.StreamLogLevel.coerce)
+    audio_select = IntegerField(lazy_gettext(u'Audio select:'),
+                                validators=[InputRequired(), NumberRange(constants.DEFAULT_AUDIO_SELECT, 1000)])
+    no_video = BooleanField(lazy_gettext(u'Disable video:'), validators=[])
+    no_audio = BooleanField(lazy_gettext(u'Disable audio:'), validators=[])
     submit = SubmitField(lazy_gettext(u'Confirm'))
 
     def make_entry(self):
@@ -74,5 +78,8 @@ class StreamEntryForm(FlaskForm):
             output_urls.urls.append(Url(url['id'], url['uri']))
         entry.output = output_urls
 
+        entry.audio_select = self.audio_select.data
+        entry.no_video = self.no_video.data
+        entry.no_audio = self.no_audio.data
         entry.log_level = self.log_level.data
         return entry

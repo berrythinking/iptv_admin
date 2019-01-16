@@ -79,6 +79,10 @@ AVAILABLE_LOG_LEVELS_PAIRS = [(StreamLogLevel.LOG_LEVEL_EMERG, 'EVERG'), (Stream
                               (StreamLogLevel.LOG_LEVEL_INFO, 'INFO'),
                               (StreamLogLevel.LOG_LEVEL_DEBUG, 'DEBUG')]
 
+DEFAULT_AUDIO_SELECT = -1
+DEFAULT_NO_VIDEO = False
+DEFAULT_NO_AUDIO = False
+
 DEFAULT_SERVICE_ROOT_DIR_PATH = '~/streamer'
 DEFAULT_FEEDBACK_DIR_PATH = DEFAULT_SERVICE_ROOT_DIR_PATH + '/feedback'
 DEFAULT_TIMESHIFTS_DIR_PATH = DEFAULT_SERVICE_ROOT_DIR_PATH + '/timeshifts'

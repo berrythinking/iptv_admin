@@ -9,6 +9,9 @@ FEEDBACK_DIR_FIELD = "feedback_dir"
 LOG_LEVEL_FIELD = "log_level"
 INPUT_FIELD = "input"
 OUTPUT_FIELD = "output"
+AUDIO_SELECT = "audio_select"
+NO_VIDEO = "no_video"
+NO_AUDIO = "no_audio"
 
 
 class Url(db.EmbeddedDocument):
@@ -40,13 +43,18 @@ class Stream(db.Document):
                                      default=Urls())  # "input": {"urls": [{"id": 80,"uri": "tcp://localhost:1935"}]}
     output = db.EmbeddedDocumentField(Urls,
                                       default=Urls())  # "output": {"urls": [{"id": 81,"uri": "tcp://localhost:1935"}]}
+    no_video = db.BooleanField(default=constants.DEFAULT_NO_VIDEO, required=True)
+    no_audio = db.BooleanField(default=constants.DEFAULT_NO_AUDIO, required=True)
+    audio_select = db.IntField(default=constants.DEFAULT_AUDIO_SELECT, required=True)
 
     # runtime
     status = constants.StreamStatus.NEW
 
     def config(self) -> dict:
         conf = {ID_FIELD: self.get_id(), TYPE_FIELD: self.get_type(), FEEDBACK_DIR_FIELD: self.generate_feedback_dir(),
-                LOG_LEVEL_FIELD: self.get_log_level(), INPUT_FIELD: self.input.to_mongo(),
+                LOG_LEVEL_FIELD: self.get_log_level(), AUDIO_SELECT: self.get_audio_select(),
+                NO_VIDEO: self.get_no_video(), NO_AUDIO: self.get_no_audio(),
+                INPUT_FIELD: self.input.to_mongo(),
                 OUTPUT_FIELD: self.output.to_mongo()}
         return conf
 
@@ -57,11 +65,20 @@ class Stream(db.Document):
     def get_log_level(self):
         return self.log_level
 
+    def get_audio_select(self):
+        return self.audio_select
+
+    def get_no_video(self):
+        return self.no_video
+
+    def get_no_audio(self):
+        return self.no_audio
+
     def get_id(self):
         return str(self.id)
 
     def get_type(self):
-        return constants.AVAILABLE_STREAM_TYPES_PAIRS[self.type][1]
+        return self.type
 
 
 def make_relay_stream() -> Stream:
