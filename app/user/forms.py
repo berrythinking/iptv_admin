@@ -3,11 +3,12 @@ from flask_babel import lazy_gettext
 from wtforms import Form
 
 from wtforms.validators import InputRequired, Length, NumberRange
-from wtforms.fields import StringField, SubmitField, SelectField, FieldList, IntegerField, FormField, BooleanField
+from wtforms.fields import StringField, SubmitField, SelectField, FieldList, IntegerField, FormField, BooleanField, \
+    FloatField
 
 import app.constants as constants
 from app.home.settings import Settings
-from app.home.stream_entry import Stream, Urls, Url, RelayStream
+from app.home.stream_entry import Stream, Urls, Url, RelayStream, EncodeStream
 
 LICENSE_KEY_LENGTH = 64
 
@@ -102,4 +103,28 @@ class RelayStreamEntryForm(StreamEntryForm):
 
 
 class EncodeStreamEntryForm(StreamEntryForm):
-    pass
+    deinterlace = BooleanField(lazy_gettext(u'Deinterlace:'), validators=[])
+    frame_rate = IntegerField(lazy_gettext(u'Frame rate:'),
+                              validators=[InputRequired(), NumberRange(constants.MIN_FRAME_RATE, constants.MAX_FRAME_RATE)])
+    volume = FloatField(lazy_gettext(u'Volume:'),
+                        validators=[InputRequired(), NumberRange(constants.MIN_VOLUME, constants.MAX_VOLUME)])
+    video_codec = SelectField(lazy_gettext(u'Video codec:'), validators=[],
+                              choices=constants.AVAILABLE_VIDEO_CODECS)
+    audio_codec = SelectField(lazy_gettext(u'Audio codec:'), validators=[],
+                              choices=constants.AVAILABLE_AUDIO_CODECS)
+    audio_channels_count = IntegerField(lazy_gettext(u'Audio channels count:'),
+                                        validators=[InputRequired(), NumberRange(constants.MIN_AUDIO_CHANNELS_COUNT,
+                                                                                 constants.MAX_AUDIO_CHANNELS_COUNT)])
+
+    def make_entry(self):
+        entry = EncodeStream()
+        return self.update_entry(entry)
+
+    def update_entry(self, entry: EncodeStream):
+        entry.deinterlace = self.deinterlace.data
+        entry.frame_rate = self.frame_rate.data
+        entry.volume = self.volume.data
+        entry.video_codec = self.video_codec.data
+        entry.audio_codec = self.audio_codec.data
+        entry.audio_channels_count = self.audio_channels_count.data
+        return super(EncodeStreamEntryForm, self).update_entry(entry)

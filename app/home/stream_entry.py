@@ -13,6 +13,14 @@ AUDIO_SELECT_FIELD = "audio_select"
 HAVE_VIDEO_FIELD = "have_video"
 HAVE_AUDIO_FIELD = "have_audio"
 
+# encode
+DEINTERLACE_FIELD = "deinterlace"
+FRAME_RATE_FIELD = "frame_rate"
+VOLUME_FIELD = "volume"
+VIDEO_CODEC_FIELD = "video_codec"
+AUDIO_CODEC_FIELD = "audio_codec"
+AUDIO_CHANNELS_COUNT_FIELD = "audio_channels"
+
 # relay
 VIDEO_PARSER_FIELD = "video_parser"
 AUDIO_PARSER_FIELD = "audio_parser"
@@ -90,8 +98,8 @@ class RelayStream(Stream):
         super(RelayStream, self).__init__(*args, **kwargs)
         # super(RelayStream, self).type = constants.StreamType.RELAY
 
-    video_parser = db.StringField(default=constants.DEFAULT_RELAY_VIDEO_PARSER, required=True)
-    audio_parser = db.StringField(default=constants.DEFAULT_RELAY_AUDIO_PARSER, required=True)
+    video_parser = db.StringField(default=constants.DEFAULT_VIDEO_PARSER, required=True)
+    audio_parser = db.StringField(default=constants.DEFAULT_AUDIO_PARSER, required=True)
 
     def config(self) -> dict:
         conf = super(RelayStream, self).config()
@@ -109,6 +117,41 @@ class RelayStream(Stream):
 class EncodeStream(Stream):
     def __init__(self, *args, **kwargs):
         super(EncodeStream, self).__init__(*args, **kwargs)
+
+    deinterlace = db.BooleanField(default=constants.DEFAULT_DEINTERLACE, required=True)
+    frame_rate = db.IntField(default=constants.INVALID_FRAME_RATE, required=True)
+    volume = db.FloatField(default=constants.DEFAULT_VOLUME, required=True)
+    video_codec = db.StringField(default=constants.DEFAULT_VIDEO_CODEC, required=True)
+    audio_codec = db.StringField(default=constants.DEFAULT_AUDIO_CODEC, required=True)
+    audio_channels_count = db.IntField(default=constants.INVALID_AUDIO_CHANNELS_COUNT, required=True)
+
+    def config(self) -> dict:
+        conf = super(EncodeStream, self).config()
+        conf[DEINTERLACE_FIELD] = self.get_deinterlace()
+        conf[FRAME_RATE_FIELD] = self.get_frame_rate()
+        conf[VOLUME_FIELD] = self.get_volume()
+        conf[VIDEO_CODEC_FIELD] = self.get_video_codec()
+        conf[AUDIO_CODEC_FIELD] = self.get_audio_codec()
+        conf[AUDIO_CHANNELS_COUNT_FIELD] = self.get_audio_channels_count()
+        return conf
+
+    def get_deinterlace(self):
+        return self.deinterlace
+
+    def get_frame_rate(self):
+        return self.frame_rate
+
+    def get_volume(self):
+        return self.volume
+
+    def get_video_codec(self):
+        return self.video_codec
+
+    def get_audio_codec(self):
+        return self.audio_codec
+
+    def get_audio_channels_count(self):
+        return self.audio_channels_count
 
 
 def make_relay_stream() -> Stream:
