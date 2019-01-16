@@ -9,9 +9,13 @@ FEEDBACK_DIR_FIELD = "feedback_dir"
 LOG_LEVEL_FIELD = "log_level"
 INPUT_FIELD = "input"
 OUTPUT_FIELD = "output"
-AUDIO_SELECT = "audio_select"
-NO_VIDEO = "no_video"
-NO_AUDIO = "no_audio"
+AUDIO_SELECT_FIELD = "audio_select"
+HAVE_VIDEO_FIELD = "have_video"
+HAVE_AUDIO_FIELD = "have_audio"
+
+# relay
+VIDEO_PARSER_FIELD = "video_parser"
+AUDIO_PARSER_FIELD = "audio_parser"
 
 
 class Url(db.EmbeddedDocument):
@@ -32,7 +36,7 @@ class Urls(db.EmbeddedDocument):
 
 
 class Stream(db.Document):
-    meta = {'collection': 'streams', 'auto_create_index': False}
+    meta = {'collection': 'streams', 'auto_create_index': False, 'allow_inheritance': True}
     name = db.StringField(default=constants.DEFAULT_STREAM_NAME, max_length=constants.MAX_STREAM_NAME_LENGTH,
                           required=True)
     type = db.IntField(default=constants.StreamType.RELAY, required=True)
@@ -43,8 +47,8 @@ class Stream(db.Document):
                                      default=Urls())  # "input": {"urls": [{"id": 80,"uri": "tcp://localhost:1935"}]}
     output = db.EmbeddedDocumentField(Urls,
                                       default=Urls())  # "output": {"urls": [{"id": 81,"uri": "tcp://localhost:1935"}]}
-    no_video = db.BooleanField(default=constants.DEFAULT_NO_VIDEO, required=True)
-    no_audio = db.BooleanField(default=constants.DEFAULT_NO_AUDIO, required=True)
+    have_video = db.BooleanField(default=constants.DEFAULT_HAVE_VIDEO, required=True)
+    have_audio = db.BooleanField(default=constants.DEFAULT_HAVE_AUDIO, required=True)
     audio_select = db.IntField(default=constants.DEFAULT_AUDIO_SELECT, required=True)
 
     # runtime
@@ -52,8 +56,8 @@ class Stream(db.Document):
 
     def config(self) -> dict:
         conf = {ID_FIELD: self.get_id(), TYPE_FIELD: self.get_type(), FEEDBACK_DIR_FIELD: self.generate_feedback_dir(),
-                LOG_LEVEL_FIELD: self.get_log_level(), AUDIO_SELECT: self.get_audio_select(),
-                NO_VIDEO: self.get_no_video(), NO_AUDIO: self.get_no_audio(),
+                LOG_LEVEL_FIELD: self.get_log_level(), AUDIO_SELECT_FIELD: self.get_audio_select(),
+                HAVE_VIDEO_FIELD: self.get_have_video(), HAVE_AUDIO_FIELD: self.get_have_audio(),
                 INPUT_FIELD: self.input.to_mongo(),
                 OUTPUT_FIELD: self.output.to_mongo()}
         return conf
@@ -68,11 +72,11 @@ class Stream(db.Document):
     def get_audio_select(self):
         return self.audio_select
 
-    def get_no_video(self):
-        return self.no_video
+    def get_have_video(self):
+        return self.have_video
 
-    def get_no_audio(self):
-        return self.no_audio
+    def get_have_audio(self):
+        return self.have_audio
 
     def get_id(self):
         return str(self.id)
@@ -81,15 +85,41 @@ class Stream(db.Document):
         return self.type
 
 
+class RelayStream(Stream):
+    def __init__(self, *args, **kwargs):
+        super(RelayStream, self).__init__(*args, **kwargs)
+        # super(RelayStream, self).type = constants.StreamType.RELAY
+
+    video_parser = db.StringField(default=constants.DEFAULT_RELAY_VIDEO_PARSER, required=True)
+    audio_parser = db.StringField(default=constants.DEFAULT_RELAY_AUDIO_PARSER, required=True)
+
+    def config(self) -> dict:
+        conf = super(RelayStream, self).config()
+        conf[VIDEO_PARSER_FIELD] = self.get_video_parser()
+        conf[AUDIO_PARSER_FIELD] = self.get_audio_parser()
+        return conf
+
+    def get_video_parser(self):
+        return self.video_parser
+
+    def get_audio_parser(self):
+        return self.audio_parser
+
+
+class EncodeStream(Stream):
+    def __init__(self, *args, **kwargs):
+        super(EncodeStream, self).__init__(*args, **kwargs)
+
+
 def make_relay_stream() -> Stream:
-    stream = Stream(type=constants.StreamType.RELAY)
+    stream = RelayStream(type=constants.StreamType.RELAY)
     stream.input = Urls(urls=[Url(id=Url.generate_id())])
     stream.output = Urls(urls=[Url(id=Url.generate_id())])
     return stream
 
 
 def make_encode_stream() -> Stream:
-    stream = Stream(type=constants.StreamType.ENCODE)
+    stream = EncodeStream(type=constants.StreamType.ENCODE)
     stream.input = Urls(urls=[Url(id=Url.generate_id())])
     stream.output = Urls(urls=[Url(id=Url.generate_id())])
     return stream

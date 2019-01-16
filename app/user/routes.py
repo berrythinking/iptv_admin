@@ -5,8 +5,8 @@ import app.constants as constants
 
 from app.user import user, cloud
 from app import socketio
-from app.home.stream_entry import StreamsHolder, Stream, make_relay_stream, make_encode_stream
-from .forms import SettingsForm, ActivateForm, StreamEntryForm
+from app.home.stream_entry import StreamsHolder, EncodeStream, RelayStream, make_relay_stream, make_encode_stream
+from .forms import SettingsForm, ActivateForm, EncodeStreamEntryForm, RelayStreamEntryForm
 from .stream_handler import IStreamHandler
 from app.client.client_constants import Commands, Status
 
@@ -57,37 +57,48 @@ def get_runtime_settings():
     return locale
 
 
-def _add_encode_stream(method: str):
-    stream = make_encode_stream()
-    form = StreamEntryForm(obj=stream)
-    if method == 'POST' and form.validate_on_submit():
-        new_entry = form.make_entry()
-        streams_holder.add_stream(new_entry)
-        return jsonify(status='ok'), 200
-
-    return render_template('user/stream/add_relay.html', form=form, feedback_dir=stream.generate_feedback_dir())
-
-
 def _add_relay_stream(method: str):
     stream = make_relay_stream()
-    form = StreamEntryForm(obj=stream)
+    form = RelayStreamEntryForm(obj=stream)
     if method == 'POST' and form.validate_on_submit():
         new_entry = form.make_entry()
         streams_holder.add_stream(new_entry)
         return jsonify(status='ok'), 200
 
-    return render_template('user/stream/add_relay.html', form=form, feedback_dir=stream.generate_feedback_dir())
+    return render_template('user/stream/relay/relay.html', form=form, feedback_dir=stream.generate_feedback_dir())
 
 
-def edit_relay_stream(method: str, stream: Stream):
-    form = StreamEntryForm(obj=stream)
+def edit_relay_stream(method: str, stream: RelayStream):
+    form = RelayStreamEntryForm(obj=stream)
 
     if method == 'POST' and form.validate_on_submit():
         stream = form.update_entry(stream)
         stream.save()
         return jsonify(status='ok'), 200
 
-    return render_template('user/stream/edit_relay.html', form=form, feedback_dir=stream.generate_feedback_dir())
+    return render_template('user/stream/relay/edit.html', form=form, feedback_dir=stream.generate_feedback_dir())
+
+
+def _add_encode_stream(method: str):
+    stream = make_encode_stream()
+    form = EncodeStreamEntryForm(obj=stream)
+    if method == 'POST' and form.validate_on_submit():
+        new_entry = form.make_entry()
+        streams_holder.add_stream(new_entry)
+        return jsonify(status='ok'), 200
+
+    return render_template('user/stream/encode/add.html', form=form, feedback_dir=stream.generate_feedback_dir())
+
+
+def edit_encode_stream(method: str, stream: EncodeStream):
+    form = EncodeStreamEntryForm(obj=stream)
+
+    if method == 'POST' and form.validate_on_submit():
+        stream = form.update_entry(stream)
+        stream.save()
+        return jsonify(status='ok'), 200
+
+    return render_template('user/stream/encode/edit.html', form=form, feedback_dir=stream.generate_feedback_dir())
 
 
 # routes
@@ -186,7 +197,10 @@ def add_encode_stream():
 def edit_stream(sid):
     stream = streams_holder.find_stream_by_id(sid)
     if stream:
-        return edit_relay_stream(request.method, stream)
+        if stream.type == constants.StreamType.RELAY:
+            return edit_relay_stream(request.method, stream)
+        elif stream.type == constants.StreamType.ENCODE:
+            return edit_encode_stream(request.method, stream)
 
     response = {"status": "failed"}
     return jsonify(response), 404

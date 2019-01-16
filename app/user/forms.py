@@ -7,7 +7,7 @@ from wtforms.fields import StringField, SubmitField, SelectField, FieldList, Int
 
 import app.constants as constants
 from app.home.settings import Settings
-from app.home.stream_entry import Stream, Urls, Url
+from app.home.stream_entry import Stream, Urls, Url, RelayStream
 
 LICENSE_KEY_LENGTH = 64
 
@@ -57,8 +57,8 @@ class StreamEntryForm(FlaskForm):
                             choices=constants.AVAILABLE_LOG_LEVELS_PAIRS, coerce=constants.StreamLogLevel.coerce)
     audio_select = IntegerField(lazy_gettext(u'Audio select:'),
                                 validators=[InputRequired(), NumberRange(constants.DEFAULT_AUDIO_SELECT, 1000)])
-    no_video = BooleanField(lazy_gettext(u'Disable video:'), validators=[])
-    no_audio = BooleanField(lazy_gettext(u'Disable audio:'), validators=[])
+    have_video = BooleanField(lazy_gettext(u'Have video:'), validators=[])
+    have_audio = BooleanField(lazy_gettext(u'Have audio:'), validators=[])
     submit = SubmitField(lazy_gettext(u'Confirm'))
 
     def make_entry(self):
@@ -79,7 +79,27 @@ class StreamEntryForm(FlaskForm):
         entry.output = output_urls
 
         entry.audio_select = self.audio_select.data
-        entry.no_video = self.no_video.data
-        entry.no_audio = self.no_audio.data
+        entry.have_video = self.have_video.data
+        entry.have_audio = self.have_audio.data
         entry.log_level = self.log_level.data
         return entry
+
+
+class RelayStreamEntryForm(StreamEntryForm):
+    video_parser = SelectField(lazy_gettext(u'Video parser:'), validators=[],
+                               choices=constants.AVAILABLE_VIDEO_PARSERS)
+    audio_parser = SelectField(lazy_gettext(u'Audio parser:'), validators=[],
+                               choices=constants.AVAILABLE_AUDIO_PARSERS)
+
+    def make_entry(self):
+        entry = RelayStream()
+        return self.update_entry(entry)
+
+    def update_entry(self, entry: RelayStream):
+        entry.video_parser = self.video_parser.data
+        entry.audio_parser = self.audio_parser.data
+        return super(RelayStreamEntryForm, self).update_entry(entry)
+
+
+class EncodeStreamEntryForm(StreamEntryForm):
+    pass
