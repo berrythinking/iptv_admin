@@ -20,8 +20,7 @@ VOLUME_FIELD = "volume"
 VIDEO_CODEC_FIELD = "video_codec"
 AUDIO_CODEC_FIELD = "audio_codec"
 AUDIO_CHANNELS_COUNT_FIELD = "audio_channels"
-WIDTH_FIELD = "width"
-HEIGHT_FIELD = "height"
+SIZE_FIELD = "size"
 VIDEO_BIT_RATE_FIELD = "video_bitrate"
 AUDIO_BIT_RATE_FIELD = "audio_bitrate"
 LOGO_FIELD = "logo"
@@ -120,12 +119,26 @@ class RelayStream(Stream):
 
 class Logo(db.EmbeddedDocument):
     path = db.StringField(default=constants.INVALID_LOGO_PATH, required=True)
-    posx = db.IntField(default=constants.DEFAULT_LOGO_POSX, required=True)
-    posy = db.IntField(default=constants.DEFAULT_LOGO_POSY, required=True)
+    x = db.IntField(default=constants.DEFAULT_LOGO_X, required=True)
+    y = db.IntField(default=constants.DEFAULT_LOGO_Y, required=True)
     alpha = db.FloatField(default=constants.DEFAULT_LOGO_ALPHA, required=True)
 
     def is_valid(self):
         return self.path != constants.INVALID_LOGO_PATH
+
+    def to_dict(self) -> dict:
+        return {'path': self.path, 'position': '{0},{1}'.format(self.x, self.y), 'alpha': self.alpha}
+
+
+class Size(db.EmbeddedDocument):
+    width = db.IntField(default=constants.INVALID_WIDTH, required=True)
+    height = db.IntField(default=constants.INVALID_HEIGHT, required=True)
+
+    def is_valid(self):
+        return self.width != constants.INVALID_WIDTH and self.height != constants.INVALID_HEIGHT
+
+    def __str__(self):
+        return '{0}x{1}'.format(self.width, self.height)
 
 
 class EncodeStream(Stream):
@@ -138,8 +151,7 @@ class EncodeStream(Stream):
     video_codec = db.StringField(default=constants.DEFAULT_VIDEO_CODEC, required=True)
     audio_codec = db.StringField(default=constants.DEFAULT_AUDIO_CODEC, required=True)
     audio_channels_count = db.IntField(default=constants.INVALID_AUDIO_CHANNELS_COUNT, required=True)
-    width = db.IntField(default=constants.INVALID_WIDTH, required=True)
-    height = db.IntField(default=constants.INVALID_HEIGHT, required=True)
+    size = db.EmbeddedDocumentField(Size, default=Size())
     video_bit_rate = db.IntField(default=constants.INVALID_VIDEO_BIT_RATE, required=True)
     audio_bit_rate = db.IntField(default=constants.INVALID_AUDIO_BIT_RATE, required=True)
     logo = db.EmbeddedDocumentField(Logo, default=Logo())
@@ -152,12 +164,14 @@ class EncodeStream(Stream):
         conf[VIDEO_CODEC_FIELD] = self.get_video_codec()
         conf[AUDIO_CODEC_FIELD] = self.get_audio_codec()
         conf[AUDIO_CHANNELS_COUNT_FIELD] = self.get_audio_channels_count()
-        conf[WIDTH_FIELD] = self.get_width()
-        conf[HEIGHT_FIELD] = self.get_height()
+
+        if self.size.is_valid():
+            conf[SIZE_FIELD] = str(self.size)
+
         conf[VIDEO_BIT_RATE_FIELD] = self.get_video_bit_rate()
         conf[AUDIO_BIT_RATE_FIELD] = self.get_audio_bit_rate()
         if self.logo.is_valid():
-            conf[LOGO_FIELD] = self.logo.to_mongo()
+            conf[LOGO_FIELD] = self.logo.to_dict()
         return conf
 
     def get_deinterlace(self):

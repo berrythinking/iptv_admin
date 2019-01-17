@@ -8,7 +8,7 @@ from wtforms.fields import StringField, SubmitField, SelectField, FieldList, Int
 
 import app.constants as constants
 from app.home.settings import Settings
-from app.home.stream_entry import Stream, Urls, Url, RelayStream, EncodeStream, Logo
+from app.home.stream_entry import Stream, Urls, Url, RelayStream, EncodeStream, Logo, Size
 
 LICENSE_KEY_LENGTH = 64
 
@@ -104,10 +104,15 @@ class RelayStreamEntryForm(StreamEntryForm):
 
 class LogoForm(Form):
     path = StringField(lazy_gettext(u'Path:'), validators=[])
-    posx = IntegerField(lazy_gettext(u'Posx:'), validators=[InputRequired()])
-    posy = IntegerField(lazy_gettext(u'Posy:'), validators=[InputRequired()])
+    x = IntegerField(lazy_gettext(u'Pos x:'), validators=[InputRequired()])
+    y = IntegerField(lazy_gettext(u'Pos y:'), validators=[InputRequired()])
     alpha = FloatField(lazy_gettext(u'Alpha:'),
                        validators=[InputRequired(), NumberRange(constants.MIN_ALPHA, constants.MAX_ALPHA)])
+
+
+class SizeForm(Form):
+    width = IntegerField(lazy_gettext(u'Width:'), validators=[InputRequired()])
+    height = IntegerField(lazy_gettext(u'Height:'), validators=[InputRequired()])
 
 
 class EncodeStreamEntryForm(StreamEntryForm):
@@ -124,8 +129,7 @@ class EncodeStreamEntryForm(StreamEntryForm):
     audio_channels_count = IntegerField(lazy_gettext(u'Audio channels count:'),
                                         validators=[InputRequired(), NumberRange(constants.INVALID_AUDIO_CHANNELS_COUNT,
                                                                                  constants.MAX_AUDIO_CHANNELS_COUNT)])
-    width = IntegerField(lazy_gettext(u'Width:'), validators=[InputRequired()])
-    height = IntegerField(lazy_gettext(u'Height:'), validators=[InputRequired()])
+    size = FormField(SizeForm, lazy_gettext(u'Size:'), validators=[])
     video_bit_rate = IntegerField(lazy_gettext(u'Video bit rate:'), validators=[InputRequired()])
     audio_bit_rate = IntegerField(lazy_gettext(u'Audio bit rate:'), validators=[InputRequired()])
     logo = FormField(LogoForm, lazy_gettext(u'Logo:'), validators=[])
@@ -141,8 +145,14 @@ class EncodeStreamEntryForm(StreamEntryForm):
         entry.video_codec = self.video_codec.data
         entry.audio_codec = self.audio_codec.data
         entry.audio_channels_count = self.audio_channels_count.data
-        entry.width = self.width.data
-        entry.height = self.height.data
+
+        # size
+        size = Size()
+        size_data = self.size.data
+        size.width = size_data['width']
+        size.height = size_data['height']
+        entry.size = size
+
         entry.video_bit_rate = self.video_bit_rate.data
         entry.audio_bit_rate = self.audio_bit_rate.data
 
@@ -150,8 +160,8 @@ class EncodeStreamEntryForm(StreamEntryForm):
         logo = Logo()
         logo_data = self.logo.data
         logo.path = logo_data['path']
-        logo.posx = logo_data['posx']
-        logo.posy = logo_data['posy']
+        logo.x = logo_data['x']
+        logo.y = logo_data['y']
         logo.alpha = logo_data['alpha']
         entry.logo = logo
         return super(EncodeStreamEntryForm, self).update_entry(entry)
