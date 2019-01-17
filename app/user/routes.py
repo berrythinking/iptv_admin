@@ -65,7 +65,7 @@ def _add_relay_stream(method: str):
         streams_holder.add_stream(new_entry)
         return jsonify(status='ok'), 200
 
-    return render_template('user/stream/relay/relay.html', form=form, feedback_dir=stream.generate_feedback_dir())
+    return render_template('user/stream/relay/add.html', form=form, feedback_dir=stream.generate_feedback_dir())
 
 
 def edit_relay_stream(method: str, stream: RelayStream):

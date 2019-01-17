@@ -12,6 +12,7 @@ OUTPUT_FIELD = "output"
 AUDIO_SELECT_FIELD = "audio_select"
 HAVE_VIDEO_FIELD = "have_video"
 HAVE_AUDIO_FIELD = "have_audio"
+LOOP_FIELD = "loop"
 
 # encode
 DEINTERLACE_FIELD = "deinterlace"
@@ -24,6 +25,7 @@ SIZE_FIELD = "size"
 VIDEO_BIT_RATE_FIELD = "video_bitrate"
 AUDIO_BIT_RATE_FIELD = "audio_bitrate"
 LOGO_FIELD = "logo"
+ASPCET_RATIO_FIELD = "aspect_ratio"
 # relay
 VIDEO_PARSER_FIELD = "video_parser"
 AUDIO_PARSER_FIELD = "audio_parser"
@@ -61,6 +63,7 @@ class Stream(db.Document):
     have_video = db.BooleanField(default=constants.DEFAULT_HAVE_VIDEO, required=True)
     have_audio = db.BooleanField(default=constants.DEFAULT_HAVE_AUDIO, required=True)
     audio_select = db.IntField(default=constants.DEFAULT_AUDIO_SELECT, required=True)
+    loop = db.BooleanField(default=constants.DEFAULT_LOOP, required=True)  # FIXME
 
     # runtime
     status = constants.StreamStatus.NEW
@@ -70,7 +73,7 @@ class Stream(db.Document):
                 LOG_LEVEL_FIELD: self.get_log_level(), AUDIO_SELECT_FIELD: self.get_audio_select(),
                 HAVE_VIDEO_FIELD: self.get_have_video(), HAVE_AUDIO_FIELD: self.get_have_audio(),
                 INPUT_FIELD: self.input.to_mongo(),
-                OUTPUT_FIELD: self.output.to_mongo()}
+                OUTPUT_FIELD: self.output.to_mongo(), LOOP_FIELD: self.loop}
         return conf
 
     def generate_feedback_dir(self):
@@ -141,6 +144,17 @@ class Size(db.EmbeddedDocument):
         return '{0}x{1}'.format(self.width, self.height)
 
 
+class Rational(db.EmbeddedDocument):
+    num = db.IntField(default=constants.INVALID_RATIO_NUM, required=True)
+    den = db.IntField(default=constants.INVALID_RATIO_DEN, required=True)
+
+    def is_valid(self):
+        return self.num != constants.INVALID_RATIO_NUM and self.den != constants.INVALID_RATIO_DEN
+
+    def __str__(self):
+        return '{0}:{1}'.format(self.num, self.den)
+
+
 class EncodeStream(Stream):
     def __init__(self, *args, **kwargs):
         super(EncodeStream, self).__init__(*args, **kwargs)
@@ -155,6 +169,7 @@ class EncodeStream(Stream):
     video_bit_rate = db.IntField(default=constants.INVALID_VIDEO_BIT_RATE, required=True)
     audio_bit_rate = db.IntField(default=constants.INVALID_AUDIO_BIT_RATE, required=True)
     logo = db.EmbeddedDocumentField(Logo, default=Logo())
+    aspect_ratio = db.EmbeddedDocumentField(Rational, default=Rational())
 
     def config(self) -> dict:
         conf = super(EncodeStream, self).config()
@@ -172,6 +187,8 @@ class EncodeStream(Stream):
         conf[AUDIO_BIT_RATE_FIELD] = self.get_audio_bit_rate()
         if self.logo.is_valid():
             conf[LOGO_FIELD] = self.logo.to_dict()
+        if self.aspect_ratio.is_valid():
+            conf[ASPCET_RATIO_FIELD] = str(self.aspect_ratio)
         return conf
 
     def get_deinterlace(self):

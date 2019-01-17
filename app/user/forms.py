@@ -8,7 +8,7 @@ from wtforms.fields import StringField, SubmitField, SelectField, FieldList, Int
 
 import app.constants as constants
 from app.home.settings import Settings
-from app.home.stream_entry import Stream, Urls, Url, RelayStream, EncodeStream, Logo, Size
+from app.home.stream_entry import Stream, Urls, Url, RelayStream, EncodeStream, Logo, Size, Rational
 
 LICENSE_KEY_LENGTH = 64
 
@@ -44,6 +44,13 @@ class UrlForm(Form):
 class UrlsForm(Form):
     urls = FieldList(FormField(UrlForm, lazy_gettext(u'Urls:')), min_entries=1, max_entries=10)
 
+    def get_data(self) -> Urls:
+        urls = Urls()
+        for url in self.data['urls']:
+            urls.urls.append(Url(url['id'], url['uri']))
+
+        return urls
+
 
 class StreamEntryForm(FlaskForm):
     name = StringField(lazy_gettext(u'Name:'),
@@ -60,6 +67,7 @@ class StreamEntryForm(FlaskForm):
                                 validators=[InputRequired(), NumberRange(constants.DEFAULT_AUDIO_SELECT, 1000)])
     have_video = BooleanField(lazy_gettext(u'Have video:'), validators=[])
     have_audio = BooleanField(lazy_gettext(u'Have audio:'), validators=[])
+    loop = BooleanField(lazy_gettext(u'Loop:'), validators=[])
     submit = SubmitField(lazy_gettext(u'Confirm'))
 
     def make_entry(self):
@@ -69,20 +77,14 @@ class StreamEntryForm(FlaskForm):
     def update_entry(self, entry: Stream):
         entry.name = self.name.data
         entry.type = self.type.data
-        input_urls = Urls()
-        for url in self.input.data['urls']:
-            input_urls.urls.append(Url(url['id'], url['uri']))
-        entry.input = input_urls
-
-        output_urls = Urls()
-        for url in self.output.data['urls']:
-            output_urls.urls.append(Url(url['id'], url['uri']))
-        entry.output = output_urls
+        entry.input = self.input.get_data()
+        entry.output = self.output.get_data()
 
         entry.audio_select = self.audio_select.data
         entry.have_video = self.have_video.data
         entry.have_audio = self.have_audio.data
         entry.log_level = self.log_level.data
+        entry.loop = self.loop.data
         return entry
 
 
@@ -109,10 +111,38 @@ class LogoForm(Form):
     alpha = FloatField(lazy_gettext(u'Alpha:'),
                        validators=[InputRequired(), NumberRange(constants.MIN_ALPHA, constants.MAX_ALPHA)])
 
+    def get_data(self) -> Logo:
+        logo = Logo()
+        logo_data = self.data
+        logo.path = logo_data['path']
+        logo.x = logo_data['x']
+        logo.y = logo_data['y']
+        logo.alpha = logo_data['alpha']
+        return logo
+
 
 class SizeForm(Form):
     width = IntegerField(lazy_gettext(u'Width:'), validators=[InputRequired()])
     height = IntegerField(lazy_gettext(u'Height:'), validators=[InputRequired()])
+
+    def get_data(self) -> Size:
+        size = Size()
+        size_data = self.data
+        size.width = size_data['width']
+        size.height = size_data['height']
+        return size
+
+
+class RationalForm(Form):
+    num = IntegerField(lazy_gettext(u'Numerator:'), validators=[InputRequired()])
+    den = IntegerField(lazy_gettext(u'Denominator:'), validators=[InputRequired()])
+
+    def get_data(self) -> Rational:
+        ratio = Rational()
+        ratio_data = self.data
+        ratio.num = ratio_data['num']
+        ratio.den = ratio_data['den']
+        return ratio
 
 
 class EncodeStreamEntryForm(StreamEntryForm):
@@ -133,6 +163,7 @@ class EncodeStreamEntryForm(StreamEntryForm):
     video_bit_rate = IntegerField(lazy_gettext(u'Video bit rate:'), validators=[InputRequired()])
     audio_bit_rate = IntegerField(lazy_gettext(u'Audio bit rate:'), validators=[InputRequired()])
     logo = FormField(LogoForm, lazy_gettext(u'Logo:'), validators=[])
+    aspect_ratio = FormField(RationalForm, lazy_gettext(u'Aspect ratio:'), validators=[])
 
     def make_entry(self):
         entry = EncodeStream()
@@ -145,23 +176,9 @@ class EncodeStreamEntryForm(StreamEntryForm):
         entry.video_codec = self.video_codec.data
         entry.audio_codec = self.audio_codec.data
         entry.audio_channels_count = self.audio_channels_count.data
-
-        # size
-        size = Size()
-        size_data = self.size.data
-        size.width = size_data['width']
-        size.height = size_data['height']
-        entry.size = size
-
+        entry.size = self.size.get_data()
         entry.video_bit_rate = self.video_bit_rate.data
         entry.audio_bit_rate = self.audio_bit_rate.data
-
-        # logo
-        logo = Logo()
-        logo_data = self.logo.data
-        logo.path = logo_data['path']
-        logo.x = logo_data['x']
-        logo.y = logo_data['y']
-        logo.alpha = logo_data['alpha']
-        entry.logo = logo
+        entry.logo = self.logo.get_data()
+        entry.aspect_ratio = self.aspect_ratio.get_data()
         return super(EncodeStreamEntryForm, self).update_entry(entry)
