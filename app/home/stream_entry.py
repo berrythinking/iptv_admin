@@ -1,3 +1,5 @@
+from distutils.command.config import config
+
 from app import db
 from datetime import datetime
 import app.constants as constants
@@ -70,10 +72,12 @@ class Stream(db.Document):
 
     def config(self) -> dict:
         conf = {ID_FIELD: self.get_id(), TYPE_FIELD: self.get_type(), FEEDBACK_DIR_FIELD: self.generate_feedback_dir(),
-                LOG_LEVEL_FIELD: self.get_log_level(), AUDIO_SELECT_FIELD: self.get_audio_select(),
-                HAVE_VIDEO_FIELD: self.get_have_video(), HAVE_AUDIO_FIELD: self.get_have_audio(),
-                INPUT_FIELD: self.input.to_mongo(),
+                LOG_LEVEL_FIELD: self.get_log_level(), HAVE_VIDEO_FIELD: self.get_have_video(),
+                HAVE_AUDIO_FIELD: self.get_have_audio(), INPUT_FIELD: self.input.to_mongo(),
                 OUTPUT_FIELD: self.output.to_mongo(), LOOP_FIELD: self.loop}
+        audio_select = self.get_audio_select()
+        if audio_select != constants.DEFAULT_AUDIO_SELECT:
+            conf[AUDIO_SELECT_FIELD] = audio_select
         return conf
 
     def generate_feedback_dir(self):
@@ -174,17 +178,27 @@ class EncodeStream(Stream):
     def config(self) -> dict:
         conf = super(EncodeStream, self).config()
         conf[DEINTERLACE_FIELD] = self.get_deinterlace()
-        conf[FRAME_RATE_FIELD] = self.get_frame_rate()
-        conf[VOLUME_FIELD] = self.get_volume()
+        frame_rate = self.get_frame_rate()
+        if frame_rate != constants.INVALID_FRAME_RATE:
+            conf[FRAME_RATE_FIELD] = frame_rate
+        volume = self.get_volume()
+        if volume != constants.DEFAULT_VOLUME:
+            conf[VOLUME_FIELD] = volume
         conf[VIDEO_CODEC_FIELD] = self.get_video_codec()
         conf[AUDIO_CODEC_FIELD] = self.get_audio_codec()
-        conf[AUDIO_CHANNELS_COUNT_FIELD] = self.get_audio_channels_count()
+        audio_channels = self.get_audio_channels_count()
+        if audio_channels != constants.INVALID_AUDIO_CHANNELS_COUNT:
+            conf[AUDIO_CHANNELS_COUNT_FIELD] = audio_channels
 
         if self.size.is_valid():
             conf[SIZE_FIELD] = str(self.size)
 
-        conf[VIDEO_BIT_RATE_FIELD] = self.get_video_bit_rate()
-        conf[AUDIO_BIT_RATE_FIELD] = self.get_audio_bit_rate()
+        vid_rate = self.get_video_bit_rate()
+        if vid_rate != constants.INVALID_VIDEO_BIT_RATE:
+            conf[VIDEO_BIT_RATE_FIELD] = vid_rate
+        audio_rate = self.get_audio_bit_rate()
+        if audio_rate != constants.INVALID_AUDIO_BIT_RATE:
+            conf[AUDIO_BIT_RATE_FIELD] = self.get_audio_bit_rate()
         if self.logo.is_valid():
             conf[LOGO_FIELD] = self.logo.to_dict()
         if self.aspect_ratio.is_valid():
