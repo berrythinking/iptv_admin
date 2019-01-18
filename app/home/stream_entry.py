@@ -1,5 +1,3 @@
-from distutils.command.config import config
-
 from app import db
 from datetime import datetime
 import app.constants as constants
@@ -15,6 +13,8 @@ AUDIO_SELECT_FIELD = "audio_select"
 HAVE_VIDEO_FIELD = "have_video"
 HAVE_AUDIO_FIELD = "have_audio"
 LOOP_FIELD = "loop"
+AUTO_EXIT_TIME_FIELD = "auto_exit_time"
+RESTART_ATTEMPTS_FIELD = "restart_attempts"
 
 # encode
 DEINTERLACE_FIELD = "deinterlace"
@@ -33,6 +33,7 @@ VIDEO_PARSER_FIELD = "video_parser"
 AUDIO_PARSER_FIELD = "audio_parser"
 
 
+# {"urls": [{"id": 81,"uri": "tcp://localhost:1935"}]}
 class Url(db.EmbeddedDocument):
     _next_url_id = 0
 
@@ -58,25 +59,35 @@ class Stream(db.Document):
     created_date = db.DateTimeField(default=datetime.now)  # for inner use
     log_level = db.IntField(default=constants.StreamLogLevel.LOG_LEVEL_INFO, required=True)
 
-    input = db.EmbeddedDocumentField(Urls,
-                                     default=Urls())  # "input": {"urls": [{"id": 80,"uri": "tcp://localhost:1935"}]}
-    output = db.EmbeddedDocumentField(Urls,
-                                      default=Urls())  # "output": {"urls": [{"id": 81,"uri": "tcp://localhost:1935"}]}
+    input = db.EmbeddedDocumentField(Urls, default=Urls())
+    output = db.EmbeddedDocumentField(Urls, default=Urls())
     have_video = db.BooleanField(default=constants.DEFAULT_HAVE_VIDEO, required=True)
     have_audio = db.BooleanField(default=constants.DEFAULT_HAVE_AUDIO, required=True)
-    audio_select = db.IntField(default=constants.DEFAULT_AUDIO_SELECT, required=True)
-    loop = db.BooleanField(default=constants.DEFAULT_LOOP, required=True)  # FIXME
+    audio_select = db.IntField(default=constants.INVALID_AUDIO_SELECT, required=True)
+    loop = db.BooleanField(default=constants.DEFAULT_LOOP, required=True)
+    restart_attempts = db.IntField(default=constants.DEFAULT_RESTART_ATTEMPTS, required=True)
+    auto_exit_time = db.IntField(default=constants.DEFAULT_AUTO_EXIT_TIME, required=True)
 
     # runtime
     status = constants.StreamStatus.NEW
 
     def config(self) -> dict:
-        conf = {ID_FIELD: self.get_id(), TYPE_FIELD: self.get_type(), FEEDBACK_DIR_FIELD: self.generate_feedback_dir(),
-                LOG_LEVEL_FIELD: self.get_log_level(), HAVE_VIDEO_FIELD: self.get_have_video(),
-                HAVE_AUDIO_FIELD: self.get_have_audio(), INPUT_FIELD: self.input.to_mongo(),
-                OUTPUT_FIELD: self.output.to_mongo(), LOOP_FIELD: self.loop}
+        conf = {
+            ID_FIELD: self.get_id(),  # required
+            TYPE_FIELD: self.get_type(),  # required
+            FEEDBACK_DIR_FIELD: self.generate_feedback_dir(),  # required
+            LOG_LEVEL_FIELD: self.get_log_level(),
+            AUTO_EXIT_TIME_FIELD: self.get_auto_exit_time(),
+            LOOP_FIELD: self.get_loop(),
+            HAVE_VIDEO_FIELD: self.get_have_video(),  # required
+            HAVE_AUDIO_FIELD: self.get_have_audio(),  # required
+            RESTART_ATTEMPTS_FIELD: self.get_restart_attempts(),
+            INPUT_FIELD: self.input.to_mongo(),  # required empty in timeshift_player
+            OUTPUT_FIELD: self.output.to_mongo()  # required empty in timeshift_record
+        }
+
         audio_select = self.get_audio_select()
-        if audio_select != constants.DEFAULT_AUDIO_SELECT:
+        if audio_select != constants.INVALID_AUDIO_SELECT:
             conf[AUDIO_SELECT_FIELD] = audio_select
         return conf
 
@@ -101,6 +112,15 @@ class Stream(db.Document):
 
     def get_type(self):
         return self.type
+
+    def get_loop(self):
+        return self.loop
+
+    def get_restart_attempts(self):
+        return self.restart_attempts
+
+    def get_auto_exit_time(self):
+        return self.auto_exit_time
 
 
 class RelayStream(Stream):
@@ -181,9 +201,7 @@ class EncodeStream(Stream):
         frame_rate = self.get_frame_rate()
         if frame_rate != constants.INVALID_FRAME_RATE:
             conf[FRAME_RATE_FIELD] = frame_rate
-        volume = self.get_volume()
-        if volume != constants.DEFAULT_VOLUME:
-            conf[VOLUME_FIELD] = volume
+        conf[VOLUME_FIELD] = self.get_volume()
         conf[VIDEO_CODEC_FIELD] = self.get_video_codec()
         conf[AUDIO_CODEC_FIELD] = self.get_audio_codec()
         audio_channels = self.get_audio_channels_count()

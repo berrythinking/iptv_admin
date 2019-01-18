@@ -64,10 +64,13 @@ class StreamEntryForm(FlaskForm):
     log_level = SelectField(lazy_gettext(u'Log level:'), validators=[],
                             choices=constants.AVAILABLE_LOG_LEVELS_PAIRS, coerce=constants.StreamLogLevel.coerce)
     audio_select = IntegerField(lazy_gettext(u'Audio select:'),
-                                validators=[InputRequired(), NumberRange(constants.DEFAULT_AUDIO_SELECT, 1000)])
+                                validators=[InputRequired(), NumberRange(constants.INVALID_AUDIO_SELECT, 1000)])
     have_video = BooleanField(lazy_gettext(u'Have video:'), validators=[])
     have_audio = BooleanField(lazy_gettext(u'Have audio:'), validators=[])
     loop = BooleanField(lazy_gettext(u'Loop:'), validators=[])
+    restart_attempts = IntegerField(lazy_gettext(u'Max restart attempts and frozen:'),
+                                    validators=[NumberRange(1, 1000)])
+    auto_exit_time = IntegerField(lazy_gettext(u'Auto exit time:'), validators=[])
     submit = SubmitField(lazy_gettext(u'Confirm'))
 
     def make_entry(self):
@@ -85,6 +88,8 @@ class StreamEntryForm(FlaskForm):
         entry.have_audio = self.have_audio.data
         entry.log_level = self.log_level.data
         entry.loop = self.loop.data
+        entry.restart_attempts = self.restart_attempts.data
+        entry.auto_exit_time = self.auto_exit_time.data
         return entry
 
 
