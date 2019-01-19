@@ -9,7 +9,7 @@ Page not found | {{ config['PUBLIC_CONFIG'].site.title }}
         <div class="well">
             <h1>{% trans %}Page Not Found{% endtrans %}</h1>
             <p>{% trans %}What you were looking for is just not there.{% endtrans %}</p>
-            <p><a href="{{ url_for('home.start') }}">{% trans %}go somewhere nice{% endtrans %}</a></p>
+            <p><a href="{{ url_for('HomeView:index') }}">{% trans %}go somewhere nice{% endtrans %}</a></p>
         </div>
     </div>
 </div>

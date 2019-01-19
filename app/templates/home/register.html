@@ -8,7 +8,7 @@ Register | {{ config['PUBLIC_CONFIG'].site.title }}
     <div class="panel panel-default center-block text-center">
         <div class="panel-heading">
             <h1 class="panel-title"><a
-                    href="{{ url_for('home.start') }}">{{ config['PUBLIC_CONFIG'].site.title }}</a></h1>
+                    href="{{ url_for('HomeView:index') }}">{{ config['PUBLIC_CONFIG'].site.title }}</a></h1>
         </div>
         <div class="panel-body">
             <h3>{% trans %}Sign Up{% endtrans %}</h3>
@@ -30,8 +30,8 @@ Register | {{ config['PUBLIC_CONFIG'].site.title }}
                            value="">
                 </div>
                 <p class="tos-info conditions-for-submit">By clicking "{{ form.submit.label }}" below, you agree to our
-                    <a href={{ url_for('home.term_of_use') }} target="_blank">terms of service</a> and
-                    <a href={{ url_for('home.private_policy') }} target="_blank">privacy statement</a>. We’ll
+                    <a href={{ url_for('HomeView:term_of_use') }} target="_blank">terms of service</a> and
+                    <a href={{ url_for('HomeView:private_policy') }} target="_blank">privacy statement</a>. We’ll
                     occasionally
                     send
                     you account related emails.
@@ -40,10 +40,10 @@ Register | {{ config['PUBLIC_CONFIG'].site.title }}
             </form>
         </div>
         <div class="panel-footer text-left">{% trans %}Already registered?{% endtrans %}
-            <a class="pull-right" href={{ url_for('home.login') }}><b>{% trans %}Sign in{% endtrans %}</b></a>
+            <a class="pull-right" href={{ url_for('HomeView:signin') }}><b>{% trans %}Sign in{% endtrans %}</b></a>
         </div>
     </div>
-    <div class="text-center"><a class="back-to-site" href="{{ url_for('home.start') }}">&#8592;&nbsp;{% trans %}Home{%
+    <div class="text-center"><a class="back-to-site" href="{{ url_for('HomeView:index') }}">&#8592;&nbsp;{% trans %}Home{%
         endtrans %} {{ config['PUBLIC_CONFIG'].site.title }}</a></div>
 </div>
 {%- endblock %}

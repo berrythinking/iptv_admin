@@ -1,4 +1,4 @@
-from flask import Flask, request, send_from_directory
+from flask import Flask, render_template
 from flask_mongoengine import MongoEngine
 from flask_login import LoginManager
 from flask_mail import Mail
@@ -21,19 +21,17 @@ socketio = SocketIO(app)
 
 login_manager = LoginManager(app)
 
-# blueprints
-from app.home import home as home_blueprint
+from app.home.view import HomeView
+HomeView.register(app)
 
-app.register_blueprint(home_blueprint)
+from app.user.view import UserView
+UserView.register(app)
 
-from app.user import user as user_blueprint
-
-app.register_blueprint(user_blueprint, url_prefix='/user')
-
-login_manager.login_view = "home.login"
+login_manager.login_view = "HomeView:login"
 
 
-@app.route('/robots.txt')
-@app.route('/sitemap.xml')
-def static_from_root():
-    return send_from_directory(app.static_folder, request.path[1:])
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+
+app.register_error_handler(404, page_not_found)

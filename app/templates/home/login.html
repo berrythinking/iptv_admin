@@ -8,7 +8,7 @@ Login | {{ config['PUBLIC_CONFIG'].site.title }}
 <div class="container center-block">
     <div class="panel panel-default text-center">
         <div class="panel-heading">
-            <h1 class="panel-title"><a href="{{ url_for('home.start') }}">{{ config['PUBLIC_CONFIG'].site.title }}</a>
+            <h1 class="panel-title"><a href="{{ url_for('HomeView:index') }}">{{ config['PUBLIC_CONFIG'].site.title }}</a>
             </h1>
         </div>
         <div class="panel-body">
@@ -34,10 +34,10 @@ Login | {{ config['PUBLIC_CONFIG'].site.title }}
             </form>
         </div>
         <div class="panel-footer text-left">{% trans %}Don`t have an account?{% endtrans %}
-            <a class="pull-right" href={{ url_for('home.register') }}><b>{% trans %}Sign up{% endtrans %}</b></a>
+            <a class="pull-right" href={{ url_for('HomeView:signup') }}><b>{% trans %}Sign up{% endtrans %}</b></a>
         </div>
     </div>
-    <div class="text-center"><a class="back-to-site" href="{{ url_for('home.start') }}">&#8592;&nbsp;{% trans %}return
+    <div class="text-center"><a class="back-to-site" href="{{ url_for('HomeView:index') }}">&#8592;&nbsp;{% trans %}return
         to the
         web-site{% endtrans %} {{ config['PUBLIC_CONFIG'].site.title }}</a></div>
 </div>

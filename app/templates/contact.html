@@ -13,7 +13,7 @@ Contact | {{ config['PUBLIC_CONFIG'].site.title }}
     <div class="panel panel-default center-block text-center">
         <div class="panel-heading">
             <h1 class="panel-title"><a
-                    href="{{ url_for('home.start') }}">{{ config['PUBLIC_CONFIG'].site.title }}</a></h1>
+                    href="{{ url_for('HomeView:index') }}">{{ config['PUBLIC_CONFIG'].site.title }}</a></h1>
         </div>
         <div class="panel-body">
             {% if success %}
@@ -45,7 +45,7 @@ Contact | {{ config['PUBLIC_CONFIG'].site.title }}
             {% endif %}
         </div>
     </div>
-    <div class="text-center"><a class="back-to-site" href="{{ url_for('home.start') }}">&#8592;&nbsp;{% trans %}Home{%
+    <div class="text-center"><a class="back-to-site" href="{{ url_for('HomeView:index') }}">&#8592;&nbsp;{% trans %}Home{%
         endtrans %} {{ config['PUBLIC_CONFIG'].site.title }}</a></div>
 </div>
 {% endblock %}

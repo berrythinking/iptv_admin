@@ -14,25 +14,25 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             <p>{% trans %}Welcome{% endtrans %} {{ current_user.email }}</p>
         </div>
         <div class="col-md-1">
-            <a href="{{ url_for('user.settings') }}" class="btn btn-info" role="button">{% trans %}Settings{% endtrans
+            <a href="{{ url_for('UserView:settings') }}" class="btn btn-info" role="button">{% trans %}Settings{% endtrans
                 %}</a>
         </div>
 
         {% if (status == 0) %}
         <div class="col-md-1">
-            <a href="{{ url_for('user.connect') }}" class="btn btn-info" role="button">{% trans %}Connect{% endtrans
+            <a href="{{ url_for('UserView:connect') }}" class="btn btn-info" role="button">{% trans %}Connect{% endtrans
                 %}</a>
         </div>
         {% else %}
         <div class="col-md-1">
-            <a href="{{ url_for('user.disconnect') }}" class="btn btn-info" role="button">{% trans %}Disconnect{%
+            <a href="{{ url_for('UserView:disconnect') }}" class="btn btn-info" role="button">{% trans %}Disconnect{%
                 endtrans
                 %}</a>
         </div>
         {% endif %}
 
         <div class="col-md-1">
-            <a href="{{ url_for('user.activate') }}" role="button"
+            <a href="{{ url_for('UserView:activate') }}" role="button"
                {% if (status== status.INIT) %}
                class="btn btn-info disabled"
                {% else %}
@@ -42,7 +42,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             </a>
         </div>
         <div class="col-md-1">
-            <a href="{{ url_for('user.ping_service') }}" role="button"
+            <a href="{{ url_for('UserView:ping_service') }}" role="button"
                {% if (status== status.ACTIVE) %}
                class="btn btn-info disabled"
                {% else %}
@@ -52,7 +52,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             </a>
         </div>
         <div class="col-md-1">
-            <a href="{{ url_for('user.stop_service') }}" role="button"
+            <a href="{{ url_for('UserView:stop_service') }}" role="button"
                {% if (status== status.ACTIVE) %}
                class="btn btn-info"
                {% else %}
@@ -62,7 +62,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             </a>
         </div>
         <div class="col-md-1">
-            <a href="{{ url_for('user.logout') }}" class="btn btn-info" role="button">{% trans %}Logout{% endtrans
+            <a href="{{ url_for('UserView:logout') }}" class="btn btn-info" role="button">{% trans %}Logout{% endtrans
                 %}</a>
         </div>
     </div>
@@ -180,7 +180,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         });
     }
     function add_relay_stream() {
-        var url = "{{ url_for('user.add_relay_stream') }}";
+        var url = "{{ url_for('UserView:add_relay_stream') }}";
         $.get(url, function(data) {
             $('#money_dialog .modal-content').html(data);
             $('#money_dialog').modal();
@@ -192,7 +192,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         });
     }
     function add_encode_stream() {
-        var url = "{{ url_for('user.add_encode_stream') }}";
+        var url = "{{ url_for('UserView:add_encode_stream') }}";
         $.get(url, function(data) {
             $('#money_dialog .modal-content').html(data);
             $('#money_dialog').modal();
@@ -220,7 +220,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
 
     function remove_stream(sid) {
         $.ajax({
-            url: "{{ url_for('user.remove_stream') }}",
+            url: "{{ url_for('UserView:remove_stream') }}",
             type: "POST",
             dataType: 'json',
             data: {"sid":sid},
@@ -235,7 +235,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
     }
     function start_stream(sid) {
         $.ajax({
-            url: "{{ url_for('user.start_stream') }}",
+            url: "{{ url_for('UserView:start_stream') }}",
             type: "POST",
             dataType: 'json',
             data: {"sid":sid},
@@ -250,7 +250,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
     }
     function stop_stream(sid) {
         $.ajax({
-            url: "{{ url_for('user.stop_stream') }}",
+            url: "{{ url_for('UserView:stop_stream') }}",
             type: "POST",
             dataType: 'json',
             data: {"sid":sid},
@@ -265,7 +265,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
     }
     function restart_stream(sid) {
         $.ajax({
-            url: "{{ url_for('user.restart_stream') }}",
+            url: "{{ url_for('UserView:restart_stream') }}",
             type: "POST",
             dataType: 'json',
             data: {"sid":sid},
