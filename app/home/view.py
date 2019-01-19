@@ -17,6 +17,7 @@ from app.home.forms import SignupForm, SigninForm, ContactForm
 CONFIRM_LINK_TTL = 3600
 SALT_LINK = 'email-confirm'
 
+
 def flash_success(text: str):
     flash(text, 'success')
 
@@ -51,29 +52,6 @@ def post_login(form: SigninForm):
 
     login_user(check_user)
     return redirect(url_for('UserView:dashboard'))
-
-
-# routes
-#@current_app.login_manager.user_loader
-#def load_user(user_id):
-#    return User.objects(pk=user_id).first()
-#
-#
-#@current_app.babel.localeselector
-#def get_locale():
-#    # if a user is logged in, use the locale from the user settings
-#    if current_user and current_user.is_authenticated:
-#        lc = current_user.settings.locale
-#        return lc
-#
-#    if session.get('language'):
-#        lang = session['language']
-#        return lang
-#
-#    # otherwise try to guess the language from the user accept
-#    # header the browser transmits.  We support de/fr/en in this
-#    # example.  The best match wins.
-#    return request.accept_languages.best_match(constants.AVAILABLE_LOCALES)
 
 
 class HomeView(FlaskView):
