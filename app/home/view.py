@@ -1,9 +1,9 @@
 from flask_classy import FlaskView, route
-from flask import render_template, request, redirect, url_for, flash, session, send_from_directory, current_app
+from flask import render_template, request, redirect, url_for, flash, session, send_from_directory
 from flask_login import login_user, current_user
 from flask_mail import Message
 from flask_babel import gettext
-
+from itsdangerous import URLSafeTimedSerializer
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from itsdangerous import SignatureExpired
@@ -11,11 +11,14 @@ from itsdangerous import SignatureExpired
 import app.utils as utils
 import app.constants as constants
 from app.home.user_loging_manager import User
-
 from app.home.forms import SignupForm, SigninForm, ContactForm
+
+from app import app, mail, login_manager, babel
 
 CONFIRM_LINK_TTL = 3600
 SALT_LINK = 'email-confirm'
+
+confirm_link_generator = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
 
 def flash_success(text: str):
@@ -27,10 +30,10 @@ def flash_error(text: str):
 
 
 def send_email(email: str, subject: str, message: str):
-    config = current_app.config['PUBLIC_CONFIG']
+    config = app.config['PUBLIC_CONFIG']
     msg = Message(subject, recipients=[config['support']['contact_email']])
     msg.body = 'From: {0} <{0}> {1}'.format(email, message)
-    current_app.mail.send(msg)
+    app.mail.send(msg)
 
 
 def post_login(form: SigninForm):
@@ -64,7 +67,7 @@ class HomeView(FlaskView):
     @route('/robots.txt')
     @route('/sitemap.xml')
     def static_from_root(self):
-        return send_from_directory(current_app.static_folder, request.path[1:])
+        return send_from_directory(app.static_folder, request.path[1:])
 
     @route('/contact', methods=['GET', 'POST'])
     def contact(self):
@@ -107,7 +110,7 @@ class HomeView(FlaskView):
     @route('/signin', methods=['POST', 'GET'])
     def signin(self):
         if current_user.is_authenticated:
-            return redirect(url_for('user.dashboard'))
+            return redirect(url_for('UserView:dashboard'))
 
         form = SigninForm()
         if request.method == 'POST':
@@ -117,13 +120,13 @@ class HomeView(FlaskView):
 
     @route('/private_policy')
     def private_policy(self):
-        config = current_app.app.config['PUBLIC_CONFIG']
+        config = app.config['PUBLIC_CONFIG']
         return render_template('home/private_policy.html', contact_email=config['support']['contact_email'],
                                title=config['site']['title'])
 
     @route('/term_of_use')
     def term_of_use(self):
-        config = current_app.app.config['PUBLIC_CONFIG']
+        config = app.config['PUBLIC_CONFIG']
         return render_template('home/term_of_use.html', contact_email=config['support']['contact_email'],
                                title=config['site']['title'])
 
@@ -150,13 +153,41 @@ class HomeView(FlaskView):
             token = confirm_link_generator.dumps(email, salt=SALT_LINK)
 
             confirm_url = url_for('home.confirm_email', token=token, _external=True)
-            config = current_app.config['PUBLIC_CONFIG']
+            config = app.config['PUBLIC_CONFIG']
             html = render_template('home/email/activate.html', confirm_url=confirm_url,
                                    contact_email=config['support']['contact_email'], title=config['site']['title'],
                                    company=config['company']['title'])
             msg = Message(subject=gettext(u'Confirm Email'), recipients=[email], html=html)
-            current_app.mail.send(msg)
+            mail.send(msg)
             flash_success(gettext(u'Please check email: {0}.'.format(email)))
             return redirect(url_for('home.login'))
 
         return render_template('home/register.html', form=form)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.objects(pk=user_id).first()
+
+
+@babel.localeselector
+def get_locale():
+    # if a user is logged in, use the locale from the user settings
+    if current_user and current_user.is_authenticated:
+        lc = current_user.settings.locale
+        return lc
+
+    if session.get('language'):
+        lang = session['language']
+        return lang
+
+    # otherwise try to guess the language from the user accept
+    # header the browser transmits.  We support de/fr/en in this
+    # example.  The best match wins.
+    return request.accept_languages.best_match(constants.AVAILABLE_LOCALES)
+
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+
+app.register_error_handler(404, page_not_found)

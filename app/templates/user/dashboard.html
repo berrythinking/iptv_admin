@@ -204,7 +204,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         });
     }
     function edit_stream(sid) {
-        var url = "/user/stream/edit/" + sid;
+        var url = "/stream/edit/" + sid;
         $.get(url, function(data) {
             $('#money_dialog .modal-content').html(data);
             $('#money_dialog').modal();

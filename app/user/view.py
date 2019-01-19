@@ -1,10 +1,61 @@
+import json
+
 from flask_classy import FlaskView, route
-from flask import render_template, redirect, url_for, request, jsonify, current_app
+from flask import render_template, redirect, url_for, request, jsonify
 from flask_login import logout_user, login_required, current_user
 import app.constants as constants
-
+from app.user.iptv_cloud import IptvCloud
+from app.home.stream_holder import StreamsHolder
 from app.home.stream_entry import EncodeStream, RelayStream, make_relay_stream, make_encode_stream
 from .forms import SettingsForm, ActivateForm, EncodeStreamEntryForm, RelayStreamEntryForm
+from app.user.stream_handler import IStreamHandler
+from app.client.client_constants import Commands, Status
+
+from app import app, socketio
+
+
+class StreamHandler(IStreamHandler):
+    def __init__(self):
+        pass
+
+    def on_stream_statistic_received(self, params: dict):
+        sid = params['id']
+        stream = streams_holder.find_stream_by_id(sid)
+        if stream:
+            stream.status = constants.StreamStatus(params['status'])
+
+        params_str = json.dumps(params)
+        socketio.emit(Commands.STATISTIC_STREAM_COMMAND, params_str)
+
+    def on_stream_sources_changed(self, params: dict):
+        # sid = params['id']
+        params_str = json.dumps(params)
+        socketio.emit(Commands.CHANGED_STREAM_COMMAND, params_str)
+
+    def on_service_statistic_received(self, params: dict):
+        # nid = params['id']
+        params_str = json.dumps(params)
+        socketio.emit(Commands.STATISTIC_SERVICE_COMMAND, params_str)
+
+    def on_quit_status_stream(self, params: dict):
+        # sid = params['id']
+        # stream = streams_holder.find_stream_by_id(sid)
+
+        params_str = json.dumps(params)
+        socketio.emit(Commands.QUIT_STATUS_STREAM_COMMAND, params_str)
+
+    def on_client_state_changed(self, status: Status):
+        pass
+
+
+cloud_id = app.config['CLOUD_SETTINGS']['id']
+cloud_host = app.config['CLOUD_SETTINGS']['host']
+cloud_port = app.config['CLOUD_SETTINGS']['port']
+
+cloud = IptvCloud(cloud_id, cloud_host, cloud_port)
+
+streams_holder = StreamsHolder()
+cloud.set_handler(StreamHandler())
 
 
 def get_runtime_settings():
@@ -18,7 +69,7 @@ def _add_relay_stream(method: str):
     form = RelayStreamEntryForm(obj=stream)
     if method == 'POST' and form.validate_on_submit():
         new_entry = form.make_entry()
-        current_app.streams_holder.add_stream(new_entry)
+        streams_holder.add_stream(new_entry)
         return jsonify(status='ok'), 200
 
     return render_template('user/stream/relay/add.html', form=form, feedback_dir=stream.generate_feedback_dir())
@@ -40,7 +91,7 @@ def _add_encode_stream(method: str):
     form = EncodeStreamEntryForm(obj=stream)
     if method == 'POST' and form.validate_on_submit():
         new_entry = form.make_entry()
-        current_app.streams_holder.add_stream(new_entry)
+        streams_holder.add_stream(new_entry)
         return jsonify(status='ok'), 200
 
     return render_template('user/stream/encode/add.html', form=form, feedback_dir=stream.generate_feedback_dir())
@@ -63,7 +114,7 @@ def activate_service(form: ActivateForm):
         return render_template('user/activate.html', form=form)
 
     lic = form.license.data
-    current_app.cloud.activate(lic)
+    cloud.activate(lic)
     return redirect(url_for('UserView:dashboard'))
 
 
@@ -73,8 +124,8 @@ class UserView(FlaskView):
 
     @login_required
     def dashboard(self):
-        streams = current_app.streams_holder.get_streams()
-        return render_template('user/dashboard.html', streams=streams, status=current_app.cloud.status())
+        streams = streams_holder.get_streams()
+        return render_template('user/dashboard.html', streams=streams, status=cloud.status())
 
     @route('/settings', methods=['GET', 'POST'])
     @login_required
@@ -97,13 +148,13 @@ class UserView(FlaskView):
     @route('/connect')
     @login_required
     def connect(self):
-        current_app.cloud.connect()
+        cloud.connect()
         return redirect(url_for('UserView:dashboard'))
 
     @route('/disconnect')
     @login_required
     def disconnect(self):
-        current_app.cloud.disconnect()
+        cloud.disconnect()
         return redirect(url_for('UserView:dashboard'))
 
     @route('/activate', methods=['POST', 'GET'])
@@ -119,14 +170,14 @@ class UserView(FlaskView):
     @route('/stop_service')
     @login_required
     def stop_service(self):
-        current_app.cloud.stop_service(1)
+        cloud.stop_service(1)
         return redirect(url_for('UserView:dashboard'))
 
     # stop service
     @route('/ping_service')
     @login_required
     def ping_service(self):
-        current_app.cloud.ping_service()
+        cloud.ping_service()
         return redirect(url_for('UserView:dashboard'))
 
     # stream
@@ -143,7 +194,7 @@ class UserView(FlaskView):
     @route('/stream/edit/<sid>', methods=['GET', 'POST'])
     @login_required
     def edit_stream(self, sid):
-        stream = current_app.streams_holder.find_stream_by_id(sid)
+        stream = streams_holder.find_stream_by_id(sid)
         if stream:
             if stream.type == constants.StreamType.RELAY:
                 return edit_relay_stream(request.method, stream)
@@ -157,7 +208,7 @@ class UserView(FlaskView):
     @login_required
     def remove_stream(self):
         sid = request.form['sid']
-        current_app.streams_holder.remove_stream(sid)
+        streams_holder.remove_stream(sid)
         response = {"sid": sid}
         return jsonify(response), 200
 
@@ -165,9 +216,9 @@ class UserView(FlaskView):
     @login_required
     def start_stream(self):
         sid = request.form['sid']
-        stream = current_app.streams_holder.find_stream_by_id(sid)
+        stream = streams_holder.find_stream_by_id(sid)
         if stream:
-            current_app.cloud.start_stream(stream.config())
+            cloud.start_stream(stream.config())
 
         response = {"sid": sid}
         return jsonify(response), 200
@@ -176,9 +227,9 @@ class UserView(FlaskView):
     @login_required
     def stop_stream(self):
         sid = request.form['sid']
-        stream = current_app.streams_holder.find_stream_by_id(sid)
+        stream = streams_holder.find_stream_by_id(sid)
         if stream:
-            current_app.cloud.stop_stream(sid)
+            cloud.stop_stream(sid)
 
         response = {"sid": sid}
         return jsonify(response), 200
@@ -187,9 +238,20 @@ class UserView(FlaskView):
     @login_required
     def restart_stream(self):
         sid = request.form['sid']
-        stream = current_app.streams_holder.find_stream_by_id(sid)
+        stream = streams_holder.find_stream_by_id(sid)
         if stream:
-            current_app.cloud.restart_stream(sid)
+            cloud.restart_stream(sid)
 
         response = {"sid": sid}
         return jsonify(response), 200
+
+
+# socketio
+@socketio.on('connect')
+def socketio_connect():
+    print('Client connected')
+
+
+@socketio.on('disconnect')
+def socketio_disconnect():
+    print('Client disconnected')
