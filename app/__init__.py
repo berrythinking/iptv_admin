@@ -8,9 +8,9 @@ from flask_socketio import SocketIO
 
 app = Flask(__name__, static_folder='static')
 
-# load config 
-app.config.from_pyfile('public_config.py', silent=False)
-app.config.from_pyfile('config.py', silent=True)
+# load configs
+app.config.from_pyfile('config/public_config.py', silent=False)
+app.config.from_pyfile('config/config.py', silent=True)
 
 # modules
 bootstrap = Bootstrap(app)

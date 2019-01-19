@@ -1,7 +1,6 @@
 from app import db
 from datetime import datetime
 import app.constants as constants
-from bson.objectid import ObjectId
 
 ID_FIELD = "id"
 TYPE_FIELD = "type"
@@ -266,37 +265,3 @@ def make_encode_stream() -> Stream:
     stream.input = Urls(urls=[Url(id=Url.generate_id())])
     stream.output = Urls(urls=[Url(id=Url.generate_id())])
     return stream
-
-
-class StreamsHolder:
-    def __init__(self):
-        self._streams = []
-        self._reload_from_db()
-
-    def add_stream(self, stream: Stream):
-        self._streams.append(stream)
-        stream.save()
-
-    def remove_stream(self, sid: str):
-        for stream in self._streams:
-            if stream.id == ObjectId(sid):
-                stream.delete()
-                self._streams.remove(stream)
-                break
-
-    def get_streams(self):
-        return self._streams
-
-    def find_stream_by_id(self, sid: str):
-        for stream in self._streams:
-            if stream.id == ObjectId(sid):
-                return stream
-
-        return None
-
-    # private
-    def _reload_from_db(self):
-        self._streams = []
-        streams = Stream.objects()
-        for stream in streams:
-            self._streams.append(stream)

@@ -24,7 +24,7 @@ class IptvCloud(IClientHandler):
         self._client.connect()
 
     def status(self) -> Status:
-        return self._client.status()
+        return self._client.status
 
     def disconnect(self):
         self._client.disconnect()

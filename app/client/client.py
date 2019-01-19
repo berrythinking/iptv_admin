@@ -31,6 +31,8 @@ def generate_json_rpc_response_error(message: str, code: int, command_id: str) -
 
 
 class Client:
+    MAX_PACKET_SIZE = 8 * 1024
+
     def __init__(self, host: str, port: int, handler: IClientHandler):
         self.host = host
         self.port = port
@@ -41,8 +43,13 @@ class Client:
         self._request_queue = dict()
         self._state = Status.INIT
 
-    def status(self) -> Status:
+    @property
+    def status(self):
         return self._state
+
+    @status.setter
+    def status(self, value):
+        self._state = value
 
     def connect(self):
         if self.is_connected():
@@ -188,15 +195,21 @@ class Client:
 
     def _read_response_or_request(self, timeout=1) -> (Request, Response):
         ready = select.select([self._socket], [], [], timeout)
-        if ready[0]:
-            data_size_bytes = self._socket.recv(4)
-            if data_size_bytes:
-                unp = struct.unpack("I", data_size_bytes)
-                data_size = socket.ntohl(unp[0])
-                if data_size < 8 * 1024:
-                    data = self._socket.recv(data_size)
-                    if data:
-                        decoded_data = data.decode()
-                        return parse_response_or_request(decoded_data)
+        if not ready[0]:
+            return None, None
 
-        return None, None
+        data_size_bytes = self._socket.recv(4)
+        if not data_size_bytes:
+            return None, None
+
+        unp = struct.unpack("I", data_size_bytes)
+        data_size = socket.ntohl(unp[0])
+        if not data_size < Client.MAX_PACKET_SIZE:
+            return None, None
+
+        data = self._socket.recv(data_size)
+        if not data:
+            return None, None
+
+        decoded_data = data.decode()
+        return parse_response_or_request(decoded_data)

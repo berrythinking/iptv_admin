@@ -19,8 +19,7 @@ class SettingsForm(FlaskForm):
     submit = SubmitField(lazy_gettext(u'Apply'))
 
     def make_settings(self):
-        settings = Settings()
-        return self.update_settings(settings)
+        return self.update_settings(Settings())
 
     def update_settings(self, settings: Settings):
         settings.locale = self.locale.data
@@ -74,8 +73,7 @@ class StreamEntryForm(FlaskForm):
     submit = SubmitField(lazy_gettext(u'Confirm'))
 
     def make_entry(self):
-        entry = Stream()
-        return self.update_entry(entry)
+        return self.update_entry(Stream())
 
     def update_entry(self, entry: Stream):
         entry.name = self.name.data
@@ -100,8 +98,7 @@ class RelayStreamEntryForm(StreamEntryForm):
                                choices=constants.AVAILABLE_AUDIO_PARSERS)
 
     def make_entry(self):
-        entry = RelayStream()
-        return self.update_entry(entry)
+        return self.update_entry(RelayStream())
 
     def update_entry(self, entry: RelayStream):
         entry.video_parser = self.video_parser.data
@@ -171,8 +168,7 @@ class EncodeStreamEntryForm(StreamEntryForm):
     aspect_ratio = FormField(RationalForm, lazy_gettext(u'Aspect ratio:'), validators=[])
 
     def make_entry(self):
-        entry = EncodeStream()
-        return self.update_entry(entry)
+        return self.update_entry(EncodeStream())
 
     def update_entry(self, entry: EncodeStream):
         entry.deinterlace = self.deinterlace.data

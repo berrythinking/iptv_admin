@@ -5,7 +5,8 @@ import app.constants as constants
 
 from app.user import user, cloud
 from app import socketio
-from app.home.stream_entry import StreamsHolder, EncodeStream, RelayStream, make_relay_stream, make_encode_stream
+from app.home.stream_holder import StreamsHolder
+from app.home.stream_entry import EncodeStream, RelayStream, make_relay_stream, make_encode_stream
 from .forms import SettingsForm, ActivateForm, EncodeStreamEntryForm, RelayStreamEntryForm
 from .stream_handler import IStreamHandler
 from app.client.client_constants import Commands, Status

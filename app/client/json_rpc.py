@@ -17,19 +17,8 @@ class Request:
         return not self.id
 
     def to_dict(self) -> dict:
-        if self.id:
-            return {
-                "method": self.method,
-                "params": self.params,
-                "jsonrpc": "2.0",
-                "id": self.id,
-            }
-        else:
-            return {
-                "method": self.method,
-                "params": self.params,
-                "jsonrpc": "2.0"
-            }
+        _base = {"method": self.method, "params": self.params, "jsonrpc": "2.0"}
+        return {'id': self.id, **_base} if self.id else _base
 
 
 class Response:
