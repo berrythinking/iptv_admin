@@ -7,6 +7,7 @@ from flask_babel import Babel
 from flask_socketio import SocketIO
 from app.home.view import HomeView
 from app.user.view import UserView
+from itsdangerous import URLSafeTimedSerializer
 
 
 def init_project(static_folder, *args):
@@ -21,16 +22,17 @@ def init_project(static_folder, *args):
     mail = Mail(app)
     socketio = SocketIO(app)
     login_manager = LoginManager(app)
+    confirm_link_generator = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
     HomeView.register(app)
     UserView.register(app)
 
     login_manager.login_view = "HomeView:login"
 
-    return app, bootstrap, babel, db, mail, socketio, login_manager
+    return app, bootstrap, babel, db, mail, socketio, login_manager, confirm_link_generator
 
 
-app, bootstrap, babel, db, mail, socketio, login_manager = init_project(
+app, bootstrap, babel, db, mail, socketio, login_manager, confirm_link_generator = init_project(
     'static',
     'config/public_config.py',
     'config/config.py',

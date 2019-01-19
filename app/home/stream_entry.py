@@ -1,4 +1,5 @@
-from app import db
+from mongoengine import EmbeddedDocument, StringField, IntField, ListField, EmbeddedDocumentField, Document, \
+    DateTimeField, BooleanField, FloatField
 from datetime import datetime
 import app.constants as constants
 
@@ -33,11 +34,11 @@ AUDIO_PARSER_FIELD = "audio_parser"
 
 
 # {"urls": [{"id": 81,"uri": "tcp://localhost:1935"}]}
-class Url(db.EmbeddedDocument):
+class Url(EmbeddedDocument):
     _next_url_id = 0
 
-    id = db.IntField(default=lambda: Url.generate_id(), required=True)
-    uri = db.StringField(default='test', max_length=constants.MAX_URL_LENGTH, required=True)
+    id = IntField(default=lambda: Url.generate_id(), required=True)
+    uri = StringField(default='test', max_length=constants.MAX_URL_LENGTH, required=True)
 
     @staticmethod
     def generate_id():
@@ -46,26 +47,26 @@ class Url(db.EmbeddedDocument):
         return current_value
 
 
-class Urls(db.EmbeddedDocument):
-    urls = db.ListField(db.EmbeddedDocumentField(Url))
+class Urls(EmbeddedDocument):
+    urls = ListField(EmbeddedDocumentField(Url))
 
 
-class Stream(db.Document):
+class Stream(Document):
     meta = {'collection': 'streams', 'auto_create_index': False, 'allow_inheritance': True}
-    name = db.StringField(default=constants.DEFAULT_STREAM_NAME, max_length=constants.MAX_STREAM_NAME_LENGTH,
-                          required=True)
-    type = db.IntField(default=constants.StreamType.RELAY, required=True)
-    created_date = db.DateTimeField(default=datetime.now)  # for inner use
-    log_level = db.IntField(default=constants.StreamLogLevel.LOG_LEVEL_INFO, required=True)
+    name = StringField(default=constants.DEFAULT_STREAM_NAME, max_length=constants.MAX_STREAM_NAME_LENGTH,
+                       required=True)
+    type = IntField(default=constants.StreamType.RELAY, required=True)
+    created_date = DateTimeField(default=datetime.now)  # for inner use
+    log_level = IntField(default=constants.StreamLogLevel.LOG_LEVEL_INFO, required=True)
 
-    input = db.EmbeddedDocumentField(Urls, default=Urls())
-    output = db.EmbeddedDocumentField(Urls, default=Urls())
-    have_video = db.BooleanField(default=constants.DEFAULT_HAVE_VIDEO, required=True)
-    have_audio = db.BooleanField(default=constants.DEFAULT_HAVE_AUDIO, required=True)
-    audio_select = db.IntField(default=constants.INVALID_AUDIO_SELECT, required=True)
-    loop = db.BooleanField(default=constants.DEFAULT_LOOP, required=True)
-    restart_attempts = db.IntField(default=constants.DEFAULT_RESTART_ATTEMPTS, required=True)
-    auto_exit_time = db.IntField(default=constants.DEFAULT_AUTO_EXIT_TIME, required=True)
+    input = EmbeddedDocumentField(Urls, default=Urls())
+    output = EmbeddedDocumentField(Urls, default=Urls())
+    have_video = BooleanField(default=constants.DEFAULT_HAVE_VIDEO, required=True)
+    have_audio = BooleanField(default=constants.DEFAULT_HAVE_AUDIO, required=True)
+    audio_select = IntField(default=constants.INVALID_AUDIO_SELECT, required=True)
+    loop = BooleanField(default=constants.DEFAULT_LOOP, required=True)
+    restart_attempts = IntField(default=constants.DEFAULT_RESTART_ATTEMPTS, required=True)
+    auto_exit_time = IntField(default=constants.DEFAULT_AUTO_EXIT_TIME, required=True)
 
     # runtime
     status = constants.StreamStatus.NEW
@@ -127,8 +128,8 @@ class RelayStream(Stream):
         super(RelayStream, self).__init__(*args, **kwargs)
         # super(RelayStream, self).type = constants.StreamType.RELAY
 
-    video_parser = db.StringField(default=constants.DEFAULT_VIDEO_PARSER, required=True)
-    audio_parser = db.StringField(default=constants.DEFAULT_AUDIO_PARSER, required=True)
+    video_parser = StringField(default=constants.DEFAULT_VIDEO_PARSER, required=True)
+    audio_parser = StringField(default=constants.DEFAULT_AUDIO_PARSER, required=True)
 
     def config(self) -> dict:
         conf = super(RelayStream, self).config()
@@ -143,11 +144,11 @@ class RelayStream(Stream):
         return self.audio_parser
 
 
-class Logo(db.EmbeddedDocument):
-    path = db.StringField(default=constants.INVALID_LOGO_PATH, required=True)
-    x = db.IntField(default=constants.DEFAULT_LOGO_X, required=True)
-    y = db.IntField(default=constants.DEFAULT_LOGO_Y, required=True)
-    alpha = db.FloatField(default=constants.DEFAULT_LOGO_ALPHA, required=True)
+class Logo(EmbeddedDocument):
+    path = StringField(default=constants.INVALID_LOGO_PATH, required=True)
+    x = IntField(default=constants.DEFAULT_LOGO_X, required=True)
+    y = IntField(default=constants.DEFAULT_LOGO_Y, required=True)
+    alpha = FloatField(default=constants.DEFAULT_LOGO_ALPHA, required=True)
 
     def is_valid(self):
         return self.path != constants.INVALID_LOGO_PATH
@@ -156,9 +157,9 @@ class Logo(db.EmbeddedDocument):
         return {'path': self.path, 'position': '{0},{1}'.format(self.x, self.y), 'alpha': self.alpha}
 
 
-class Size(db.EmbeddedDocument):
-    width = db.IntField(default=constants.INVALID_WIDTH, required=True)
-    height = db.IntField(default=constants.INVALID_HEIGHT, required=True)
+class Size(EmbeddedDocument):
+    width = IntField(default=constants.INVALID_WIDTH, required=True)
+    height = IntField(default=constants.INVALID_HEIGHT, required=True)
 
     def is_valid(self):
         return self.width != constants.INVALID_WIDTH and self.height != constants.INVALID_HEIGHT
@@ -167,9 +168,9 @@ class Size(db.EmbeddedDocument):
         return '{0}x{1}'.format(self.width, self.height)
 
 
-class Rational(db.EmbeddedDocument):
-    num = db.IntField(default=constants.INVALID_RATIO_NUM, required=True)
-    den = db.IntField(default=constants.INVALID_RATIO_DEN, required=True)
+class Rational(EmbeddedDocument):
+    num = IntField(default=constants.INVALID_RATIO_NUM, required=True)
+    den = IntField(default=constants.INVALID_RATIO_DEN, required=True)
 
     def is_valid(self):
         return self.num != constants.INVALID_RATIO_NUM and self.den != constants.INVALID_RATIO_DEN
@@ -182,17 +183,17 @@ class EncodeStream(Stream):
     def __init__(self, *args, **kwargs):
         super(EncodeStream, self).__init__(*args, **kwargs)
 
-    deinterlace = db.BooleanField(default=constants.DEFAULT_DEINTERLACE, required=True)
-    frame_rate = db.IntField(default=constants.INVALID_FRAME_RATE, required=True)
-    volume = db.FloatField(default=constants.DEFAULT_VOLUME, required=True)
-    video_codec = db.StringField(default=constants.DEFAULT_VIDEO_CODEC, required=True)
-    audio_codec = db.StringField(default=constants.DEFAULT_AUDIO_CODEC, required=True)
-    audio_channels_count = db.IntField(default=constants.INVALID_AUDIO_CHANNELS_COUNT, required=True)
-    size = db.EmbeddedDocumentField(Size, default=Size())
-    video_bit_rate = db.IntField(default=constants.INVALID_VIDEO_BIT_RATE, required=True)
-    audio_bit_rate = db.IntField(default=constants.INVALID_AUDIO_BIT_RATE, required=True)
-    logo = db.EmbeddedDocumentField(Logo, default=Logo())
-    aspect_ratio = db.EmbeddedDocumentField(Rational, default=Rational())
+    deinterlace = BooleanField(default=constants.DEFAULT_DEINTERLACE, required=True)
+    frame_rate = IntField(default=constants.INVALID_FRAME_RATE, required=True)
+    volume = FloatField(default=constants.DEFAULT_VOLUME, required=True)
+    video_codec = StringField(default=constants.DEFAULT_VIDEO_CODEC, required=True)
+    audio_codec = StringField(default=constants.DEFAULT_AUDIO_CODEC, required=True)
+    audio_channels_count = IntField(default=constants.INVALID_AUDIO_CHANNELS_COUNT, required=True)
+    size = EmbeddedDocumentField(Size, default=Size())
+    video_bit_rate = IntField(default=constants.INVALID_VIDEO_BIT_RATE, required=True)
+    audio_bit_rate = IntField(default=constants.INVALID_AUDIO_BIT_RATE, required=True)
+    logo = EmbeddedDocumentField(Logo, default=Logo())
+    aspect_ratio = EmbeddedDocumentField(Rational, default=Rational())
 
     def config(self) -> dict:
         conf = super(EncodeStream, self).config()

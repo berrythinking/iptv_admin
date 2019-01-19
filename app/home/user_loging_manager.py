@@ -1,22 +1,21 @@
+from mongoengine import Document, StringField, DateTimeField, IntField, EmbeddedDocumentField
 from datetime import datetime
 from enum import IntEnum
-
 from flask_login import UserMixin
 
-from app import db
 from .settings import Settings
 
 
-class User(UserMixin, db.Document):
+class User(UserMixin, Document):
     class Status(IntEnum):
         NO_ACTIVE = 0
         ACTIVE = 1
         BANNED = 2
 
     meta = {'collection': 'users', 'auto_create_index': False}
-    email = db.StringField(max_length=30, required=True)
-    password = db.StringField(required=True)
-    created_date = db.DateTimeField(default=datetime.now)
-    status = db.IntField(default=Status.NO_ACTIVE)
+    email = StringField(max_length=30, required=True)
+    password = StringField(required=True)
+    created_date = DateTimeField(default=datetime.now)
+    status = IntField(default=Status.NO_ACTIVE)
 
-    settings = db.EmbeddedDocumentField(Settings, default=Settings)
+    settings = EmbeddedDocumentField(Settings, default=Settings)

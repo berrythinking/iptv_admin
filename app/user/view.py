@@ -1,10 +1,9 @@
 from flask_classy import FlaskView, route
-from flask import render_template, redirect, url_for, request, jsonify
+from flask import render_template, redirect, url_for, request, jsonify, current_app
 from flask_login import logout_user, login_required, current_user
 import json
 import app.constants as constants
 
-from app import socketio, app
 from app.home.stream_holder import StreamsHolder
 from app.home.stream_entry import EncodeStream, RelayStream, make_relay_stream, make_encode_stream
 from .forms import SettingsForm, ActivateForm, EncodeStreamEntryForm, RelayStreamEntryForm
@@ -13,13 +12,13 @@ from app.client.client_constants import Commands, Status
 
 from .iptv_cloud import IptvCloud
 
-cloud_id = app.config['CLOUD_SETTINGS']['id']
-cloud_host = app.config['CLOUD_SETTINGS']['host']
-cloud_port = app.config['CLOUD_SETTINGS']['port']
-
-cloud = IptvCloud(cloud_id, cloud_host, cloud_port)
-
-streams_holder = StreamsHolder()
+#cloud_id = current_app.config['CLOUD_SETTINGS']['id']
+#cloud_host = current_app.config['CLOUD_SETTINGS']['host']
+#cloud_port = current_app.config['CLOUD_SETTINGS']['port']
+#
+#cloud = IptvCloud(cloud_id, cloud_host, cloud_port)
+#
+#streams_holder = StreamsHolder()
 
 
 class StreamHandler(IStreamHandler):
@@ -33,31 +32,31 @@ class StreamHandler(IStreamHandler):
             stream.status = constants.StreamStatus(params['status'])
 
         params_str = json.dumps(params)
-        socketio.emit(Commands.STATISTIC_STREAM_COMMAND, params_str)
+        current_app.socketio.emit(Commands.STATISTIC_STREAM_COMMAND, params_str)
 
     def on_stream_sources_changed(self, params: dict):
         # sid = params['id']
         params_str = json.dumps(params)
-        socketio.emit(Commands.CHANGED_STREAM_COMMAND, params_str)
+        current_app.socketio.emit(Commands.CHANGED_STREAM_COMMAND, params_str)
 
     def on_service_statistic_received(self, params: dict):
         # nid = params['id']
         params_str = json.dumps(params)
-        socketio.emit(Commands.STATISTIC_SERVICE_COMMAND, params_str)
+        current_app.socketio.emit(Commands.STATISTIC_SERVICE_COMMAND, params_str)
 
     def on_quit_status_stream(self, params: dict):
         # sid = params['id']
         # stream = streams_holder.find_stream_by_id(sid)
 
         params_str = json.dumps(params)
-        socketio.emit(Commands.QUIT_STATUS_STREAM_COMMAND, params_str)
+        current_app.socketio.emit(Commands.QUIT_STATUS_STREAM_COMMAND, params_str)
 
     def on_client_state_changed(self, status: Status):
         pass
 
 
-stream_handler = StreamHandler()
-cloud.set_handler(stream_handler)
+#stream_handler = StreamHandler()
+#cloud.set_handler(stream_handler)
 
 
 def get_runtime_settings():
@@ -249,17 +248,17 @@ class UserView(FlaskView):
 
 
 # socketio
-@socketio.on('test')
-def socketio_test(message):
-    print(message)
-
-
-@socketio.on('connect')
-def socketio_connect():
-    print('Client connected')
-    socketio.emit('newnumber', {'number': 11})
-
-
-@socketio.on('disconnect')
-def socketio_disconnect():
-    print('Client disconnected')
+#@current_app.socketio.on('test')
+#def socketio_test(message):
+#    print(message)
+#
+#
+#@current_app.socketio.on('connect')
+#def socketio_connect():
+#    print('Client connected')
+#    current_app.socketio.emit('newnumber', {'number': 11})
+#
+#
+#@current_app.socketio.on('disconnect')
+#def socketio_disconnect():
+#    print('Client disconnected')
