@@ -61,19 +61,19 @@ class IptvCloud(IClientHandler):
                                  constants.DEFAULT_DVB_DIR_PATH, constants.DEFAULT_CAPTURE_DIR_PATH)
 
     def process_request(self, req: Request):
-        if req:
-            if req.method == Commands.STATISTIC_STREAM_COMMAND:
-                if self._handler:
-                    self._handler.on_stream_statistic_received(req.params)
-            elif req.method == Commands.CHANGED_STREAM_COMMAND:
-                if self._handler:
-                    self._handler.on_stream_sources_changed(req.params)
-            elif req.method == Commands.STATISTIC_SERVICE_COMMAND:
-                if self._handler:
-                    self._handler.on_service_statistic_received(req.params)
-            elif req.method == Commands.QUIT_STATUS_STREAM_COMMAND:
-                if self._handler:
-                    self._handler.on_quit_status_stream(req.params)
+        if not req:
+            return
+        if not self._handler:
+            return
+
+        if req.method == Commands.STATISTIC_STREAM_COMMAND:
+            self._handler.on_stream_statistic_received(req.params)
+        elif req.method == Commands.CHANGED_STREAM_COMMAND:
+            self._handler.on_stream_sources_changed(req.params)
+        elif req.method == Commands.STATISTIC_SERVICE_COMMAND:
+            self._handler.on_service_statistic_received(req.params)
+        elif req.method == Commands.QUIT_STATUS_STREAM_COMMAND:
+            self._handler.on_quit_status_stream(req.params)
 
     def on_client_state_changed(self, status: Status):
         if self._handler:
