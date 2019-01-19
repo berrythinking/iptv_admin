@@ -43,6 +43,17 @@ class Client:
         self._request_queue = dict()
         self._state = Status.INIT
 
+    def is_active(self):
+        return self._state == Status.ACTIVE
+
+    def is_active_decorator(foo):
+        def closure(self, *args, **kwargs):
+            if not self.is_active():
+                return
+            return foo(self, *args, *kwargs)
+
+        return closure
+
     @property
     def status(self):
         return self._state
@@ -87,20 +98,13 @@ class Client:
         command_args = {"license_key": license_key}
         self._send_request(command_id, Commands.ACTIVATE_COMMAND, command_args)
 
-    def is_active(self):
-        return self._state == Status.ACTIVE
-
+    @is_active_decorator
     def ping_service(self, command_id: int):
-        if not self.is_active():
-            return
-
         self._send_request(command_id, Commands.SERVICE_PING_COMMAND, {"timestamp": make_utc_timestamp()})
 
+    @is_active_decorator
     def prepare_service(self, command_id: int, feedback_directory: str, timeshifts_directory: str, hls_directory: str,
                         playlists_directory: str, dvb_directory: str, capture_card_directory: str):
-        if not self.is_active():
-            return
-
         command_args = {
             "feedback_directory": feedback_directory,
             "timeshifts_directory": timeshifts_directory,
@@ -111,31 +115,23 @@ class Client:
         }
         self._send_request(command_id, Commands.PREPARE_SERVICE_COMMAND, command_args)
 
+    @is_active_decorator
     def stop_service(self, command_id: int, delay: int):
-        if not self.is_active():
-            return
-
         command_args = {"delay": delay}
         self._send_request(command_id, Commands.STOP_SERVICE_COMMAND, command_args)
 
+    @is_active_decorator
     def start_stream(self, command_id: int, config: dict):
-        if not self.is_active():
-            return
-
         command_args = {"config": config}
         self._send_request(command_id, Commands.START_STREAM_COMMAND, command_args)
 
+    @is_active_decorator
     def stop_stream(self, command_id: int, stream_id: str):
-        if not self.is_active():
-            return
-
         command_args = {"id": stream_id}
         self._send_request(command_id, Commands.STOP_STREAM_COMMAND, command_args)
 
+    @is_active_decorator
     def restart_stream(self, command_id: int, stream_id: str):
-        if not self.is_active():
-            return
-
         command_args = {"id": stream_id}
         self._send_request(command_id, Commands.RESTART_STREAM_COMMAND, command_args)
 
@@ -145,10 +141,8 @@ class Client:
         if self._handler:
             self._handler.on_client_state_changed(status)
 
+    @is_active_decorator
     def _pong(self, command_id: str):
-        if not self.is_active():
-            return
-
         self._send_response(command_id, {"timestamp": make_utc_timestamp()})
 
     def _send_request(self, command_id, method: str, params):

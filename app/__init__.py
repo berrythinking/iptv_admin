@@ -6,7 +6,7 @@ from flask_bootstrap import Bootstrap
 from flask_babel import Babel
 from flask_socketio import SocketIO
 
-app = Flask(__name__, static_folder='static')
+app = Flask(__name__)
 
 # load configs
 app.config.from_pyfile('config/public_config.py', silent=False)

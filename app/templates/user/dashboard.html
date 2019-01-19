@@ -44,9 +44,9 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         <div class="col-md-1">
             <a href="{{ url_for('user.ping_service') }}" role="button"
                {% if (status== status.ACTIVE) %}
-               class="btn btn-info"
-               {% else %}
                class="btn btn-info disabled"
+               {% else %}
+               class="btn btn-info"
                {% endif %}>
                 {% trans %}Ping{% endtrans %}
             </a>
