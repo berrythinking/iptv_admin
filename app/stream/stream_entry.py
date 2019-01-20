@@ -1,6 +1,7 @@
 from mongoengine import EmbeddedDocument, StringField, IntField, ListField, EmbeddedDocumentField, Document, \
     DateTimeField, BooleanField, FloatField
 from datetime import datetime
+
 import app.constants as constants
 
 ID_FIELD = "id"
@@ -240,12 +241,6 @@ class EncodeStream(Stream):
 
     def get_audio_channels_count(self):
         return self.audio_channels_count
-
-    def get_width(self):
-        return self.width
-
-    def get_height(self):
-        return self.height
 
     def get_video_bit_rate(self):
         return self.video_bit_rate

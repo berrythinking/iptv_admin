@@ -35,6 +35,8 @@ app, bootstrap, babel, db, mail, socketio, login_manager = init_project(
 
 from app.home.view import HomeView
 from app.user.view import UserView
+from app.stream.view import StreamView
 
 HomeView.register(app)
 UserView.register(app)
+StreamView.register(app)

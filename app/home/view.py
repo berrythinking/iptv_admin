@@ -3,22 +3,16 @@ from flask import render_template, request, redirect, url_for, flash, session, s
 from flask_login import login_user, current_user
 from flask_mail import Message
 from flask_babel import gettext
-from itsdangerous import URLSafeTimedSerializer
+
 from werkzeug.security import generate_password_hash, check_password_hash
+from itsdangerous import SignatureExpired, URLSafeTimedSerializer
 
-from itsdangerous import SignatureExpired
-
-import app.utils as utils
 import app.constants as constants
-from app.home.user_loging_manager import User
-from app.home.forms import SignupForm, SigninForm, ContactForm
+import app.utils as utils
 
 from app import app, mail, login_manager, babel
-
-CONFIRM_LINK_TTL = 3600
-SALT_LINK = 'email-confirm'
-
-confirm_link_generator = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+from .user_loging_manager import User
+from .forms import SignupForm, SigninForm, ContactForm
 
 
 def flash_success(text: str):
@@ -58,7 +52,13 @@ def post_login(form: SigninForm):
 
 
 class HomeView(FlaskView):
+    CONFIRM_LINK_TTL = 3600
+    SALT_LINK = 'email-confirm'
+
     route_base = "/"
+
+    def __init__(self):
+        self._confirm_link_generator = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
     def index(self):
         languages = constants.AVAILABLE_LOCALES_PAIRS
@@ -85,23 +85,23 @@ class HomeView(FlaskView):
             return render_template('contact.html', form=form)
 
     @route('/language/<language>')
-    def set_language(language=constants.DEFAULT_LOCALE):
+    def set_language(self, language=constants.DEFAULT_LOCALE):
         founded = next((x for x in constants.AVAILABLE_LOCALES if x == language), None)
         if founded:
             session['language'] = founded
 
-        return redirect(url_for('home.start'))
+        return redirect(url_for('HomeView:index'))
 
-    @route('/confirm_email/<token>')
-    def confirm_email(token):
+    def confirm_email(self, token):
         try:
-            email = confirm_link_generator.loads(token, salt=SALT_LINK, max_age=CONFIRM_LINK_TTL)
+            email = self._confirm_link_generator.loads(token, salt=HomeView.SALT_LINK,
+                                                       max_age=HomeView.CONFIRM_LINK_TTL)
             confirm_user = User.objects(email=email).first()
             if confirm_user:
                 confirm_user.status = User.Status.ACTIVE
                 confirm_user.save()
                 login_user(confirm_user)
-                return redirect(url_for('home.login'))
+                return redirect(url_for('HomeView:signin'))
             else:
                 return '<h1>We can\'t find user.</h1>'
         except SignatureExpired:
@@ -118,13 +118,11 @@ class HomeView(FlaskView):
 
         return render_template('home/login.html', form=form)
 
-    @route('/private_policy')
     def private_policy(self):
         config = app.config['PUBLIC_CONFIG']
         return render_template('home/private_policy.html', contact_email=config['support']['contact_email'],
                                title=config['site']['title'])
 
-    @route('/term_of_use')
     def term_of_use(self):
         config = app.config['PUBLIC_CONFIG']
         return render_template('home/term_of_use.html', contact_email=config['support']['contact_email'],
@@ -144,15 +142,15 @@ class HomeView(FlaskView):
 
             existing_user = User.objects(email=email).first()
             if existing_user:
-                return redirect(url_for('home.login'))
+                return redirect(url_for('HomeView:signin'))
 
             hash_pass = generate_password_hash(form.password.data, method='sha256')
             new_user = User(email=email, password=hash_pass)
             new_user.save()
 
-            token = confirm_link_generator.dumps(email, salt=SALT_LINK)
+            token = self._confirm_link_generator.dumps(email, salt=HomeView.SALT_LINK)
 
-            confirm_url = url_for('home.confirm_email', token=token, _external=True)
+            confirm_url = url_for('HomeView:confirm_email', token=token, _external=True)
             config = app.config['PUBLIC_CONFIG']
             html = render_template('home/email/activate.html', confirm_url=confirm_url,
                                    contact_email=config['support']['contact_email'], title=config['site']['title'],
@@ -160,7 +158,7 @@ class HomeView(FlaskView):
             msg = Message(subject=gettext(u'Confirm Email'), recipients=[email], html=html)
             mail.send(msg)
             flash_success(gettext(u'Please check email: {0}.'.format(email)))
-            return redirect(url_for('home.login'))
+            return redirect(url_for('HomeView:signin'))
 
         return render_template('home/register.html', form=form)
 
@@ -185,6 +183,7 @@ def get_locale():
     # header the browser transmits.  We support de/fr/en in this
     # example.  The best match wins.
     return request.accept_languages.best_match(constants.AVAILABLE_LOCALES)
+
 
 def page_not_found(e):
     return render_template('404.html'), 404

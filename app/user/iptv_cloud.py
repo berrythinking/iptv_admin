@@ -2,10 +2,10 @@ from app.client.client import Client
 from app.client.client_handler import IClientHandler
 from app.client.json_rpc import Request, Response
 from app.client.client_constants import Commands, Status
-from app.user.stream_handler import IStreamHandler
 
 import app.constants as constants
 
+from .stream_handler import IStreamHandler
 
 class IptvCloud(IClientHandler):
     def __init__(self, cid: str, host: str, port: int, handler=None):
