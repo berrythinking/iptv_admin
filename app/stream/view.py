@@ -5,7 +5,7 @@ from flask_login import login_required
 import app.constants as constants
 
 from app import socketio
-from app.user import cloud, streams_holder
+from app import cloud, streams_holder
 
 from .stream_entry import EncodeStream, RelayStream, make_relay_stream, make_encode_stream
 from .forms import EncodeStreamEntryForm, RelayStreamEntryForm

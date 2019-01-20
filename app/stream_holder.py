@@ -1,6 +1,6 @@
 from bson.objectid import ObjectId
 
-from .stream_entry import Stream
+from app.stream.stream_entry import Stream
 
 
 class StreamsHolder:
