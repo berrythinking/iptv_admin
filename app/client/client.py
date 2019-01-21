@@ -46,11 +46,11 @@ class Client:
     def is_active(self):
         return self._state == Status.ACTIVE
 
-    def is_active_decorator(foo):
+    def is_active_decorator(func):
         def closure(self, *args, **kwargs):
             if not self.is_active():
                 return
-            return foo(self, *args, *kwargs)
+            return func(self, *args, *kwargs)
 
         return closure
 

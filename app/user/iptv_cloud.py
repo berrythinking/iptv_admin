@@ -8,6 +8,10 @@ import app.constants as constants
 from .stream_handler import IStreamHandler
 
 
+class CloudStatisticFields:
+    STATUS = 'status'
+
+
 class IptvCloud(IClientHandler):
     def __init__(self, cid: str, host: str, port: int, handler=None):
         self.id = cid
@@ -60,6 +64,8 @@ class IptvCloud(IClientHandler):
             self.prepare_service(constants.DEFAULT_FEEDBACK_DIR_PATH, constants.DEFAULT_TIMESHIFTS_DIR_PATH,
                                  constants.DEFAULT_HLS_DIR_PATH, constants.DEFAULT_PLAYLISTS_DIR_PATH,
                                  constants.DEFAULT_DVB_DIR_PATH, constants.DEFAULT_CAPTURE_DIR_PATH)
+            if self._handler:
+                self._handler.on_service_statistic_received(resp.result)
 
     def process_request(self, req: Request):
         if not req:
@@ -79,6 +85,9 @@ class IptvCloud(IClientHandler):
     def on_client_state_changed(self, status: Status):
         if self._handler:
             self._handler.on_client_state_changed(status)
+
+    def to_front(self):
+        return {CloudStatisticFields.STATUS: self.status()}
 
     # private
     def _gen_request_id(self) -> int:

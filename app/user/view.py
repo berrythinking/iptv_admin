@@ -2,7 +2,7 @@ from flask_classy import FlaskView, route
 from flask import render_template, redirect, url_for, request
 from flask_login import logout_user, login_required, current_user
 
-from app import cloud, streams_holder
+from app import cloud, streams_holder, service
 from app.home.forms import SettingsForm
 from .forms import ActivateForm
 
@@ -24,7 +24,8 @@ class UserView(FlaskView):
     @login_required
     def dashboard(self):
         streams = streams_holder.get_streams()
-        return render_template('user/dashboard.html', streams=streams, status=cloud.status())
+        return render_template('user/dashboard.html', streams=streams, service=service.to_front(),
+                               client=cloud.to_front())
 
     @route('/settings', methods=['POST', 'GET'])
     @login_required

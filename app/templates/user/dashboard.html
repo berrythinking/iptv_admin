@@ -19,7 +19,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                 %}</a>
         </div>
 
-        {% if (status == 0) %}
+        {% if (client.status == 0) %}
         <div class="col-md-1">
             <a href="{{ url_for('UserView:connect') }}" class="btn btn-info" role="button">{% trans %}Connect{% endtrans
                 %}</a>
@@ -34,7 +34,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
 
         <div class="col-md-1">
             <a href="{{ url_for('UserView:activate') }}" role="button"
-               {% if (status== status.INIT) %}
+               {% if (client.status== client.status.INIT) %}
                class="btn btn-info disabled"
                {% else %}
                class="btn btn-info"
@@ -44,7 +44,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         </div>
         <div class="col-md-1">
             <a href="{{ url_for('UserView:ping_service') }}" role="button"
-               {% if (status== status.ACTIVE) %}
+               {% if (client.status== client.status.ACTIVE) %}
                class="btn btn-info"
                {% else %}
                class="btn btn-info disabled"
@@ -54,7 +54,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         </div>
         <div class="col-md-1">
             <a href="{{ url_for('UserView:stop_service') }}" role="button"
-               {% if (status== status.ACTIVE) %}
+               {% if (client.status== client.status.ACTIVE) %}
                class="btn btn-info"
                {% else %}
                class="btn btn-info disabled"
@@ -124,6 +124,21 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             </div>
         </div>
     </div>
+    </br>
+    <div class="row">
+        <div class="row">
+            <b>{% trans %}ID:{% endtrans %}</b>
+            <p id='service_id'>{{ service.id }}</p>
+        </div>
+        <div class="row">
+            <b>{% trans %}Version:{% endtrans %}</b>
+            <p id='service_version'>{{ service.version }}</p>
+        </div>
+        <div class="row">
+            <b>{% trans %}Timestamp:{% endtrans %}</b>
+            <p id='service_timestamp'>{{ service.timestamp }}</p>
+        </div>
+    </div>
 </div>
 
 <div id="stream_dialog" class="modal fade" tabindex=-1 role="dialog">
@@ -147,6 +162,14 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
       var table = document.getElementById("streams_table");
       var row = $('#' + stream.id + ' td');
       row.eq(3).text(kStatuses[stream.status]);
+    });
+    socket.on('service_data_changed', function(service) {
+      var service_id = $('#service_id');
+      service_id.text(service.id);
+      var service_version = $('#service_version');
+      service_version.text(service.version);
+      var service_timestamp = $('#service_timestamp');
+      service_timestamp.text(service.timestamp);
     });
     // stream
      function add_stream_entry(url) {
@@ -283,6 +306,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             }
         });
     }
+
 
 
 </script>
