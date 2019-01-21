@@ -72,6 +72,9 @@ class Stream(Document):
     # runtime
     status = constants.StreamStatus.NEW
 
+    def to_front(self):
+        return {'id': self.get_id(), 'status': self.status}
+
     def config(self) -> dict:
         conf = {
             ID_FIELD: self.get_id(),  # required

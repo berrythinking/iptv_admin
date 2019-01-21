@@ -16,6 +16,8 @@ from .stream_holder import StreamsHolder
 
 
 class StreamHandler(IStreamHandler):
+    STREAM_DATA_CHANGED = 'stream_data_changed'
+
     def __init__(self):
         pass
 
@@ -24,9 +26,7 @@ class StreamHandler(IStreamHandler):
         stream = streams_holder.find_stream_by_id(sid)
         if stream:
             stream.status = constants.StreamStatus(params['status'])
-
-        params_str = json.dumps(params)
-        socketio.emit(Commands.STATISTIC_STREAM_COMMAND, params_str)
+            socketio.emit(StreamHandler.STREAM_DATA_CHANGED, stream.to_front())
 
     def on_stream_sources_changed(self, params: dict):
         # sid = params['id']
@@ -39,11 +39,11 @@ class StreamHandler(IStreamHandler):
         socketio.emit(Commands.STATISTIC_SERVICE_COMMAND, params_str)
 
     def on_quit_status_stream(self, params: dict):
-        # sid = params['id']
-        # stream = streams_holder.find_stream_by_id(sid)
-
-        params_str = json.dumps(params)
-        socketio.emit(Commands.QUIT_STATUS_STREAM_COMMAND, params_str)
+        sid = params['id']
+        stream = streams_holder.find_stream_by_id(sid)
+        if stream:
+            stream.status = constants.StreamStatus.NEW
+            socketio.emit(StreamHandler.STREAM_DATA_CHANGED, stream.to_front())
 
     def on_client_state_changed(self, status):
         pass
