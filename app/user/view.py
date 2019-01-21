@@ -3,7 +3,8 @@ from flask import render_template, redirect, url_for, request
 from flask_login import logout_user, login_required, current_user
 
 from app import cloud, streams_holder
-from .forms import SettingsForm, ActivateForm
+from app.home.forms import SettingsForm
+from .forms import ActivateForm
 
 
 # activate license

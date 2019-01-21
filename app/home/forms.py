@@ -1,8 +1,24 @@
 from flask_wtf import FlaskForm
 from flask_babel import lazy_gettext
 
-from wtforms.fields import StringField, PasswordField, SubmitField, TextAreaField
+from wtforms.fields import StringField, PasswordField, SubmitField, TextAreaField, SelectField
 from wtforms.validators import InputRequired, Length, Email
+
+import app.constants as constants
+from .settings import Settings
+
+
+class SettingsForm(FlaskForm):
+    locale = SelectField(lazy_gettext(u'Locale:'), coerce=str, validators=[InputRequired()],
+                         choices=constants.AVAILABLE_LOCALES_PAIRS)
+    submit = SubmitField(lazy_gettext(u'Apply'))
+
+    def make_settings(self):
+        return self.update_settings(Settings())
+
+    def update_settings(self, settings: Settings):
+        settings.locale = self.locale.data
+        return settings
 
 
 class SignupForm(FlaskForm):

@@ -7,6 +7,7 @@ import app.constants as constants
 
 from .stream_handler import IStreamHandler
 
+
 class IptvCloud(IClientHandler):
     def __init__(self, cid: str, host: str, port: int, handler=None):
         self.id = cid
