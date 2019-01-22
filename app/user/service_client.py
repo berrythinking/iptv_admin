@@ -79,7 +79,7 @@ class ServiceClient(IClientHandler):
         if self._handler:
             self._handler.on_client_state_changed(status)
 
-    def to_front(self):
+    def to_front(self) -> dict:
         return {ServiceClientFields.STATUS: self.status()}
 
     # private

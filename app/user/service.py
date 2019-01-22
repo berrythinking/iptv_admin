@@ -43,9 +43,14 @@ class Service(IStreamHandler):
     def remove_stream(self, sid: str):
         self._streams_holder.remove_stream(sid)
 
-    def to_front(self):
-        return {ServiceFields.ID: self._id, ServiceFields.VERSION: self._version,
-                ServiceFields.TIMESTAMP: self._timestamp}
+    def to_front(self) -> dict:
+        return {ServiceFields.ID: self._id, ServiceFields.CPU: self._cpu, ServiceFields.GPU: self._gpu,
+                ServiceFields.LOAD_AVERAGE: self._load_average, ServiceFields.MEMORY_TOTAL: self._memory_total,
+                ServiceFields.MEMORY_FREE: self._memory_free, ServiceFields.MEMORY_AVAILABLE: self._memory_available,
+                ServiceFields.HDD_TOTAL: self._hdd_total, ServiceFields.HDD_FREE: self._hdd_free,
+                ServiceFields.BANDWIDTH_IN: self._bandwidth_in, ServiceFields.BANDWIDTH_OUT: self._bandwidth_out,
+                ServiceFields.UPTIME: self._uptime, ServiceFields.TIMESTAMP: self._timestamp,
+                ServiceFields.VERSION: self._version}
 
     # handler
     def on_stream_statistic_received(self, params: dict):

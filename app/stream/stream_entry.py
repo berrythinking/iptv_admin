@@ -111,9 +111,12 @@ class Stream(Document):
         self._input_streams = params[StreamFields.INPUT_STREAMS]
         self._output_streams = params[StreamFields.OUTPUT_STREAMS]
 
-    def to_front(self):
+    def to_front(self) -> dict:
         return {StreamFields.NAME: self.name, StreamFields.ID: self.get_id(), StreamFields.TYPE: self.get_type(),
-                StreamFields.STATUS: self._status}
+                StreamFields.STATUS: self._status, StreamFields.CPU: self._cpu, StreamFields.TIMESTAMP: self._timestamp,
+                StreamFields.RSS: self._rss, StreamFields.LOOP_START_TIME: self._loop_start_time,
+                StreamFields.RESTARTS: self._restarts, StreamFields.START_TIME: self._start_time,
+                StreamFields.INPUT_STREAMS: self._input_streams, StreamFields.OUTPUT_STREAMS: self._output_streams}
 
     def config(self) -> dict:
         conf = {
