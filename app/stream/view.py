@@ -4,8 +4,7 @@ from flask_login import login_required
 
 import app.constants as constants
 
-from app import socketio
-from app import cloud, streams_holder
+from app import client, service
 
 from .stream_entry import EncodeStream, RelayStream, make_relay_stream, make_encode_stream
 from .forms import EncodeStreamEntryForm, RelayStreamEntryForm
@@ -16,7 +15,7 @@ def _add_relay_stream(method: str):
     form = RelayStreamEntryForm(obj=stream)
     if method == 'POST' and form.validate_on_submit():
         new_entry = form.make_entry()
-        streams_holder.add_stream(new_entry)
+        service.add_stream(new_entry)
         return jsonify(status='ok'), 200
 
     return render_template('stream/relay/add.html', form=form, feedback_dir=stream.generate_feedback_dir())
@@ -38,7 +37,7 @@ def _add_encode_stream(method: str):
     form = EncodeStreamEntryForm(obj=stream)
     if method == 'POST' and form.validate_on_submit():
         new_entry = form.make_entry()
-        streams_holder.add_stream(new_entry)
+        service.add_stream(new_entry)
         return jsonify(status='ok'), 200
 
     return render_template('stream/encode/add.html', form=form, feedback_dir=stream.generate_feedback_dir())
@@ -72,7 +71,7 @@ class StreamView(FlaskView):
     @route('/edit/<sid>', methods=['GET', 'POST'])
     @login_required
     def edit_stream(self, sid):
-        stream = streams_holder.find_stream_by_id(sid)
+        stream = service.find_stream_by_id(sid)
         if stream:
             if stream.type == constants.StreamType.RELAY:
                 return edit_relay_stream(request.method, stream)
@@ -86,7 +85,7 @@ class StreamView(FlaskView):
     @login_required
     def remove_stream(self):
         sid = request.form['sid']
-        streams_holder.remove_stream(sid)
+        service.remove_stream(sid)
         response = {"sid": sid}
         return jsonify(response), 200
 
@@ -94,9 +93,9 @@ class StreamView(FlaskView):
     @login_required
     def start_stream(self):
         sid = request.form['sid']
-        stream = streams_holder.find_stream_by_id(sid)
+        stream = service.find_stream_by_id(sid)
         if stream:
-            cloud.start_stream(stream.config())
+            client.start_stream(stream.config())
 
         response = {"sid": sid}
         return jsonify(response), 200
@@ -105,9 +104,9 @@ class StreamView(FlaskView):
     @login_required
     def stop_stream(self):
         sid = request.form['sid']
-        stream = streams_holder.find_stream_by_id(sid)
+        stream = service.find_stream_by_id(sid)
         if stream:
-            cloud.stop_stream(sid)
+            client.stop_stream(sid)
 
         response = {"sid": sid}
         return jsonify(response), 200
@@ -116,20 +115,9 @@ class StreamView(FlaskView):
     @login_required
     def restart_stream(self):
         sid = request.form['sid']
-        stream = streams_holder.find_stream_by_id(sid)
+        stream = service.find_stream_by_id(sid)
         if stream:
-            cloud.restart_stream(sid)
+            client.restart_stream(sid)
 
         response = {"sid": sid}
         return jsonify(response), 200
-
-
-# socketio
-@socketio.on('connect')
-def socketio_connect():
-    print('Client connected')
-
-
-@socketio.on('disconnect')
-def socketio_disconnect():
-    print('Client disconnected')

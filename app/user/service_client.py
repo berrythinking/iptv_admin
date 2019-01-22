@@ -8,19 +8,16 @@ import app.constants as constants
 from .stream_handler import IStreamHandler
 
 
-class CloudStatisticFields:
+class ServiceClientFields:
     STATUS = 'status'
 
 
-class IptvCloud(IClientHandler):
-    def __init__(self, cid: str, host: str, port: int, handler=None):
+class ServiceClient(IClientHandler):
+    def __init__(self, cid: str, host: str, port: int, handler: IStreamHandler):
         self.id = cid
         self._request_id = 0
         self._handler = handler
         self._client = Client(host, port, self)
-
-    def set_handler(self, handler: IStreamHandler):
-        self._handler = handler
 
     def id(self):
         return self.id
@@ -87,7 +84,7 @@ class IptvCloud(IClientHandler):
             self._handler.on_client_state_changed(status)
 
     def to_front(self):
-        return {CloudStatisticFields.STATUS: self.status()}
+        return {ServiceClientFields.STATUS: self.status()}
 
     # private
     def _gen_request_id(self) -> int:
