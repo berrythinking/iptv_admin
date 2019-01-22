@@ -13,14 +13,10 @@ class ServiceClientFields:
 
 
 class ServiceClient(IClientHandler):
-    def __init__(self, cid: str, host: str, port: int, handler: IStreamHandler):
-        self.id = cid
+    def __init__(self, host: str, port: int, handler: IStreamHandler):
         self._request_id = 0
         self._handler = handler
         self._client = Client(host, port, self)
-
-    def id(self):
-        return self.id
 
     def connect(self):
         self._client.connect()

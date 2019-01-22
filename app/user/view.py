@@ -24,7 +24,10 @@ class UserView(FlaskView):
     @login_required
     def dashboard(self):
         streams = service.get_streams()
-        return render_template('user/dashboard.html', streams=streams, client=client.to_front(),
+        front_streams = []
+        for stream in streams:
+            front_streams.append(stream.to_front())
+        return render_template('user/dashboard.html', streams=front_streams, client=client.to_front(),
                                service=service.to_front())
 
     @route('/settings', methods=['POST', 'GET'])

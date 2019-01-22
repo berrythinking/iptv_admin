@@ -52,6 +52,21 @@ class Urls(EmbeddedDocument):
     urls = ListField(EmbeddedDocumentField(Url))
 
 
+class StreamFields:
+    NAME = 'name'  # UI field
+    ID = 'id'
+    TYPE = 'type'
+    INPUT_STREAMS = 'input_streams'
+    OUTPUT_STREAMS = 'output_streams'
+    LOOP_START_TIME = 'loop_start_time'
+    RSS = 'rss'
+    CPU = 'cpu'
+    STATUS = 'status'
+    RESTARTS = 'restarts'
+    START_TIME = 'start_time'
+    TIMESTAMP = 'timestamp'
+
+
 class Stream(Document):
     meta = {'collection': 'streams', 'auto_create_index': False, 'allow_inheritance': True}
     name = StringField(default=constants.DEFAULT_STREAM_NAME, max_length=constants.MAX_STREAM_NAME_LENGTH,
@@ -70,10 +85,35 @@ class Stream(Document):
     auto_exit_time = IntField(default=constants.DEFAULT_AUTO_EXIT_TIME, required=True)
 
     # runtime
-    status = constants.StreamStatus.NEW
+    _status = constants.StreamStatus.NEW
+    _cpu = 0.0
+    _timestamp = 0
+    _rss = 0
+    _loop_start_time = 0
+    _restarts = 0
+    _start_time = 0
+    _input_streams = str()
+    _output_streams = str()
+
+    def set_status(self, status: constants.StreamStatus):
+        self._status = status
+
+    def update_runtime_fields(self, params: dict):
+        assert self.get_id() == params[StreamFields.ID]
+        assert self.get_type() == params[StreamFields.TYPE]
+        self._status = constants.StreamStatus(params[StreamFields.STATUS])
+        self._cpu = params[StreamFields.CPU]
+        self._timestamp = params[StreamFields.TIMESTAMP]
+        self._rss = params[StreamFields.RSS]
+        self._loop_start_time = params[StreamFields.LOOP_START_TIME]
+        self._restarts = params[StreamFields.RESTARTS]
+        self._start_time = params[StreamFields.START_TIME]
+        self._input_streams = params[StreamFields.INPUT_STREAMS]
+        self._output_streams = params[StreamFields.OUTPUT_STREAMS]
 
     def to_front(self):
-        return {'id': self.get_id(), 'status': self.status}
+        return {StreamFields.NAME: self.name, StreamFields.ID: self.get_id(), StreamFields.TYPE: self.get_type(),
+                StreamFields.STATUS: self._status}
 
     def config(self) -> dict:
         conf = {
