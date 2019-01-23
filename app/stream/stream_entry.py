@@ -34,8 +34,10 @@ VIDEO_PARSER_FIELD = "video_parser"
 AUDIO_PARSER_FIELD = "audio_parser"
 # timeshift recorder
 TIMESHIFT_CHUNK_DURATION = "timeshift_chunk_duration"
-TIMESHIFT_CHUNK_LIFE_TIME_HOURS = "timeshift_chunk_life_time_hours"
+TIMESHIFT_CHUNK_LIFE_TIME = "timeshift_chunk_life_time"
 TIMESHIFT_DIR = "timeshift_dir"
+# timeshift player
+TIMESHIFT_DELAY = "timeshift_delay"
 
 
 # {"urls": [{"id": 81,"uri": "tcp://localhost:1935"}]}
@@ -304,13 +306,13 @@ class TimeshiftRecorderStream(RelayStream):
         super(TimeshiftRecorderStream, self).__init__(*args, **kwargs)
 
     timeshift_chunk_duration = IntField(default=constants.DEFAULT_TIMESHIFT_CHUNK_DURATION, required=True)
-    timeshift_chunk_life_time_hours = IntField(default=constants.DEFAULT_TIMESHIFT_CHUNK_LIFE_TIME_HOURS, required=True)
+    timeshift_chunk_life_time = IntField(default=constants.DEFAULT_TIMESHIFT_CHUNK_LIFE_TIME, required=True)
 
     def config(self) -> dict:
         conf = super(TimeshiftRecorderStream, self).config()
         conf[TIMESHIFT_CHUNK_DURATION] = self.get_timeshift_chunk_duration()
         conf[TIMESHIFT_DIR] = self.generate_timeshift_dir()
-        conf[TIMESHIFT_CHUNK_LIFE_TIME_HOURS] = self.timeshift_chunk_life_time_hours
+        conf[TIMESHIFT_CHUNK_LIFE_TIME] = self.timeshift_chunk_life_time
         del conf[OUTPUT_FIELD]
         return conf
 
@@ -319,6 +321,27 @@ class TimeshiftRecorderStream(RelayStream):
 
     def generate_timeshift_dir(self):
         return '{0}/{1}'.format(constants.DEFAULT_TIMESHIFTS_DIR_PATH, self.get_id())
+
+
+class CatchupStream(TimeshiftRecorderStream):
+    def __init__(self, *args, **kwargs):
+        super(CatchupStream, self).__init__(*args, **kwargs)
+        self.timeshift_chunk_duration = constants.DEFAULT_CATCHUP_CHUNK_DURATION
+        self.auto_exit_time = constants.DEFAULT_CATCHUP_EXIT_TIME
+
+
+class TimeshiftPlayerStream(RelayStream):
+    timeshift_dir = StringField(default=constants.DEFAULT_TIMESHIFTS_DIR_PATH, required=True)
+    timeshift_delay = IntField(default=constants.DEFAULT_TIMESHIFT_DELAY, required=True)
+
+    def __init__(self, *args, **kwargs):
+        super(TimeshiftPlayerStream, self).__init__(*args, **kwargs)
+
+    def config(self) -> dict:
+        conf = super(TimeshiftPlayerStream, self).config()
+        conf[TIMESHIFT_DIR] = self.timeshift_dir
+        conf[TIMESHIFT_DELAY] = self.timeshift_delay
+        return conf
 
 
 def make_relay_stream() -> RelayStream:
@@ -338,4 +361,17 @@ def make_encode_stream() -> EncodeStream:
 def make_timeshift_recorder_stream() -> TimeshiftRecorderStream:
     stream = TimeshiftRecorderStream(type=constants.StreamType.TIMESHIFT_RECORDER)
     stream.input = Urls(urls=[Url(id=Url.generate_id())])
+    return stream
+
+
+def make_catchup_stream() -> CatchupStream:
+    stream = CatchupStream(type=constants.StreamType.CATCHUP)
+    stream.input = Urls(urls=[Url(id=Url.generate_id())])
+    return stream
+
+
+def make_timeshift_player_stream() -> TimeshiftPlayerStream:
+    stream = TimeshiftPlayerStream(type=constants.StreamType.TIMESHIFT_PLAYER)
+    stream.input = Urls(urls=[Url(id=Url.generate_id())])
+    stream.output = Urls(urls=[Url(id=Url.generate_id())])
     return stream

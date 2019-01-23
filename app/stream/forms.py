@@ -7,7 +7,8 @@ from wtforms.fields import StringField, SubmitField, SelectField, FieldList, Int
     FloatField
 
 import app.constants as constants
-from .stream_entry import Stream, Urls, Url, RelayStream, EncodeStream, TimeshiftRecorderStream, Logo, Size, Rational
+from .stream_entry import Stream, Urls, Url, RelayStream, EncodeStream, TimeshiftRecorderStream, CatchupStream, \
+    TimeshiftPlayerStream, Logo, Size, Rational
 
 
 class UrlForm(Form):
@@ -168,16 +169,36 @@ class TimeshiftRecorderStreamEntryForm(RelayStreamEntryForm):
                                             validators=[InputRequired(),
                                                         NumberRange(constants.MIN_TIMESHIFT_CHUNK_DURATION,
                                                                     constants.MAX_TIMESHIFT_CHUNK_DURATION)])
-    timeshift_chunk_life_time_hours = IntegerField(lazy_gettext(u'Chunk life time hours:'),
-                                                   validators=[InputRequired(),
-                                                               NumberRange(
-                                                                   constants.MIN_TIMESHIFT_CHUNK_LIFE_TIME_HOURS,
-                                                                   constants.MAX_TIMESHIFT_CHUNK_LIFE_TIME_HOURS)])
+    timeshift_chunk_life_time = IntegerField(lazy_gettext(u'Chunk life time:'),
+                                             validators=[InputRequired(),
+                                                         NumberRange(
+                                                             constants.MIN_TIMESHIFT_CHUNK_LIFE_TIME,
+                                                             constants.MAX_TIMESHIFT_CHUNK_LIFE_TIME)])
 
     def make_entry(self):
         return self.update_entry(TimeshiftRecorderStream())
 
     def update_entry(self, entry: TimeshiftRecorderStream):
         entry.timeshift_chunk_duration = self.timeshift_chunk_duration.data
-        entry.timeshift_chunk_life_time_hours = self.timeshift_chunk_life_time_hours.data
+        entry.timeshift_chunk_life_time = self.timeshift_chunk_life_time.data
         return super(TimeshiftRecorderStreamEntryForm, self).update_entry(entry)
+
+
+class CatchupStreamEntryForm(TimeshiftRecorderStreamEntryForm):
+    def make_entry(self):
+        return self.update_entry(CatchupStream())
+
+
+class TimeshiftPlayerStreamEntryForm(RelayStreamEntryForm):
+    timeshift_dir = StringField(lazy_gettext(u'Chunks directory:'), validators=[InputRequired()])
+    timeshift_delay = IntegerField(lazy_gettext(u'Delay:'), validators=[InputRequired(),
+                                                                        NumberRange(constants.MIN_TIMESHIFT_DELAY,
+                                                                                    constants.MAX_TIMESHIFT_DELAY)])
+
+    def make_entry(self):
+        return self.update_entry(TimeshiftPlayerStream())
+
+    def update_entry(self, entry: TimeshiftPlayerStream):
+        entry.timeshift_delay = self.timeshift_delay.data
+        entry.timeshift_dir = self.timeshift_dir.data
+        return super(TimeshiftPlayerStreamEntryForm, self).update_entry(entry)

@@ -52,6 +52,8 @@
         <br>
         {{ render_bootstrap_form(form.timeshift_chunk_life_time) }}
         <br>
+        {{ render_bootstrap_form(form.auto_exit_time) }}
+        <br>
         <div class="row">
             <label class="col-md-4">Logs directory:</label>
             <div class="col-md-8">
@@ -61,7 +63,7 @@
         </div>
         <br>
         <div class="row">
-            <label class="col-md-4">Timeshift directory:</label>
+            <label class="col-md-4">Catchup directory:</label>
             <div class="col-md-8">
                 <input class="form-control" id="timeshift_dir" name="timeshift_dir" value="{{ timeshift_dir }}" readonly
                        type="text">
