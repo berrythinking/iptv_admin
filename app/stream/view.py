@@ -9,7 +9,7 @@ from app import client, service
 from .stream_entry import EncodeStream, RelayStream, TimeshiftRecorderStream, CatchupStream, TimeshiftPlayerStream, \
     make_relay_stream, make_encode_stream, make_timeshift_recorder_stream, make_catchup_stream, \
     make_timeshift_player_stream
-from .forms import EncodeStreamEntryForm, RelayStreamEntryForm, TimeshiftRecorderStreamEntryForm, \
+from .stream_forms import EncodeStreamEntryForm, RelayStreamEntryForm, TimeshiftRecorderStreamEntryForm, \
     CatchupStreamEntryForm, TimeshiftPlayerStreamEntryForm
 
 
