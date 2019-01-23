@@ -27,7 +27,7 @@ def init_project(static_folder, *args):
     socketio = SocketIO(app)
     login_manager = LoginManager(app)
 
-    login_manager.login_view = "HomeView:login"
+    login_manager.login_view = "HomeView:signin"
 
     service = Service(socketio)
     client = ServiceClient(app.config['SERVICE']['host'], app.config['SERVICE']['port'], service)
