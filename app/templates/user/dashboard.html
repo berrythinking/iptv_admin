@@ -10,15 +10,16 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
 {% block content %}
 <div class="container">
     <div class="row">
-        <div class="col-md-1">
+        <div class="col-md-6">
             <p>{% trans %}Welcome{% endtrans %} {{ current_user.email }}</p>
         </div>
+    </div>
+    <div class="row">
         <div class="col-md-1">
             <a href="{{ url_for('UserView:settings') }}" class="btn btn-info" role="button">{% trans %}Settings{%
                 endtrans
                 %}</a>
         </div>
-
         {% if (client.status == 0) %}
         <div class="col-md-1">
             <a href="{{ url_for('UserView:connect') }}" class="btn btn-info" role="button">{% trans %}Connect{% endtrans
@@ -31,7 +32,6 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                 %}</a>
         </div>
         {% endif %}
-
         <div class="col-md-1">
             <a href="{{ url_for('UserView:activate') }}" role="button"
                {% if (client.status== client.status.INIT) %}
@@ -68,6 +68,48 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         </div>
     </div>
     <div class="row">
+        <div class="col-md-1">
+            <b>{% trans %}ID:{% endtrans %}</b>
+            <p id='service_id'>{{ service.id }}</p>
+        </div>
+        <div class="col-md-1">
+            <b>{% trans %}CPU:{% endtrans %}</b>
+            <p id='service_cpu'>{{ service.cpu }}</p>
+        </div>
+        <div class="col-md-1">
+            <b>{% trans %}GPU:{% endtrans %}</b>
+            <p id='service_gpu'>{{ service.gpu }}</p>
+        </div>
+        <div class="col-md-1">
+            <b>{% trans %}Memory total:{% endtrans %}</b>
+            <p id='service_memory_total'>{{ service.memory_total }}</p>
+        </div>
+        <div class="col-md-1">
+            <b>{% trans %}Memory free:{% endtrans %}</b>
+            <p id='service_free'>{{ service.memory_free }}</p>
+        </div>
+        <div class="col-md-1">
+            <b>{% trans %}Memory available:{% endtrans %}</b>
+            <p id='service_available'>{{ service.memory_available }}</p>
+        </div>
+        <div class="col-md-1">
+            <b>{% trans %}HDD total:{% endtrans %}</b>
+            <p id='service_hdd_total'>{{ service.hdd_total }}</p>
+        </div>
+        <div class="col-md-1">
+            <b>{% trans %}HDD free:{% endtrans %}</b>
+            <p id='service_hdd_free'>{{ service.memory_free }}</p>
+        </div>
+        <div class="col-md-1">
+            <b>{% trans %}Version:{% endtrans %}</b>
+            <p id='service_version'>{{ service.version }}</p>
+        </div>
+        <div class="col-md-1">
+            <b>{% trans %}Timestamp:{% endtrans %}</b>
+            <p id='service_timestamp'>{{ service.timestamp }}</p>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-md-12">
             <h4 class="card-title">{% trans %}Streams:{% endtrans %}</h4>
             <table id='streams_table' class="table">
@@ -77,6 +119,11 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                     <th class="value">{% trans %}Name{% endtrans %}</th>
                     <th class="value">{% trans %}Type{% endtrans %}</th>
                     <th class="value">{% trans %}Status{% endtrans %}</th>
+                    <th class="value">{% trans %}Restarts{% endtrans %}</th>
+                    <th class="value">{% trans %}CPU{% endtrans %}</th>
+                    <th class="value">{% trans %}RSS{% endtrans %}</th>
+                    <th class="value">{% trans %}In work time{% endtrans %}</th>
+                    <th class="value">{% trans %}Live time{% endtrans %}</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -86,6 +133,11 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                     <td>{{ rev.name }}</td>
                     <td>{{ ['RELAY', 'ENCODE', 'TIMESHIFT_PLAYER', 'TIMESHIFT_RECORDER', 'CATCHUP'][rev.type] }}</td>
                     <td>{{ ['NEW', 'INIT', 'STARTED', 'READY', 'PLAYING', 'FROZEN', 'WAITING'][rev.status] }}</td>
+                    <td>{{ rev.restarts }}</td>
+                    <td>{{ rev.cpu }}</td>
+                    <td>{{ rev.rss }}</td>
+                    <td>{{ rev.timestamp - rev.start_time }}</td>
+                    <td>{{ rev.timestamp - rev.loop_start_time }}</td>
                     <td>
                         <button type="submit" class="btn btn-success btn-xs"
                                 onclick="start_stream('{{ rev.id }}')">
@@ -116,42 +168,19 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                 <button class="btn btn-success btn-send col-md-2" onclick="add_relay_stream()">
                     {% trans %}Add relay{% endtrans %}
                 </button>
-            </div>
-            <div class="row">
                 <button class="btn btn-success btn-send col-md-2" onclick="add_encode_stream()">
                     {% trans %}Add encode{% endtrans %}
                 </button>
-            </div>
-            <div class="row">
                 <button class="btn btn-success btn-send col-md-2" onclick="add_timeshift_recorder_stream()">
                     {% trans %}Add timeshift recorder{% endtrans %}
                 </button>
-            </div>
-            <div class="row">
                 <button class="btn btn-success btn-send col-md-2" onclick="add_catchup_stream()">
                     {% trans %}Add catchup{% endtrans %}
                 </button>
-            </div>
-            <div class="row">
                 <button class="btn btn-success btn-send col-md-2" onclick="add_timeshift_player_stream()">
                     {% trans %}Add timeshift player{% endtrans %}
                 </button>
             </div>
-        </div>
-    </div>
-    </br>
-    <div class="row">
-        <div class="row">
-            <b>{% trans %}ID:{% endtrans %}</b>
-            <p id='service_id'>{{ service.id }}</p>
-        </div>
-        <div class="row">
-            <b>{% trans %}Version:{% endtrans %}</b>
-            <p id='service_version'>{{ service.version }}</p>
-        </div>
-        <div class="row">
-            <b>{% trans %}Timestamp:{% endtrans %}</b>
-            <p id='service_timestamp'>{{ service.timestamp }}</p>
         </div>
     </div>
 </div>
@@ -177,10 +206,29 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
       var table = document.getElementById("streams_table");
       var row = $('#' + stream.id + ' td');
       row.eq(3).text(kStatuses[stream.status]);
+      row.eq(4).text(stream.restarts);
+      row.eq(5).text(stream.cpu);
+      row.eq(6).text(stream.rss);
+      row.eq(7).text(stream.timestamp - stream.start_time);
+      row.eq(8).text(stream.timestamp - stream.loop_start_time);
     });
     socket.on('service_data_changed', function(service) {
       var service_id = $('#service_id');
       service_id.text(service.id);
+      var service_cpu = $('#service_cpu');
+      service_cpu.text(service.cpu);
+      var service_gpu = $('#service_gpu');
+      service_gpu.text(service.gpu);
+      var service_memory_total = $('#service_memory_total');
+      service_memory_total.text(service.memory_total);
+      var service_memory_free = $('#service_memory_free');
+      service_memory_free.text(service.memory_free);
+      var service_memory_available = $('#service_memory_available');
+      service_memory_available.text(service.memory_available);
+      var service_hdd_total = $('#service_hdd_total');
+      service_hdd_total.text(service.hdd_total);
+      var service_hdd_free = $('#service_hdd_free');
+      service_hdd_free.text(service.hdd_free);
       var service_version = $('#service_version');
       service_version.text(service.version);
       var service_timestamp = $('#service_timestamp');
@@ -357,6 +405,10 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             }
         });
     }
+
+
+
+
 
 
 </script>

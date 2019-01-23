@@ -1,7 +1,7 @@
 import app.constants as constants
 from app.client.client_constants import Status
 from app.user.stream_handler import IStreamHandler
-from .stream_holder import StreamsHolder
+from .streams_holder import StreamsHolder
 
 
 class ServiceFields:
@@ -72,7 +72,7 @@ class Service(IStreamHandler):
         sid = params['id']
         stream = self.find_stream_by_id(sid)
         if stream:
-            stream.set_status(constants.StreamStatus.NEW)
+            stream.reset()
             self._notify_front(Service.STREAM_DATA_CHANGED, stream.to_front())
 
     def on_client_state_changed(self, status: Status):

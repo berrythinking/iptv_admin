@@ -84,8 +84,16 @@ class Stream(Document):
     _input_streams = str()
     _output_streams = str()
 
-    def set_status(self, status: constants.StreamStatus):
-        self._status = status
+    def reset(self):
+        self._status = constants.StreamStatus.NEW
+        self._cpu = 0.0
+        self._timestamp = 0
+        self._rss = 0
+        self._loop_start_time = 0
+        self._restarts = 0
+        self._start_time = 0
+        self._input_streams = str()
+        self._output_streams = str()
 
     def update_runtime_fields(self, params: dict):
         assert self.get_id() == params[StreamFields.ID]
