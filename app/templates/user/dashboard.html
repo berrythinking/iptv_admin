@@ -122,6 +122,11 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                     {% trans %}Add encode{% endtrans %}
                 </button>
             </div>
+            <div class="row">
+                <button class="btn btn-success btn-send col-md-2" onclick="add_timeshift_recorder_stream()">
+                    {% trans %}Add timeshift recorder{% endtrans %}
+                </button>
+            </div>
         </div>
     </div>
     </br>
@@ -231,6 +236,18 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             })
         });
     }
+    function add_timeshift_recorder_stream() {
+        var url = "{{ url_for('StreamView:add_timeshift_recorder_stream') }}";
+        $.get(url, function(data) {
+            $('#stream_dialog .modal-content').html(data);
+            $('#stream_dialog').modal();
+
+            $('#submit').click(function(event) {
+                event.preventDefault();
+                add_stream_entry(url);
+            })
+        });
+    }
     function edit_stream(sid) {
         var url = "/stream/edit/" + sid;
         $.get(url, function(data) {
@@ -306,5 +323,6 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             }
         });
     }
+
 </script>
 {% endblock %}

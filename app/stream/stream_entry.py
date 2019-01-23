@@ -32,6 +32,10 @@ ASPCET_RATIO_FIELD = "aspect_ratio"
 # relay
 VIDEO_PARSER_FIELD = "video_parser"
 AUDIO_PARSER_FIELD = "audio_parser"
+# timeshift recorder
+TIMESHIFT_CHUNK_DURATION = "timeshift_chunk_duration"
+TIMESHIFT_CHUNK_LIFE_TIME_HOURS = "timeshift_chunk_life_time_hours"
+TIMESHIFT_DIR = "timeshift_dir"
 
 
 # {"urls": [{"id": 81,"uri": "tcp://localhost:1935"}]}
@@ -65,6 +69,41 @@ class StreamFields:
     RESTARTS = 'restarts'
     START_TIME = 'start_time'
     TIMESTAMP = 'timestamp'
+
+
+class Logo(EmbeddedDocument):
+    path = StringField(default=constants.INVALID_LOGO_PATH, required=True)
+    x = IntField(default=constants.DEFAULT_LOGO_X, required=True)
+    y = IntField(default=constants.DEFAULT_LOGO_Y, required=True)
+    alpha = FloatField(default=constants.DEFAULT_LOGO_ALPHA, required=True)
+
+    def is_valid(self):
+        return self.path != constants.INVALID_LOGO_PATH
+
+    def to_dict(self) -> dict:
+        return {'path': self.path, 'position': '{0},{1}'.format(self.x, self.y), 'alpha': self.alpha}
+
+
+class Size(EmbeddedDocument):
+    width = IntField(default=constants.INVALID_WIDTH, required=True)
+    height = IntField(default=constants.INVALID_HEIGHT, required=True)
+
+    def is_valid(self):
+        return self.width != constants.INVALID_WIDTH and self.height != constants.INVALID_HEIGHT
+
+    def __str__(self):
+        return '{0}x{1}'.format(self.width, self.height)
+
+
+class Rational(EmbeddedDocument):
+    num = IntField(default=constants.INVALID_RATIO_NUM, required=True)
+    den = IntField(default=constants.INVALID_RATIO_DEN, required=True)
+
+    def is_valid(self):
+        return self.num != constants.INVALID_RATIO_NUM and self.den != constants.INVALID_RATIO_DEN
+
+    def __str__(self):
+        return '{0}:{1}'.format(self.num, self.den)
 
 
 class Stream(Document):
@@ -191,41 +230,6 @@ class RelayStream(Stream):
         return self.audio_parser
 
 
-class Logo(EmbeddedDocument):
-    path = StringField(default=constants.INVALID_LOGO_PATH, required=True)
-    x = IntField(default=constants.DEFAULT_LOGO_X, required=True)
-    y = IntField(default=constants.DEFAULT_LOGO_Y, required=True)
-    alpha = FloatField(default=constants.DEFAULT_LOGO_ALPHA, required=True)
-
-    def is_valid(self):
-        return self.path != constants.INVALID_LOGO_PATH
-
-    def to_dict(self) -> dict:
-        return {'path': self.path, 'position': '{0},{1}'.format(self.x, self.y), 'alpha': self.alpha}
-
-
-class Size(EmbeddedDocument):
-    width = IntField(default=constants.INVALID_WIDTH, required=True)
-    height = IntField(default=constants.INVALID_HEIGHT, required=True)
-
-    def is_valid(self):
-        return self.width != constants.INVALID_WIDTH and self.height != constants.INVALID_HEIGHT
-
-    def __str__(self):
-        return '{0}x{1}'.format(self.width, self.height)
-
-
-class Rational(EmbeddedDocument):
-    num = IntField(default=constants.INVALID_RATIO_NUM, required=True)
-    den = IntField(default=constants.INVALID_RATIO_DEN, required=True)
-
-    def is_valid(self):
-        return self.num != constants.INVALID_RATIO_NUM and self.den != constants.INVALID_RATIO_DEN
-
-    def __str__(self):
-        return '{0}:{1}'.format(self.num, self.den)
-
-
 class EncodeStream(Stream):
     def __init__(self, *args, **kwargs):
         super(EncodeStream, self).__init__(*args, **kwargs)
@@ -295,15 +299,43 @@ class EncodeStream(Stream):
         return self.audio_bit_rate
 
 
-def make_relay_stream() -> Stream:
+class TimeshiftRecorderStream(RelayStream):
+    def __init__(self, *args, **kwargs):
+        super(TimeshiftRecorderStream, self).__init__(*args, **kwargs)
+
+    timeshift_chunk_duration = IntField(default=constants.DEFAULT_TIMESHIFT_CHUNK_DURATION, required=True)
+    timeshift_chunk_life_time_hours = IntField(default=constants.DEFAULT_TIMESHIFT_CHUNK_LIFE_TIME_HOURS, required=True)
+
+    def config(self) -> dict:
+        conf = super(TimeshiftRecorderStream, self).config()
+        conf[TIMESHIFT_CHUNK_DURATION] = self.get_timeshift_chunk_duration()
+        conf[TIMESHIFT_DIR] = self.generate_timeshift_dir()
+        conf[TIMESHIFT_CHUNK_LIFE_TIME_HOURS] = self.timeshift_chunk_life_time_hours
+        del conf[OUTPUT_FIELD]
+        return conf
+
+    def get_timeshift_chunk_duration(self):
+        return self.timeshift_chunk_duration
+
+    def generate_timeshift_dir(self):
+        return '{0}/{1}'.format(constants.DEFAULT_TIMESHIFTS_DIR_PATH, self.get_id())
+
+
+def make_relay_stream() -> RelayStream:
     stream = RelayStream(type=constants.StreamType.RELAY)
     stream.input = Urls(urls=[Url(id=Url.generate_id())])
     stream.output = Urls(urls=[Url(id=Url.generate_id())])
     return stream
 
 
-def make_encode_stream() -> Stream:
+def make_encode_stream() -> EncodeStream:
     stream = EncodeStream(type=constants.StreamType.ENCODE)
     stream.input = Urls(urls=[Url(id=Url.generate_id())])
     stream.output = Urls(urls=[Url(id=Url.generate_id())])
+    return stream
+
+
+def make_timeshift_recorder_stream() -> TimeshiftRecorderStream:
+    stream = TimeshiftRecorderStream(type=constants.StreamType.TIMESHIFT_RECORDER)
+    stream.input = Urls(urls=[Url(id=Url.generate_id())])
     return stream

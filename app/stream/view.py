@@ -6,8 +6,9 @@ import app.constants as constants
 
 from app import client, service
 
-from .stream_entry import EncodeStream, RelayStream, make_relay_stream, make_encode_stream
-from .forms import EncodeStreamEntryForm, RelayStreamEntryForm
+from .stream_entry import EncodeStream, RelayStream, TimeshiftRecorderStream, make_relay_stream, make_encode_stream, \
+    make_timeshift_recorder_stream
+from .forms import EncodeStreamEntryForm, RelayStreamEntryForm, TimeshiftRecorderStreamEntryForm
 
 
 def _add_relay_stream(method: str):
@@ -46,7 +47,7 @@ def _add_encode_stream(method: str):
 def edit_encode_stream(method: str, stream: EncodeStream):
     form = EncodeStreamEntryForm(obj=stream)
 
-    if method == 'POST' and form.validate_on_submit():
+    if method == 'POST':  # FIXME form.validate_on_submit()
         stream = form.update_entry(stream)
         stream.save()
         return jsonify(status='ok'), 200
@@ -54,19 +55,48 @@ def edit_encode_stream(method: str, stream: EncodeStream):
     return render_template('stream/encode/edit.html', form=form, feedback_dir=stream.generate_feedback_dir())
 
 
+def _add_timeshift_recorder_stream(method: str):
+    stream = make_timeshift_recorder_stream()
+    form = TimeshiftRecorderStreamEntryForm(obj=stream)
+    if method == 'POST':  # FIXME form.validate_on_submit()
+        new_entry = form.make_entry()
+        service.add_stream(new_entry)
+        return jsonify(status='ok'), 200
+
+    return render_template('stream/timeshift_recorder/add.html', form=form, feedback_dir=stream.generate_feedback_dir(),
+                           timeshift_dir=stream.generate_timeshift_dir())
+
+
+def edit_timeshift_recorder_stream(method: str, stream: TimeshiftRecorderStream):
+    form = TimeshiftRecorderStreamEntryForm(obj=stream)
+
+    if method == 'POST' and form.validate_on_submit():
+        stream = form.update_entry(stream)
+        stream.save()
+        return jsonify(status='ok'), 200
+
+    return render_template('stream/timeshift_recorder/edit.html', form=form,
+                           feedback_dir=stream.generate_feedback_dir(), timeshift_dir=stream.generate_timeshift_dir())
+
+
 # routes
 class StreamView(FlaskView):
     route_base = "/stream/"
 
-    @route('/add_relay', methods=['GET', 'POST'])
     @login_required
+    @route('/add/relay', methods=['GET', 'POST'])
     def add_relay_stream(self):
         return _add_relay_stream(request.method)
 
-    @route('/add_encode', methods=['GET', 'POST'])
     @login_required
+    @route('/add/encode', methods=['GET', 'POST'])
     def add_encode_stream(self):
         return _add_encode_stream(request.method)
+
+    @login_required
+    @route('/add/timeshift_recorder', methods=['GET', 'POST'])
+    def add_timeshift_recorder_stream(self):
+        return _add_timeshift_recorder_stream(request.method)
 
     @route('/edit/<sid>', methods=['GET', 'POST'])
     @login_required
@@ -77,6 +107,8 @@ class StreamView(FlaskView):
                 return edit_relay_stream(request.method, stream)
             elif stream.type == constants.StreamType.ENCODE:
                 return edit_encode_stream(request.method, stream)
+            elif stream.type == constants.StreamType.TIMESHIFT_RECORDER:
+                return edit_timeshift_recorder_stream(request.method, stream)
 
         response = {"status": "failed"}
         return jsonify(response), 404
