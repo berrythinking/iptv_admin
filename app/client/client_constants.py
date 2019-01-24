@@ -6,6 +6,7 @@ class Commands:
     START_STREAM_COMMAND = 'start_stream'
     STOP_STREAM_COMMAND = 'stop_stream'
     RESTART_STREAM_COMMAND = 'restart_stream'
+    GET_LOG_STREAM_COMMAND = 'get_log_stream'
     CHANGED_STREAM_COMMAND = 'changed_source_stream'
     STATISTIC_STREAM_COMMAND = 'statistic_stream'
     QUIT_STATUS_STREAM_COMMAND = 'quit_status_stream'
@@ -17,6 +18,7 @@ class Commands:
     SERVICE_PING_COMMAND = 'ping_service'
     STATISTIC_SERVICE_COMMAND = 'statistic_service'
     CLIENT_PING_COMMAND = 'ping_client'  # ping from service
+    GET_LOG_SERVICE_COMMAND = 'get_log_service'
 
 
 class Status(IntEnum):

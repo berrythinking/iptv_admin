@@ -7,7 +7,7 @@ from .common_entry import Urls, Rational, Size, Logo, Url
 
 ID_FIELD = "id"
 TYPE_FIELD = "type"
-FEEDBACK_DIR_FIELD = "feedback_dir"
+FEEDBACK_DIR_FIELD = "feedback_directory"
 LOG_LEVEL_FIELD = "log_level"
 INPUT_FIELD = "input"
 OUTPUT_FIELD = "output"

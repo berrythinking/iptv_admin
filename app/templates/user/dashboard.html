@@ -15,24 +15,24 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         </div>
     </div>
     <div class="row">
-        <div class="col-md-2">
+        <div class="col-md-1">
             <a href="{{ url_for('UserView:settings') }}" class="btn btn-info" role="button">{% trans %}Settings{%
                 endtrans
                 %}</a>
         </div>
         {% if (client.status == 0) %}
-        <div class="col-md-2">
+        <div class="col-md-1">
             <a href="{{ url_for('UserView:connect') }}" class="btn btn-info" role="button">{% trans %}Connect{% endtrans
                 %}</a>
         </div>
         {% else %}
-        <div class="col-md-2">
+        <div class="col-md-1">
             <a href="{{ url_for('UserView:disconnect') }}" class="btn btn-info" role="button">{% trans %}Disconnect{%
                 endtrans
                 %}</a>
         </div>
         {% endif %}
-        <div class="col-md-2">
+        <div class="col-md-1">
             <a href="{{ url_for('UserView:activate') }}" role="button"
                {% if (client.status== client.status.INIT) %}
                class="btn btn-info disabled"
@@ -42,7 +42,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                 {% trans %}Activate{% endtrans %}
             </a>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-1">
             <a href="{{ url_for('UserView:ping_service') }}" role="button"
                {% if (client.status== client.status.ACTIVE) %}
                class="btn btn-info"
@@ -52,7 +52,17 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                 {% trans %}Ping{% endtrans %}
             </a>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-1">
+            <a href="{{ url_for('UserView:get_log_service') }}" role="button"
+               {% if (client.status== client.status.ACTIVE) %}
+               class="btn btn-info"
+               {% else %}
+               class="btn btn-info disabled"
+               {% endif %}>
+                {% trans %}Get log{% endtrans %}
+            </a>
+        </div>
+        <div class="col-md-1">
             <a href="{{ url_for('UserView:stop_service') }}" role="button"
                {% if (client.status== client.status.ACTIVE) %}
                class="btn btn-info"
@@ -153,6 +163,10 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                     <button type="submit" class="btn btn-success btn-xs"
                             onclick="edit_stream('{{ rev.id }}')">
                         {% trans %}Edit{% endtrans %}
+                    </button>
+                    <button type="submit" class="btn btn-success btn-xs"
+                            onclick="get_log_stream('{{ rev.id }}')">
+                        {% trans %}Get log{% endtrans %}
                     </button>
                     <button type="submit" class="btn btn-danger btn-xs"
                             onclick="remove_stream('{{ rev.id }}')">
@@ -346,6 +360,21 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
     function remove_stream(sid) {
         $.ajax({
             url: "{{ url_for('StreamView:remove_stream') }}",
+            type: "POST",
+            dataType: 'json',
+            data: {"sid":sid},
+            success: function (response) {
+                console.log(response);
+                window.location.reload();
+            },
+            error: function (error) {
+                console.error(error);
+            }
+        });
+    }
+    function get_log_stream(sid) {
+        $.ajax({
+            url: "{{ url_for('StreamView:get_log_stream') }}",
             type: "POST",
             dataType: 'json',
             data: {"sid":sid},

@@ -1,10 +1,11 @@
+import os
 from flask_classy import FlaskView, route
 from flask import render_template, request, jsonify
 from flask_login import login_required
 
 import app.constants as constants
 
-from app import client, service
+from app import client, service, get_runtime_stream_folder
 
 from .stream_entry import EncodeStream, RelayStream, TimeshiftRecorderStream, CatchupStream, TimeshiftPlayerStream, \
     make_relay_stream, make_encode_stream, make_timeshift_recorder_stream, make_catchup_stream, \
@@ -182,6 +183,17 @@ class StreamView(FlaskView):
         response = {"sid": sid}
         return jsonify(response), 200
 
+    @route('/get_log', methods=['POST'])
+    @login_required
+    def get_log_stream(self):
+        sid = request.form['sid']
+        stream = service.find_stream_by_id(sid)
+        if stream:
+            client.get_log_stream(sid, stream.generate_feedback_dir())
+
+        response = {"sid": sid}
+        return jsonify(response), 200
+
     @route('/start', methods=['POST'])
     @login_required
     def start_stream(self):
@@ -214,3 +226,13 @@ class StreamView(FlaskView):
 
         response = {"sid": sid}
         return jsonify(response), 200
+
+    @route('/log/<sid>', methods=['POST'])
+    def log(self, sid):
+        # len = request.headers['content-length']
+        new_file_path = os.path.join(get_runtime_stream_folder(), sid)
+        with open(new_file_path, 'wb') as f:
+            data = request.stream.read()
+            f.write(data)
+            f.close()
+        return jsonify(status='ok'), 200

@@ -42,6 +42,10 @@ class ServiceClient(IClientHandler):
     def stop_service(self, delay: int):
         return self._client.stop_service(self._gen_request_id(), delay)
 
+    def get_log_service(self, sid: str):
+        return self._client.get_log_service(self._gen_request_id(),
+                                            constants.DEFAULT_SERVICE_LOG_PATH_TEMPLATE_1S.format(sid))
+
     def start_stream(self, config: dict):
         return self._client.start_stream(self._gen_request_id(), config)
 
@@ -50,6 +54,10 @@ class ServiceClient(IClientHandler):
 
     def restart_stream(self, stream_id: str):
         return self._client.restart_stream(self._gen_request_id(), stream_id)
+
+    def get_log_stream(self, stream_id: str, feedback_directory: str):
+        return self._client.get_log_stream(self._gen_request_id(), stream_id, feedback_directory,
+                                           constants.DEFAULT_STREAM_LOG_PATH_TEMPLATE_1S.format(stream_id))
 
     # handler
     def process_response(self, req: Request, resp: Response):

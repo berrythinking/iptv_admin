@@ -121,6 +121,11 @@ class Client:
         self._send_request(command_id, Commands.STOP_SERVICE_COMMAND, command_args)
 
     @is_active_decorator
+    def get_log_service(self, command_id: int, path: str):
+        command_args = {"path": path}
+        self._send_request(command_id, Commands.GET_LOG_SERVICE_COMMAND, command_args)
+
+    @is_active_decorator
     def start_stream(self, command_id: int, config: dict):
         command_args = {"config": config}
         self._send_request(command_id, Commands.START_STREAM_COMMAND, command_args)
@@ -134,6 +139,11 @@ class Client:
     def restart_stream(self, command_id: int, stream_id: str):
         command_args = {"id": stream_id}
         self._send_request(command_id, Commands.RESTART_STREAM_COMMAND, command_args)
+
+    @is_active_decorator
+    def get_log_stream(self, command_id: int, stream_id: str, feedback_directory: str, path: str):
+        command_args = {"id": stream_id, "feedback_directory": feedback_directory, "path": path}
+        self._send_request(command_id, Commands.GET_LOG_STREAM_COMMAND, command_args)
 
     # private
     def _set_state(self, status: Status):

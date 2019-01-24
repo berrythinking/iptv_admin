@@ -12,9 +12,30 @@ from app.user.stream_handler import IStreamHandler
 
 from app.user.service_client import ServiceClient
 from app.user.service import Service
+import os
+
+
+def get_app_folder():
+    return os.path.dirname(__file__)
+
+
+def get_runtime_folder():
+    return os.path.join(get_app_folder(), 'runtime_folder')
+
+
+def get_runtime_stream_folder():
+    return os.path.join(get_runtime_folder(), 'stream')
 
 
 def init_project(static_folder, *args):
+    runtime_folder = get_runtime_folder()
+    if not os.path.exists(runtime_folder):
+        os.mkdir(runtime_folder)
+
+    runtime_stream_folder = get_runtime_stream_folder()
+    if not os.path.exists(runtime_stream_folder):
+        os.mkdir(runtime_stream_folder)
+
     app = Flask(__name__, static_folder=static_folder)
 
     for file in args:

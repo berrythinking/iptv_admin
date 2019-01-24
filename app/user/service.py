@@ -31,6 +31,10 @@ class Service(IStreamHandler):
         self._streams_holder = StreamsHolder()
         self._socketio = socketio
 
+    @property
+    def id(self):
+        return self._id
+
     def get_streams(self):
         return self._streams_holder.get_streams()
 
