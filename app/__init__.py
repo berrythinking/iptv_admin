@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask
 from flask_mongoengine import MongoEngine
 from flask_login import LoginManager
@@ -6,13 +8,9 @@ from flask_bootstrap import Bootstrap
 from flask_babel import Babel
 from flask_socketio import SocketIO
 
-import app.constants as constants
-from app.client.client_constants import Commands, Status
-from app.user.stream_handler import IStreamHandler
-
-from app.user.service_client import ServiceClient
-from app.user.service import Service
-import os
+from app.service.service_settings import ServiceSettings
+from app.service.service_client import ServiceClient
+from app.service.service import Service
 
 
 def get_app_folder():
@@ -50,8 +48,9 @@ def init_project(static_folder, *args):
 
     login_manager.login_view = "HomeView:signin"
 
-    service = Service(socketio)
-    client = ServiceClient(service.host, service.port, service)
+    service_settings = ServiceSettings()
+    service = Service(socketio, service_settings)
+    client = ServiceClient(service_settings, service)
 
     return app, bootstrap, babel, db, mail, socketio, login_manager, client, service
 

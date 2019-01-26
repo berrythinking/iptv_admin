@@ -6,8 +6,9 @@ from app.stream.stream_entry import Stream, EncodeStream, RelayStream, Timeshift
     TimeshiftPlayerStream, make_encode_stream, make_relay_stream, make_timeshift_recorder_stream, make_catchup_stream, \
     make_timeshift_player_stream
 from app.client.client_constants import Status
-from app.user.stream_handler import IStreamHandler
 from app.service.service_settings import ServiceSettings
+
+from .stream_handler import IStreamHandler
 
 
 class ServiceFields:
@@ -32,9 +33,9 @@ class Service(IStreamHandler):
     SERVICE_DATA_CHANGED = 'service_data_changed'
     CALCULATE_VALUE = 'Calculate...'
 
-    def __init__(self, socketio):
+    def __init__(self, socketio, settings: ServiceSettings):
         self._init_fields()
-        self._settings = ServiceSettings()
+        self._settings = settings
         self._socketio = socketio
         self._streams = []
         self._reload_from_db()
@@ -121,7 +122,9 @@ class Service(IStreamHandler):
             self._notify_front(Service.STREAM_DATA_CHANGED, stream.to_front())
 
     def on_client_state_changed(self, status: Status):
-        if status != Status.ACTIVE:
+        if status == Status.ACTIVE:
+            pass
+        else:
             self._init_fields()
 
     # private

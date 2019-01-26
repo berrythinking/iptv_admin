@@ -235,4 +235,6 @@ class StreamView(FlaskView):
             data = request.stream.read()
             f.write(data)
             f.close()
-        return jsonify(status='ok'), 200
+
+        response = {"sid": sid}
+        return jsonify(response), 200

@@ -4,7 +4,7 @@ from flask_classy import FlaskView, route
 from flask import render_template, redirect, url_for, request, jsonify
 from flask_login import logout_user, login_required, current_user
 
-from app import client, service, get_runtime_folder, get_app_folder
+from app import client, service, get_runtime_folder
 from app.home.forms import SettingsForm
 from .forms import ActivateForm
 
