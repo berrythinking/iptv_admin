@@ -56,11 +56,19 @@ class StreamFields:
     TIMESTAMP = 'timestamp'
 
 
+DEFAULT_STREAM_NAME = 'Stream'
+MIN_STREAM_NAME_LENGTH = 3
+MAX_STREAM_NAME_LENGTH = 30
+
+
 class Stream(Document):
     meta = {'collection': 'streams', 'auto_create_index': False, 'allow_inheritance': True}
-    name = StringField(default=constants.DEFAULT_STREAM_NAME, max_length=constants.MAX_STREAM_NAME_LENGTH,
-                       required=True)
-    type = IntField(default=constants.StreamType.RELAY, required=True)
+
+    def __init__(self, *args, **kwargs):
+        super(Stream, self).__init__(*args, **kwargs)
+
+    name = StringField(default=DEFAULT_STREAM_NAME, max_length=MAX_STREAM_NAME_LENGTH,
+                       min_length=MIN_STREAM_NAME_LENGTH, required=True)
     created_date = DateTimeField(default=datetime.now)  # for inner use
     log_level = IntField(default=constants.StreamLogLevel.LOG_LEVEL_INFO, required=True)
 
@@ -83,6 +91,10 @@ class Stream(Document):
     _start_time = 0
     _input_streams = str()
     _output_streams = str()
+    _feedback_dir = str()
+
+    def set_feedback_dir(self, feedback_dir):
+        self._feedback_dir = feedback_dir
 
     def reset(self):
         self._status = constants.StreamStatus.NEW
@@ -136,8 +148,7 @@ class Stream(Document):
         return conf
 
     def generate_feedback_dir(self):
-        return '{0}/{1}/{2}'.format(constants.DEFAULT_FEEDBACK_DIR_PATH,
-                                    self.get_type(), self.get_id())
+        return '{0}/{1}/{2}'.format(self._feedback_dir, self.get_type(), self.get_id())
 
     def get_log_level(self):
         return self.log_level
@@ -155,7 +166,7 @@ class Stream(Document):
         return str(self.id)
 
     def get_type(self):
-        return self.type
+        raise NotImplementedError('subclasses must override get_type()!')
 
     def get_loop(self):
         return self.loop
@@ -174,6 +185,9 @@ class RelayStream(Stream):
 
     video_parser = StringField(default=constants.DEFAULT_VIDEO_PARSER, required=True)
     audio_parser = StringField(default=constants.DEFAULT_AUDIO_PARSER, required=True)
+
+    def get_type(self):
+        return constants.StreamType.RELAY
 
     def config(self) -> dict:
         conf = super(RelayStream, self).config()
@@ -203,6 +217,9 @@ class EncodeStream(Stream):
     audio_bit_rate = IntField(default=constants.INVALID_AUDIO_BIT_RATE, required=True)
     logo = EmbeddedDocumentField(Logo, default=Logo())
     aspect_ratio = EmbeddedDocumentField(Rational, default=Rational())
+
+    def get_type(self):
+        return constants.StreamType.ENCODE
 
     def config(self) -> dict:
         conf = super(EncodeStream, self).config()
@@ -264,6 +281,15 @@ class TimeshiftRecorderStream(RelayStream):
     timeshift_chunk_duration = IntField(default=constants.DEFAULT_TIMESHIFT_CHUNK_DURATION, required=True)
     timeshift_chunk_life_time = IntField(default=constants.DEFAULT_TIMESHIFT_CHUNK_LIFE_TIME, required=True)
 
+    # runtime
+    _timeshift_dir = str()
+
+    def get_type(self):
+        return constants.StreamType.TIMESHIFT_RECORDER
+
+    def set_timeshift_dir(self, timeshift_dir):
+        self._timeshift_dir = timeshift_dir
+
     def config(self) -> dict:
         conf = super(TimeshiftRecorderStream, self).config()
         conf[TIMESHIFT_CHUNK_DURATION] = self.get_timeshift_chunk_duration()
@@ -276,7 +302,7 @@ class TimeshiftRecorderStream(RelayStream):
         return self.timeshift_chunk_duration
 
     def generate_timeshift_dir(self):
-        return '{0}/{1}'.format(constants.DEFAULT_TIMESHIFTS_DIR_PATH, self.get_id())
+        return '{0}/{1}'.format(self._timeshift_dir, self.get_id())
 
 
 class CatchupStream(TimeshiftRecorderStream):
@@ -285,13 +311,19 @@ class CatchupStream(TimeshiftRecorderStream):
         self.timeshift_chunk_duration = constants.DEFAULT_CATCHUP_CHUNK_DURATION
         self.auto_exit_time = constants.DEFAULT_CATCHUP_EXIT_TIME
 
+    def get_type(self):
+        return constants.StreamType.CATCHUP
+
 
 class TimeshiftPlayerStream(RelayStream):
-    timeshift_dir = StringField(default=constants.DEFAULT_TIMESHIFTS_DIR_PATH, required=True)
+    timeshift_dir = StringField(required=True)  # FIXME default
     timeshift_delay = IntField(default=constants.DEFAULT_TIMESHIFT_DELAY, required=True)
 
     def __init__(self, *args, **kwargs):
         super(TimeshiftPlayerStream, self).__init__(*args, **kwargs)
+
+    def get_type(self):
+        return constants.StreamType.TIMESHIFT_PLAYER
 
     def config(self) -> dict:
         conf = super(TimeshiftPlayerStream, self).config()
@@ -300,34 +332,41 @@ class TimeshiftPlayerStream(RelayStream):
         return conf
 
 
-def make_relay_stream() -> RelayStream:
-    stream = RelayStream(type=constants.StreamType.RELAY)
+def make_relay_stream(feedback_dir: str) -> RelayStream:
+    stream = RelayStream()
+    stream._feedback_dir = feedback_dir
     stream.input = Urls(urls=[Url(id=Url.generate_id())])
     stream.output = Urls(urls=[Url(id=Url.generate_id())])
     return stream
 
 
-def make_encode_stream() -> EncodeStream:
-    stream = EncodeStream(type=constants.StreamType.ENCODE)
+def make_encode_stream(feedback_dir: str) -> EncodeStream:
+    stream = EncodeStream()
+    stream._feedback_dir = feedback_dir
     stream.input = Urls(urls=[Url(id=Url.generate_id())])
     stream.output = Urls(urls=[Url(id=Url.generate_id())])
     return stream
 
 
-def make_timeshift_recorder_stream() -> TimeshiftRecorderStream:
-    stream = TimeshiftRecorderStream(type=constants.StreamType.TIMESHIFT_RECORDER)
+def make_timeshift_recorder_stream(feedback_dir: str, timeshift_dir: str) -> TimeshiftRecorderStream:
+    stream = TimeshiftRecorderStream()
+    stream._feedback_dir = feedback_dir
+    stream._timeshift_dir = timeshift_dir
     stream.input = Urls(urls=[Url(id=Url.generate_id())])
     return stream
 
 
-def make_catchup_stream() -> CatchupStream:
-    stream = CatchupStream(type=constants.StreamType.CATCHUP)
+def make_catchup_stream(feedback_dir: str, timeshift_dir: str) -> CatchupStream:
+    stream = CatchupStream()
+    stream._feedback_dir = feedback_dir
+    stream._timeshift_dir = timeshift_dir
     stream.input = Urls(urls=[Url(id=Url.generate_id())])
     return stream
 
 
-def make_timeshift_player_stream() -> TimeshiftPlayerStream:
-    stream = TimeshiftPlayerStream(type=constants.StreamType.TIMESHIFT_PLAYER)
+def make_timeshift_player_stream(feedback_dir: str) -> TimeshiftPlayerStream:
+    stream = TimeshiftPlayerStream()
+    stream._feedback_dir = feedback_dir
     stream.input = Urls(urls=[Url(id=Url.generate_id())])
     stream.output = Urls(urls=[Url(id=Url.generate_id())])
     return stream

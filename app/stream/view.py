@@ -7,15 +7,13 @@ import app.constants as constants
 
 from app import client, service, get_runtime_stream_folder
 
-from .stream_entry import EncodeStream, RelayStream, TimeshiftRecorderStream, CatchupStream, TimeshiftPlayerStream, \
-    make_relay_stream, make_encode_stream, make_timeshift_recorder_stream, make_catchup_stream, \
-    make_timeshift_player_stream
+from .stream_entry import EncodeStream, RelayStream, TimeshiftRecorderStream, CatchupStream, TimeshiftPlayerStream
 from .stream_forms import EncodeStreamEntryForm, RelayStreamEntryForm, TimeshiftRecorderStreamEntryForm, \
     CatchupStreamEntryForm, TimeshiftPlayerStreamEntryForm
 
 
 def _add_relay_stream(method: str):
-    stream = make_relay_stream()
+    stream = service.make_relay_stream()
     form = RelayStreamEntryForm(obj=stream)
     if method == 'POST' and form.validate_on_submit():
         new_entry = form.make_entry()
@@ -37,7 +35,7 @@ def edit_relay_stream(method: str, stream: RelayStream):
 
 
 def _add_encode_stream(method: str):
-    stream = make_encode_stream()
+    stream = service.make_encode_stream()
     form = EncodeStreamEntryForm(obj=stream)
     if method == 'POST' and form.validate_on_submit():
         new_entry = form.make_entry()
@@ -59,7 +57,7 @@ def edit_encode_stream(method: str, stream: EncodeStream):
 
 
 def _add_timeshift_recorder_stream(method: str):
-    stream = make_timeshift_recorder_stream()
+    stream = service.make_timeshift_recorder_stream()
     form = TimeshiftRecorderStreamEntryForm(obj=stream)
     if method == 'POST':  # FIXME form.validate_on_submit()
         new_entry = form.make_entry()
@@ -83,7 +81,7 @@ def edit_timeshift_recorder_stream(method: str, stream: TimeshiftRecorderStream)
 
 
 def _add_catchup_stream(method: str):
-    stream = make_catchup_stream()
+    stream = service.make_catchup_stream()
     form = CatchupStreamEntryForm(obj=stream)
     if method == 'POST':  # FIXME form.validate_on_submit()
         new_entry = form.make_entry()
@@ -102,11 +100,12 @@ def edit_catchup_stream(method: str, stream: CatchupStream):
         stream.save()
         return jsonify(status='ok'), 200
 
-    return render_template('stream/catchup/edit.html', form=form, feedback_dir=stream.generate_feedback_dir())
+    return render_template('stream/catchup/edit.html', form=form, feedback_dir=stream.generate_feedback_dir(),
+                           timeshift_dir=stream.generate_timeshift_dir())
 
 
 def _add_timeshift_player_stream(method: str):
-    stream = make_timeshift_player_stream()
+    stream = service.make_timeshift_player_stream()
     form = TimeshiftPlayerStreamEntryForm(obj=stream)
     if method == 'POST' and form.validate_on_submit():
         new_entry = form.make_entry()
@@ -161,15 +160,16 @@ class StreamView(FlaskView):
     def edit_stream(self, sid):
         stream = service.find_stream_by_id(sid)
         if stream:
-            if stream.type == constants.StreamType.RELAY:
+            type = stream.get_type()
+            if type == constants.StreamType.RELAY:
                 return edit_relay_stream(request.method, stream)
-            elif stream.type == constants.StreamType.ENCODE:
+            elif type == constants.StreamType.ENCODE:
                 return edit_encode_stream(request.method, stream)
-            elif stream.type == constants.StreamType.TIMESHIFT_RECORDER:
+            elif type == constants.StreamType.TIMESHIFT_RECORDER:
                 return edit_timeshift_recorder_stream(request.method, stream)
-            elif stream.type == constants.StreamType.CATCHUP:
+            elif type == constants.StreamType.CATCHUP:
                 return edit_catchup_stream(request.method, stream)
-            elif stream.type == constants.StreamType.TIMESHIFT_PLAYER:
+            elif type == constants.StreamType.TIMESHIFT_PLAYER:
                 return edit_timeshift_player_stream(request.method, stream)
 
         response = {"status": "failed"}

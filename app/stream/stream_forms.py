@@ -6,17 +6,13 @@ from wtforms.fields import StringField, SubmitField, SelectField, IntegerField, 
 
 import app.constants as constants
 from .stream_entry import Stream, RelayStream, EncodeStream, TimeshiftRecorderStream, CatchupStream, \
-    TimeshiftPlayerStream
+    TimeshiftPlayerStream, MIN_STREAM_NAME_LENGTH, MAX_STREAM_NAME_LENGTH
 from .common_forms import UrlsForm, SizeForm, LogoForm, RationalForm
 
 
 class StreamEntryForm(FlaskForm):
     name = StringField(lazy_gettext(u'Name:'),
-                       validators=[InputRequired(),
-                                   Length(min=constants.MIN_STREAM_NAME_LENGTH, max=constants.MAX_STREAM_NAME_LENGTH)])
-    type = SelectField(lazy_gettext(u'Type:'), validators=[],
-                       choices=constants.AVAILABLE_STREAM_TYPES_PAIRS, coerce=constants.StreamType.coerce,
-                       render_kw={'disabled': 'disabled'})
+                       validators=[InputRequired(), Length(min=MIN_STREAM_NAME_LENGTH, max=MAX_STREAM_NAME_LENGTH)])
     input = FormField(UrlsForm, lazy_gettext(u'Input:'))
     output = FormField(UrlsForm, lazy_gettext(u'Output:'))
     log_level = SelectField(lazy_gettext(u'Log level:'), validators=[],
@@ -36,7 +32,6 @@ class StreamEntryForm(FlaskForm):
 
     def update_entry(self, entry: Stream):
         entry.name = self.name.data
-        entry.type = self.type.data
         entry.input = self.input.get_data()
         entry.output = self.output.get_data()
 

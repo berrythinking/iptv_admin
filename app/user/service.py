@@ -1,7 +1,13 @@
+from bson.objectid import ObjectId
+
 import app.constants as constants
+
+from app.stream.stream_entry import Stream, EncodeStream, RelayStream, TimeshiftRecorderStream, CatchupStream, \
+    TimeshiftPlayerStream, make_encode_stream, make_relay_stream, make_timeshift_recorder_stream, make_catchup_stream, \
+    make_timeshift_player_stream
 from app.client.client_constants import Status
 from app.user.stream_handler import IStreamHandler
-from .streams_holder import StreamsHolder
+from app.service.service_settings import ServiceSettings
 
 
 class ServiceFields:
@@ -28,24 +34,44 @@ class Service(IStreamHandler):
 
     def __init__(self, socketio):
         self._init_fields()
-        self._streams_holder = StreamsHolder()
+        self._settings = ServiceSettings()
         self._socketio = socketio
+        self._streams = []
+        self._reload_from_db()
+
+    @property
+    def host(self):
+        return self._settings.host
+
+    @property
+    def port(self):
+        return self._settings.port
 
     @property
     def id(self):
         return self._id
 
     def get_streams(self):
-        return self._streams_holder.get_streams()
+        return self._streams
 
     def find_stream_by_id(self, sid: str):
-        return self._streams_holder.find_stream_by_id(sid)
+        for stream in self._streams:
+            if stream.id == ObjectId(sid):
+                return stream
+
+        return None
 
     def add_stream(self, stream):
-        self._streams_holder.add_stream(stream)
+        self._init_stream_runtime_fields(stream)
+        self._streams.append(stream)
+        stream.save()
 
     def remove_stream(self, sid: str):
-        self._streams_holder.remove_stream(sid)
+        for stream in self._streams:
+            if stream.id == ObjectId(sid):
+                stream.delete()
+                self._streams.remove(stream)
+                break
 
     def to_front(self) -> dict:
         return {ServiceFields.ID: self._id, ServiceFields.CPU: self._cpu, ServiceFields.GPU: self._gpu,
@@ -55,6 +81,21 @@ class Service(IStreamHandler):
                 ServiceFields.BANDWIDTH_IN: self._bandwidth_in, ServiceFields.BANDWIDTH_OUT: self._bandwidth_out,
                 ServiceFields.UPTIME: self._uptime, ServiceFields.TIMESTAMP: self._timestamp,
                 ServiceFields.VERSION: self._version}
+
+    def make_relay_stream(self) -> RelayStream:
+        return make_relay_stream(self._settings.feedback_directory)
+
+    def make_encode_stream(self) -> EncodeStream:
+        return make_encode_stream(self._settings.feedback_directory)
+
+    def make_timeshift_recorder_stream(self) -> TimeshiftRecorderStream:
+        return make_timeshift_recorder_stream(self._settings.feedback_directory, self._settings.timeshifts_directory)
+
+    def make_catchup_stream(self) -> CatchupStream:
+        return make_catchup_stream(self._settings.feedback_directory, self._settings.timeshifts_directory)
+
+    def make_timeshift_player_stream(self) -> TimeshiftPlayerStream:
+        return make_timeshift_player_stream(self._settings.feedback_directory)
 
     # handler
     def on_stream_statistic_received(self, params: dict):
@@ -118,3 +159,16 @@ class Service(IStreamHandler):
         self._uptime = stats[ServiceFields.UPTIME]
         self._timestamp = stats[ServiceFields.TIMESTAMP]
         self._version = stats[ServiceFields.VERSION]
+
+    def _init_stream_runtime_fields(self, stream: Stream):
+        type = stream.get_type()
+        stream.set_feedback_dir(self._settings.feedback_directory)
+        if type == constants.StreamType.TIMESHIFT_RECORDER or type == constants.StreamType.CATCHUP:
+            stream.set_timeshift_dir(self._settings.timeshifts_directory)
+
+    def _reload_from_db(self):
+        self._streams = []
+        streams = Stream.objects()
+        for stream in streams:
+            self._init_stream_runtime_fields(stream)
+            self._streams.append(stream)

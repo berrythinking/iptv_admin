@@ -51,7 +51,7 @@ def init_project(static_folder, *args):
     login_manager.login_view = "HomeView:signin"
 
     service = Service(socketio)
-    client = ServiceClient(app.config['SERVICE']['host'], app.config['SERVICE']['port'], service)
+    client = ServiceClient(service.host, service.port, service)
 
     return app, bootstrap, babel, db, mail, socketio, login_manager, client, service
 
