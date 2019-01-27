@@ -32,6 +32,12 @@ def generate_json_rpc_response_error(message: str, code: int, command_id: str) -
 
 class Client:
     MAX_PACKET_SIZE = 8 * 1024
+    FEEDBACK_DIRECTORY = 'feedback_directory'
+    TIMESHIFTS_DIRECTORY = 'timeshifts_directory'
+    HLS_DIRECTORY = 'hls_directory'
+    PLAYLISTS_DIRECTORY = 'playlists_directory'
+    DVB_DIRECTORY = 'dvb_directory'
+    CAPTURE_CARD_DIRECTORY = 'capture_card_directory'
 
     def __init__(self, host: str, port: int, handler: IClientHandler):
         self.host = host
@@ -106,12 +112,12 @@ class Client:
     def prepare_service(self, command_id: int, feedback_directory: str, timeshifts_directory: str, hls_directory: str,
                         playlists_directory: str, dvb_directory: str, capture_card_directory: str):
         command_args = {
-            "feedback_directory": feedback_directory,
-            "timeshifts_directory": timeshifts_directory,
-            "hls_directory": hls_directory,
-            "playlists_directory": playlists_directory,
-            "dvb_directory": dvb_directory,
-            "capture_card_directory": capture_card_directory
+            Client.FEEDBACK_DIRECTORY: feedback_directory,
+            Client.TIMESHIFTS_DIRECTORY: timeshifts_directory,
+            Client.HLS_DIRECTORY: hls_directory,
+            Client.PLAYLISTS_DIRECTORY: playlists_directory,
+            Client.DVB_DIRECTORY: dvb_directory,
+            Client.CAPTURE_CARD_DIRECTORY: capture_card_directory
         }
         self._send_request(command_id, Commands.PREPARE_SERVICE_COMMAND, command_args)
 
