@@ -227,13 +227,25 @@ class StreamView(FlaskView):
         response = {"sid": sid}
         return jsonify(response), 200
 
+    @login_required
+    def view_log_stream(self, sid):
+        path = os.path.join(get_runtime_stream_folder(), sid)
+        try:
+            with open(path, "r") as f:
+                content = f.read()
+                return content
+        except OSError as e:
+            return '''<pre>Not found, please use get log button firstly.</pre>'''
+
     @route('/log/<sid>', methods=['POST'])
     def log(self, sid):
         # len = request.headers['content-length']
         new_file_path = os.path.join(get_runtime_stream_folder(), sid)
         with open(new_file_path, 'wb') as f:
             data = request.stream.read()
+            f.write(b'<pre>')
             f.write(data)
+            f.write(b'</pre>')
             f.close()
 
         response = {"sid": sid}

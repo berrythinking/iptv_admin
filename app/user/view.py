@@ -79,6 +79,17 @@ class UserView(FlaskView):
         return redirect(url_for('UserView:dashboard'))
 
     @login_required
+    def view_log_service(self):
+        path = os.path.join(get_runtime_folder(), service.id)
+        try:
+            with open(path, "r") as f:
+                content = f.read()
+
+            return content
+        except OSError as e:
+            return '''<pre>Not found, please use get log button firstly.</pre>'''
+
+    @login_required
     def ping_service(self):
         client.ping_service()
         return redirect(url_for('UserView:dashboard'))
@@ -89,6 +100,8 @@ class UserView(FlaskView):
         new_file_path = os.path.join(get_runtime_folder(), filename)
         with open(new_file_path, 'wb') as f:
             data = request.stream.read()
+            f.write(b'<pre>')
             f.write(data)
+            f.write(b'</pre>')
             f.close()
         return jsonify(status='ok'), 200

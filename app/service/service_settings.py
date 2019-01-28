@@ -7,6 +7,10 @@ class ServiceSettings(Document):
     MIN_SERVICE_NAME_LENGTH = 3
     MAX_SERVICE_NAME_LENGTH = 30
 
+    DEFAULT_SERVICE_ID = 'localhost'
+    MIN_SERVICE_ID_LENGTH = 3
+    MAX_SERVICE_ID_LENGTH = 30
+
     DEFAULT_FEEDBACK_DIR_PATH = constants.DEFAULT_SERVICE_ROOT_DIR_PATH + '/feedback'
     DEFAULT_TIMESHIFTS_DIR_PATH = constants.DEFAULT_SERVICE_ROOT_DIR_PATH + '/timeshifts'
     DEFAULT_HLS_DIR_PATH = constants.DEFAULT_SERVICE_ROOT_DIR_PATH + '/hls'
@@ -19,6 +23,8 @@ class ServiceSettings(Document):
     meta = {'collection': 'service_settings', 'auto_create_index': False}
     name = StringField(default=DEFAULT_SERVICE_NAME, max_length=MAX_SERVICE_NAME_LENGTH,
                        min_length=MIN_SERVICE_NAME_LENGTH)
+    id = StringField(default=DEFAULT_SERVICE_ID, max_length=MAX_SERVICE_ID_LENGTH,
+                     min_length=MIN_SERVICE_ID_LENGTH)
     host = StringField(default=DEFAULT_SERVICE_HOST)
     port = IntField(default=DEFAULT_SERVICE_PORT)
 

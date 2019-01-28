@@ -63,6 +63,16 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             </a>
         </div>
         <div class="col-md-1">
+            <a href="{{ url_for('UserView:view_log_service') }}" role="button"
+               {% if (client.status== client.status.ACTIVE) %}
+               class="btn btn-info"
+               {% else %}
+               class="btn btn-info disabled"
+               {% endif %}>
+                {% trans %}View log{% endtrans %}
+            </a>
+        </div>
+        <div class="col-md-1">
             <a href="{{ url_for('UserView:stop_service') }}" role="button"
                {% if (client.status== client.status.ACTIVE) %}
                class="btn btn-info"
@@ -168,6 +178,9 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                             onclick="get_log_stream('{{ rev.id }}')">
                         {% trans %}Get log{% endtrans %}
                     </button>
+                    <a href="{{ url_for('StreamView:view_log_stream', sid=rev.id) }}" class="btn btn-info btn-xs" role="button">{% trans %}View log{%
+                    endtrans
+                    %}</a>
                     <button type="submit" class="btn btn-danger btn-xs"
                             onclick="remove_stream('{{ rev.id }}')">
                         {% trans %}Remove{% endtrans %}
