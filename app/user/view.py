@@ -4,7 +4,7 @@ from flask_classy import FlaskView, route
 from flask import render_template, redirect, url_for, request, jsonify
 from flask_login import logout_user, login_required, current_user
 
-from app import client, service, get_runtime_folder
+from app import service, get_runtime_folder
 from app.home.forms import SettingsForm
 from app.service.forms import ServiceSettingsForm
 from app.service.service_settings import ServiceSettings
@@ -17,7 +17,7 @@ def activate_service(form: ActivateForm):
         return render_template('user/activate.html', form=form)
 
     lic = form.license.data
-    client.activate(lic)
+    service.activate(lic)
     return redirect(url_for('UserView:dashboard'))
 
 
@@ -47,6 +47,10 @@ def edit_service(method: str, server: ServiceSettings):
 class UserView(FlaskView):
     route_base = "/"
 
+    def __init__(self):
+        service_settings = ServiceSettings.objects().first()
+        service.set_settings(service_settings)
+
     @login_required
     def dashboard(self):
         # services = ServiceSettings.objects()
@@ -58,8 +62,7 @@ class UserView(FlaskView):
         front_streams = []
         for stream in streams:
             front_streams.append(stream.to_front())
-        return render_template('user/dashboard.html', streams=front_streams, client=client.to_front(),
-                               service=service.to_front())
+        return render_template('user/dashboard.html', streams=front_streams, service=service.to_front())
 
     @route('/settings', methods=['POST', 'GET'])
     @login_required
@@ -81,12 +84,12 @@ class UserView(FlaskView):
 
     @login_required
     def connect(self):
-        client.connect()
+        service.connect()
         return redirect(url_for('UserView:dashboard'))
 
     @login_required
     def disconnect(self):
-        client.disconnect()
+        service.disconnect()
         return redirect(url_for('UserView:dashboard'))
 
     @route('/activate', methods=['POST', 'GET'])
@@ -100,12 +103,12 @@ class UserView(FlaskView):
 
     @login_required
     def stop_service(self):
-        client.stop_service(1)
+        service.stop(1)
         return redirect(url_for('UserView:dashboard'))
 
     @login_required
     def get_log_service(self):
-        client.get_log_service(service.id)
+        service.get_log_service()
         return redirect(url_for('UserView:dashboard'))
 
     @login_required
@@ -121,7 +124,7 @@ class UserView(FlaskView):
 
     @login_required
     def ping_service(self):
-        client.ping_service()
+        service.ping()
         return redirect(url_for('UserView:dashboard'))
 
     @login_required

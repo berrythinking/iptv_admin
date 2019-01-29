@@ -21,7 +21,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
     </div>
     </br>
     <div class="row">
-        {% if (client.status == 0) %}
+        {% if (service.status == 0) %}
         <div class="col-md-1">
             <a href="{{ url_for('UserView:connect') }}" class="btn btn-info" role="button">{% trans %}Connect{% endtrans
                 %}</a>
@@ -35,7 +35,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         {% endif %}
         <div class="col-md-1">
             <a href="{{ url_for('UserView:activate') }}" role="button"
-               {% if (client.status== client.status.INIT) %}
+               {% if (service.status== service.status.INIT) %}
                class="btn btn-info disabled"
                {% else %}
                class="btn btn-info"
@@ -45,7 +45,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         </div>
         <div class="col-md-1">
             <a href="{{ url_for('UserView:ping_service') }}" role="button"
-               {% if (client.status== client.status.ACTIVE) %}
+               {% if (service.status== service.status.ACTIVE) %}
                class="btn btn-info"
                {% else %}
                class="btn btn-info disabled"
@@ -55,7 +55,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         </div>
         <div class="col-md-1">
             <a href="{{ url_for('UserView:get_log_service') }}" role="button"
-               {% if (client.status== client.status.ACTIVE) %}
+               {% if (service.status== service.status.ACTIVE) %}
                class="btn btn-info"
                {% else %}
                class="btn btn-info disabled"
@@ -64,18 +64,13 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             </a>
         </div>
         <div class="col-md-1">
-            <a href="{{ url_for('UserView:view_log_service') }}" role="button"
-               {% if (client.status== client.status.ACTIVE) %}
-               class="btn btn-info"
-               {% else %}
-               class="btn btn-info disabled"
-               {% endif %}>
+            <a href="{{ url_for('UserView:view_log_service') }}" role="button" class="btn btn-info">
                 {% trans %}View log{% endtrans %}
             </a>
         </div>
         <div class="col-md-1">
             <a href="{{ url_for('UserView:stop_service') }}" role="button"
-               {% if (client.status== client.status.ACTIVE) %}
+               {% if (service.status== service.status.ACTIVE) %}
                class="btn btn-info"
                {% else %}
                class="btn btn-info disabled"
@@ -447,9 +442,5 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             }
         });
     }
-
-
-
-
 </script>
 {% endblock %}

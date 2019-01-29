@@ -5,7 +5,7 @@ from flask_login import login_required
 
 import app.constants as constants
 
-from app import client, service, get_runtime_stream_folder
+from app import service, get_runtime_stream_folder
 
 from .stream_entry import EncodeStream, RelayStream, TimeshiftRecorderStream, CatchupStream, TimeshiftPlayerStream
 from .stream_forms import EncodeStreamEntryForm, RelayStreamEntryForm, TimeshiftRecorderStreamEntryForm, \
@@ -187,9 +187,7 @@ class StreamView(FlaskView):
     @login_required
     def get_log_stream(self):
         sid = request.form['sid']
-        stream = service.find_stream_by_id(sid)
-        if stream:
-            client.get_log_stream(sid, stream.generate_feedback_dir())
+        service.get_log_stream(sid)
 
         response = {"sid": sid}
         return jsonify(response), 200
@@ -198,9 +196,7 @@ class StreamView(FlaskView):
     @login_required
     def start_stream(self):
         sid = request.form['sid']
-        stream = service.find_stream_by_id(sid)
-        if stream:
-            client.start_stream(stream.config())
+        service.start_stream(sid)
 
         response = {"sid": sid}
         return jsonify(response), 200
@@ -209,9 +205,7 @@ class StreamView(FlaskView):
     @login_required
     def stop_stream(self):
         sid = request.form['sid']
-        stream = service.find_stream_by_id(sid)
-        if stream:
-            client.stop_stream(sid)
+        service.stop_stream(sid)
 
         response = {"sid": sid}
         return jsonify(response), 200
@@ -220,9 +214,7 @@ class StreamView(FlaskView):
     @login_required
     def restart_stream(self):
         sid = request.form['sid']
-        stream = service.find_stream_by_id(sid)
-        if stream:
-            client.restart_stream(sid)
+        service.restart_stream(sid)
 
         response = {"sid": sid}
         return jsonify(response), 200

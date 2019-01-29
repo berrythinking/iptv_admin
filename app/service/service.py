@@ -7,6 +7,7 @@ from app.stream.stream_entry import Stream, EncodeStream, RelayStream, Timeshift
     make_timeshift_player_stream
 from app.client.client_constants import Status
 from app.service.service_settings import ServiceSettings
+from app.service.service_client import ServiceClient
 
 from .stream_handler import IStreamHandler
 
@@ -26,6 +27,7 @@ class ServiceFields:
     UPTIME = 'uptime'
     TIMESTAMP = 'timestamp'
     VERSION = 'version'
+    STATUS = 'status'
 
 
 class Service(IStreamHandler):
@@ -33,24 +35,59 @@ class Service(IStreamHandler):
     SERVICE_DATA_CHANGED = 'service_data_changed'
     CALCULATE_VALUE = 'Calculate...'
 
-    def __init__(self, socketio, settings: ServiceSettings):
+    def __init__(self, socketio):
         self._init_fields()
-        self._settings = settings
+        self._settings = None
         self._socketio = socketio
+        self._client = ServiceClient(self)
         self._streams = []
+
+    def set_settings(self, settings: ServiceSettings):
+        self._settings = settings
+        self._client.set_settings(settings)
         self._reload_from_db()
 
-    @property
-    def host(self):
-        return self._settings.host
+    def connect(self):
+        return self._client.connect()
 
-    @property
-    def port(self):
-        return self._settings.port
+    def disconnect(self):
+        return self._client.connect()
+
+    def stop(self, delay: int):
+        return self._client.stop_service(delay)
+
+    def get_log_service(self):
+        return self._client.get_log_service(self.id)
+
+    def ping(self):
+        return self._client.ping_service()
+
+    def activate(self, license_key: str):
+        return self._client.activate(license_key)
+
+    def get_log_stream(self, sid: str):
+        stream = self.find_stream_by_id(sid)
+        if stream:
+            self._client.get_log_stream(sid, stream.generate_feedback_dir())
+
+    def start_stream(self, sid: str):
+        stream = self.find_stream_by_id(sid)
+        if stream:
+            self._client.start_stream(stream.config())
+
+    def stop_stream(self, sid: str):
+        stream = self.find_stream_by_id(sid)
+        if stream:
+            self._client.stop_stream(sid)
+
+    def restart_stream(self, sid: str):
+        stream = self.find_stream_by_id(sid)
+        if stream:
+            self._client.restart_stream(sid)
 
     @property
     def id(self):
-        return self._id
+        return str(self._settings.id)
 
     def find_server_by_id(self, sid: str):
         return self._settings
@@ -83,13 +120,13 @@ class Service(IStreamHandler):
                 break
 
     def to_front(self) -> dict:
-        return {ServiceFields.ID: self._id, ServiceFields.CPU: self._cpu, ServiceFields.GPU: self._gpu,
+        return {ServiceFields.ID: self.id, ServiceFields.CPU: self._cpu, ServiceFields.GPU: self._gpu,
                 ServiceFields.LOAD_AVERAGE: self._load_average, ServiceFields.MEMORY_TOTAL: self._memory_total,
                 ServiceFields.MEMORY_FREE: self._memory_free, ServiceFields.MEMORY_AVAILABLE: self._memory_available,
                 ServiceFields.HDD_TOTAL: self._hdd_total, ServiceFields.HDD_FREE: self._hdd_free,
                 ServiceFields.BANDWIDTH_IN: self._bandwidth_in, ServiceFields.BANDWIDTH_OUT: self._bandwidth_out,
                 ServiceFields.UPTIME: self._uptime, ServiceFields.TIMESTAMP: self._timestamp,
-                ServiceFields.VERSION: self._version}
+                ServiceFields.VERSION: self._version, ServiceFields.STATUS: self._client.status()}
 
     def make_relay_stream(self) -> RelayStream:
         return make_relay_stream(self._settings.feedback_directory)

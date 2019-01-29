@@ -9,7 +9,6 @@ from flask_babel import Babel
 from flask_socketio import SocketIO
 
 from app.service.service_settings import ServiceSettings
-from app.service.service_client import ServiceClient
 from app.service.service import Service
 
 
@@ -48,14 +47,12 @@ def init_project(static_folder, *args):
 
     login_manager.login_view = "HomeView:signin"
 
-    service_settings = ServiceSettings.objects().first()
-    service = Service(socketio, service_settings)
-    client = ServiceClient(service_settings, service)
+    service = Service(socketio)
 
-    return app, bootstrap, babel, db, mail, socketio, login_manager, client, service
+    return app, bootstrap, babel, db, mail, socketio, login_manager, service
 
 
-app, bootstrap, babel, db, mail, socketio, login_manager, client, service = init_project(
+app, bootstrap, babel, db, mail, socketio, login_manager, service = init_project(
     'static',
     'config/public_config.py',
     'config/config.py',

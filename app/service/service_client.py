@@ -22,9 +22,13 @@ class ServiceClient(IClientHandler):
     def get_log_stream_path(stream_id: str):
         return constants.DEFAULT_STREAM_LOG_PATH_TEMPLATE_1S.format(stream_id)
 
-    def __init__(self, settings: ServiceSettings, handler: IStreamHandler):
+    def __init__(self, handler: IStreamHandler):
         self._request_id = 0
         self._handler = handler
+        self._service_settings = None
+        self._client = None
+
+    def set_settings(self, settings: ServiceSettings):
         self._service_settings = settings
         self._client = Client(settings.host, settings.port, self)
 
