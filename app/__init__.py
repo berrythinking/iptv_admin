@@ -48,7 +48,7 @@ def init_project(static_folder, *args):
 
     login_manager.login_view = "HomeView:signin"
 
-    service_settings = ServiceSettings()
+    service_settings = ServiceSettings.objects().first()
     service = Service(socketio, service_settings)
     client = ServiceClient(service_settings, service)
 

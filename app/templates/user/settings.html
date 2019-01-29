@@ -32,9 +32,88 @@ Settings | {{ config['PUBLIC_CONFIG'].site.title }}
         {{ render_bootstrap_field(form.locale) }}
         {{ form_field(form.submit, class="btn btn-success") }}
     </form>
+    </br>
+    <div class="row">
+        <div class="col-md-1">
+            <button type="submit" class="btn btn-success" onclick="add_server()">
+                {% trans %}Add server{% endtrans %}
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="service_dialog" class="modal fade" tabindex=-1 role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
+<script type="text/javascript" charset="utf-8">
+    // service
+    function add_server_entry(url) {
+        $.ajax({
+            url: url,
+            type: "POST",
+            dataType: 'json',
+            data: $('#service_entry_form').serialize(),
+            success: function (response) {
+                console.log(response);
+                $('#service_dialog').modal('hide');
+                window.location.reload();
+            },
+            error: function (error) {
+                console.error(error);
+                $('#service_dialog .modal-content').html(data);
+            }
+        });
+    }
+
+    function add_server() {
+        var url = "{{ url_for('UserView:add_service') }}";
+        $.get(url, function(data) {
+            $('#service_dialog .modal-content').html(data);
+            $('#service_dialog').modal();
+
+            $('#apply').click(function(event) {
+                event.preventDefault();
+                add_server_entry(url);
+            })
+        });
+    }
+
+    function edit_server_entry(url) {
+        $.ajax({
+            url: url,
+            type: "POST",
+            dataType: 'json',
+            data: $('#service_entry_form').serialize(),
+            success: function (response) {
+                console.log(response);
+                $('#service_dialog').modal('hide');
+                window.location.reload();
+            },
+            error: function (error) {
+                console.error(error);
+                $('#service_dialog .modal-content').html(data);
+            }
+        });
+    }
+
+    function edit_server(sid) {
+        var url = "/server/edit/" + sid;
+        $.get(url, function(data) {
+            $('#service_dialog .modal-content').html(data);
+            $('#service_dialog').modal();
+
+            $('#apply').click(function(event) {
+                event.preventDefault();
+                edit_server_entry(url);
+            })
+        });
+    }
+</script>
 {% endblock %}

@@ -1,4 +1,6 @@
-from mongoengine import StringField, IntField, EmbeddedDocumentField, Document, DateTimeField, BooleanField, FloatField
+from bson.objectid import ObjectId
+from mongoengine import StringField, IntField, EmbeddedDocumentField, EmbeddedDocument, DateTimeField, BooleanField, \
+    FloatField, ObjectIdField
 from datetime import datetime
 
 import app.constants as constants
@@ -61,12 +63,14 @@ MIN_STREAM_NAME_LENGTH = 3
 MAX_STREAM_NAME_LENGTH = 30
 
 
-class Stream(Document):
-    meta = {'collection': 'streams', 'auto_create_index': False, 'allow_inheritance': True}
+class Stream(EmbeddedDocument):
+    meta = {'allow_inheritance': True, 'auto_create_index': True}
 
     def __init__(self, *args, **kwargs):
         super(Stream, self).__init__(*args, **kwargs)
 
+    id = ObjectIdField(required=True, default=ObjectId,
+                       unique=True, primary_key=True)
     name = StringField(default=DEFAULT_STREAM_NAME, max_length=MAX_STREAM_NAME_LENGTH,
                        min_length=MIN_STREAM_NAME_LENGTH, required=True)
     created_date = DateTimeField(default=datetime.now)  # for inner use

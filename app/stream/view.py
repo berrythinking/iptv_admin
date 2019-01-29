@@ -28,7 +28,7 @@ def edit_relay_stream(method: str, stream: RelayStream):
 
     if method == 'POST' and form.validate_on_submit():
         stream = form.update_entry(stream)
-        stream.save()
+        service.update_stream(stream)
         return jsonify(status='ok'), 200
 
     return render_template('stream/relay/edit.html', form=form, feedback_dir=stream.generate_feedback_dir())
@@ -50,7 +50,7 @@ def edit_encode_stream(method: str, stream: EncodeStream):
 
     if method == 'POST' and form.validate_on_submit():
         stream = form.update_entry(stream)
-        stream.save()
+        service.update_stream(stream)
         return jsonify(status='ok'), 200
 
     return render_template('stream/encode/edit.html', form=form, feedback_dir=stream.generate_feedback_dir())
@@ -73,7 +73,7 @@ def edit_timeshift_recorder_stream(method: str, stream: TimeshiftRecorderStream)
 
     if method == 'POST':  # FIXME form.validate_on_submit()
         stream = form.update_entry(stream)
-        stream.save()
+        service.update_stream(stream)
         return jsonify(status='ok'), 200
 
     return render_template('stream/timeshift_recorder/edit.html', form=form,
@@ -97,7 +97,7 @@ def edit_catchup_stream(method: str, stream: CatchupStream):
 
     if method == 'POST':  # FIXME form.validate_on_submit()
         stream = form.update_entry(stream)
-        stream.save()
+        service.update_stream(stream)
         return jsonify(status='ok'), 200
 
     return render_template('stream/catchup/edit.html', form=form, feedback_dir=stream.generate_feedback_dir(),
@@ -120,7 +120,7 @@ def edit_timeshift_player_stream(method: str, stream: TimeshiftPlayerStream):
 
     if method == 'POST' and form.validate_on_submit():
         stream = form.update_entry(stream)
-        stream.save()
+        service.update_stream(stream)
         return jsonify(status='ok'), 200
 
     return render_template('stream/timeshift_player/edit.html', form=form, feedback_dir=stream.generate_feedback_dir())

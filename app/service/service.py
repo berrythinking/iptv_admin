@@ -52,6 +52,9 @@ class Service(IStreamHandler):
     def id(self):
         return self._id
 
+    def find_server_by_id(self, sid: str):
+        return self._settings
+
     def get_streams(self):
         return self._streams
 
@@ -65,12 +68,17 @@ class Service(IStreamHandler):
     def add_stream(self, stream):
         self._init_stream_runtime_fields(stream)
         self._streams.append(stream)
+        self._settings.streams.append(stream)
+        self._settings.save()
+
+    def update_stream(self, stream):
         stream.save()
 
     def remove_stream(self, sid: str):
         for stream in self._streams:
             if stream.id == ObjectId(sid):
-                stream.delete()
+                self._settings.update(pull__streams__id=stream.id)
+                self._settings.save()
                 self._streams.remove(stream)
                 break
 
@@ -171,7 +179,7 @@ class Service(IStreamHandler):
 
     def _reload_from_db(self):
         self._streams = []
-        streams = Stream.objects()
+        streams = self._settings.streams
         for stream in streams:
             self._init_stream_runtime_fields(stream)
             self._streams.append(stream)

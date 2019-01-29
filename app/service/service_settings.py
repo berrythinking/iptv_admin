@@ -1,15 +1,12 @@
-from mongoengine import Document, StringField, IntField
+from mongoengine import Document, StringField, IntField, ListField, EmbeddedDocumentField
 import app.constants as constants
+from app.stream.stream_entry import Stream
 
 
 class ServiceSettings(Document):
     DEFAULT_SERVICE_NAME = 'Service'
     MIN_SERVICE_NAME_LENGTH = 3
     MAX_SERVICE_NAME_LENGTH = 30
-
-    DEFAULT_SERVICE_ID = 'localhost'
-    MIN_SERVICE_ID_LENGTH = 3
-    MAX_SERVICE_ID_LENGTH = 30
 
     DEFAULT_FEEDBACK_DIR_PATH = constants.DEFAULT_SERVICE_ROOT_DIR_PATH + '/feedback'
     DEFAULT_TIMESHIFTS_DIR_PATH = constants.DEFAULT_SERVICE_ROOT_DIR_PATH + '/timeshifts'
@@ -20,11 +17,9 @@ class ServiceSettings(Document):
     DEFAULT_SERVICE_HOST = 'localhost'
     DEFAULT_SERVICE_PORT = 6317
 
-    meta = {'collection': 'service_settings', 'auto_create_index': False}
+    meta = {'collection': 'service', 'auto_create_index': False}
     name = StringField(default=DEFAULT_SERVICE_NAME, max_length=MAX_SERVICE_NAME_LENGTH,
                        min_length=MIN_SERVICE_NAME_LENGTH)
-    id = StringField(default=DEFAULT_SERVICE_ID, max_length=MAX_SERVICE_ID_LENGTH,
-                     min_length=MIN_SERVICE_ID_LENGTH)
     host = StringField(default=DEFAULT_SERVICE_HOST)
     port = IntField(default=DEFAULT_SERVICE_PORT)
 
@@ -34,3 +29,5 @@ class ServiceSettings(Document):
     playlists_directory = StringField(default=DEFAULT_PLAYLISTS_DIR_PATH)
     dvb_directory = StringField(default=DEFAULT_DVB_DIR_PATH)
     capture_card_directory = StringField(default=DEFAULT_CAPTURE_DIR_PATH)
+
+    streams = ListField(EmbeddedDocumentField(Stream), default=[])

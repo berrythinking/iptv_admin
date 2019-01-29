@@ -18,7 +18,7 @@ class ServiceSettingsForm(FlaskForm):
     playlists_directory = StringField(lazy_gettext(u'Playlist directory:'), validators=[InputRequired()])
     dvb_directory = StringField(lazy_gettext(u'DVB directory:'), validators=[InputRequired()])
     capture_card_directory = StringField(lazy_gettext(u'Capture card directory:'), validators=[InputRequired()])
-    submit = SubmitField(lazy_gettext(u'Apply'))
+    apply = SubmitField(lazy_gettext(u'Apply'))
 
     def make_settings(self):
         return self.update_settings(ServiceSettings())
