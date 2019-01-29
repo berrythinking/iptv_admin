@@ -48,7 +48,9 @@ class UserView(FlaskView):
     route_base = "/"
 
     def __init__(self):
-        service_settings = ServiceSettings.objects().first()
+        service_settings = ServiceSettings.objects().first()  # FIXME
+        if not service_settings:
+            service_settings = ServiceSettings()
         service.set_settings(service_settings)
 
     @login_required
@@ -135,7 +137,7 @@ class UserView(FlaskView):
     @route('/edit/<sid>', methods=['GET', 'POST'])
     @login_required
     def edit_service(self, sid):
-        server = service.find_server_by_id(sid)
+        server = ServiceSettings.objects(id=sid).first()
         if server:
             return edit_service(request.method, server)
 

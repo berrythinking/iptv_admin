@@ -85,45 +85,49 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
     </div>
     </br>
     <div class="row well">
-        <div class="col-md-1">
-            <b>{% trans %}ID:{% endtrans %}</b>
-            <p id='service_id'>{{ service.id }}</p>
+        <div class="row">
+            <div class="col-md-2">
+                <b>{% trans %}ID:{% endtrans %}</b>
+                <p id='service_id'>{{ service.id }}</p>
+            </div>
+            <div class="col-md-2">
+                <b>{% trans %}Version:{% endtrans %}</b>
+                <p id='service_version'>{{ service.version }}</p>
+            </div>
+            <div class="col-md-2">
+                <b>{% trans %}Timestamp:{% endtrans %}</b>
+                <p id='service_timestamp'>{{ service.timestamp }}</p>
+            </div>
+            <div class="col-md-2">
+                <b>{% trans %}CPU:{% endtrans %}</b>
+                <p id='service_cpu'>{{ service.cpu }}</p>
+            </div>
+            <div class="col-md-2">
+                <b>{% trans %}GPU:{% endtrans %}</b>
+                <p id='service_gpu'>{{ service.gpu }}</p>
+            </div>
         </div>
-        <div class="col-md-1">
-            <b>{% trans %}CPU:{% endtrans %}</b>
-            <p id='service_cpu'>{{ service.cpu }}</p>
-        </div>
-        <div class="col-md-1">
-            <b>{% trans %}GPU:{% endtrans %}</b>
-            <p id='service_gpu'>{{ service.gpu }}</p>
-        </div>
-        <div class="col-md-1">
-            <b>{% trans %}Memory total:{% endtrans %}</b>
-            <p id='service_memory_total'>{{ service.memory_total }}</p>
-        </div>
-        <div class="col-md-1">
-            <b>{% trans %}Memory free:{% endtrans %}</b>
-            <p id='service_free'>{{ service.memory_free }}</p>
-        </div>
-        <div class="col-md-1">
-            <b>{% trans %}Memory available:{% endtrans %}</b>
-            <p id='service_available'>{{ service.memory_available }}</p>
-        </div>
-        <div class="col-md-1">
-            <b>{% trans %}HDD total:{% endtrans %}</b>
-            <p id='service_hdd_total'>{{ service.hdd_total }}</p>
-        </div>
-        <div class="col-md-1">
-            <b>{% trans %}HDD free:{% endtrans %}</b>
-            <p id='service_hdd_free'>{{ service.memory_free }}</p>
-        </div>
-        <div class="col-md-1">
-            <b>{% trans %}Version:{% endtrans %}</b>
-            <p id='service_version'>{{ service.version }}</p>
-        </div>
-        <div class="col-md-1">
-            <b>{% trans %}Timestamp:{% endtrans %}</b>
-            <p id='service_timestamp'>{{ service.timestamp }}</p>
+        <div class="row">
+            <div class="col-md-2">
+                <b>{% trans %}Memory total:{% endtrans %}</b>
+                <p id='service_memory_total'>{{ service.memory_total }}</p>
+            </div>
+            <div class="col-md-2">
+                <b>{% trans %}Memory free:{% endtrans %}</b>
+                <p id='service_free'>{{ service.memory_free }}</p>
+            </div>
+            <div class="col-md-2">
+                <b>{% trans %}Memory available:{% endtrans %}</b>
+                <p id='service_available'>{{ service.memory_available }}</p>
+            </div>
+            <div class="col-md-2">
+                <b>{% trans %}HDD total:{% endtrans %}</b>
+                <p id='service_hdd_total'>{{ service.hdd_total }}</p>
+            </div>
+            <div class="col-md-2">
+                <b>{% trans %}HDD free:{% endtrans %}</b>
+                <p id='service_hdd_free'>{{ service.memory_free }}</p>
+            </div>
         </div>
     </div>
     <div class="row well">
@@ -154,15 +158,30 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                 <td>{{ rev.timestamp - rev.start_time }}</td>
                 <td>{{ rev.timestamp - rev.loop_start_time }}</td>
                 <td>
-                    <button type="submit" class="btn btn-success btn-xs"
+                    <button type="submit"
+                            {% if (service.status== service.status.ACTIVE) %}
+                            class="btn btn-success btn-xs"
+                            {% else %}
+                            class="btn btn-success btn-xs" disabled
+                            {% endif %}
                             onclick="start_stream('{{ rev.id }}')">
                         {% trans %}Start{% endtrans %}
                     </button>
-                    <button type="submit" class="btn btn-success btn-xs"
+                    <button type="submit"
+                            {% if (service.status== service.status.ACTIVE) %}
+                            class="btn btn-success btn-xs"
+                            {% else %}
+                            class="btn btn-success btn-xs" disabled
+                            {% endif %}
                             onclick="stop_stream('{{ rev.id }}')">
                         {% trans %}Stop{% endtrans %}
                     </button>
-                    <button type="submit" class="btn btn-success btn-xs"
+                    <button type="submit"
+                            {% if (service.status== service.status.ACTIVE) %}
+                            class="btn btn-success btn-xs"
+                            {% else %}
+                            class="btn btn-success btn-xs" disabled
+                            {% endif %}
                             onclick="restart_stream('{{ rev.id }}')">
                         {% trans %}Restart{% endtrans %}
                     </button>
@@ -170,7 +189,12 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                             onclick="edit_stream('{{ rev.id }}')">
                         {% trans %}Edit{% endtrans %}
                     </button>
-                    <button type="submit" class="btn btn-success btn-xs"
+                    <button type="submit"
+                            {% if (service.status== service.status.ACTIVE) %}
+                            class="btn btn-success btn-xs"
+                            {% else %}
+                            class="btn btn-success btn-xs" disabled
+                            {% endif %}
                             onclick="get_log_stream('{{ rev.id }}')">
                         {% trans %}Get log{% endtrans %}
                     </button>

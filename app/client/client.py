@@ -64,10 +64,6 @@ class Client:
     def status(self):
         return self._state
 
-    @status.setter
-    def status(self, value):
-        self._state = value
-
     def connect(self):
         if self.is_connected():
             return

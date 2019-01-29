@@ -51,7 +51,7 @@ class Service(IStreamHandler):
         return self._client.connect()
 
     def disconnect(self):
-        return self._client.connect()
+        return self._client.disconnect()
 
     def stop(self, delay: int):
         return self._client.stop_service(delay)
@@ -88,9 +88,6 @@ class Service(IStreamHandler):
     @property
     def id(self):
         return str(self._settings.id)
-
-    def find_server_by_id(self, sid: str):
-        return self._settings
 
     def get_streams(self):
         return self._streams
@@ -177,7 +174,7 @@ class Service(IStreamHandler):
         self._socketio.emit(channel, params)
 
     def _init_fields(self):
-        self._id = Service.CALCULATE_VALUE
+        self._node_id = Service.CALCULATE_VALUE
         self._cpu = Service.CALCULATE_VALUE
         self._gpu = Service.CALCULATE_VALUE
         self._load_average = Service.CALCULATE_VALUE
@@ -193,7 +190,7 @@ class Service(IStreamHandler):
         self._version = Service.CALCULATE_VALUE
 
     def _refresh_stats(self, stats: dict):
-        self._id = stats[ServiceFields.ID]
+        self._node_id = stats[ServiceFields.ID]
         self._cpu = stats[ServiceFields.CPU]
         self._gpu = stats[ServiceFields.GPU]
         self._load_average = stats[ServiceFields.LOAD_AVERAGE]
