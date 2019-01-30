@@ -122,6 +122,7 @@ class UserView(FlaskView):
 
             return content
         except OSError as e:
+            print('Caught exception OSError : {0}'.format(e))
             return '''<pre>Not found, please use get log button firstly.</pre>'''
 
     @login_required

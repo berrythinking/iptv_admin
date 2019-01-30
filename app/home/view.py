@@ -27,7 +27,7 @@ def send_email(email: str, subject: str, message: str):
     config = app.config['PUBLIC_CONFIG']
     msg = Message(subject, recipients=[config['support']['contact_email']])
     msg.body = 'From: {0} <{0}> {1}'.format(email, message)
-    app.mail.send(msg)
+    mail.send(msg)
 
 
 def post_login(form: SigninForm):

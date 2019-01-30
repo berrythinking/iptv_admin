@@ -8,13 +8,13 @@ import app.constants as constants
 from app import service, get_runtime_stream_folder
 
 from .stream_entry import EncodeStream, RelayStream, TimeshiftRecorderStream, CatchupStream, TimeshiftPlayerStream
-from .stream_forms import EncodeStreamEntryForm, RelayStreamEntryForm, TimeshiftRecorderStreamEntryForm, \
-    CatchupStreamEntryForm, TimeshiftPlayerStreamEntryForm
+from .stream_forms import EncodeStreamForm, RelayStreamForm, TimeshiftRecorderStreamForm, CatchupStreamForm, \
+    TimeshiftPlayerStreamForm
 
 
 def _add_relay_stream(method: str):
     stream = service.make_relay_stream()
-    form = RelayStreamEntryForm(obj=stream)
+    form = RelayStreamForm(obj=stream)
     if method == 'POST' and form.validate_on_submit():
         new_entry = form.make_entry()
         service.add_stream(new_entry)
@@ -24,7 +24,7 @@ def _add_relay_stream(method: str):
 
 
 def edit_relay_stream(method: str, stream: RelayStream):
-    form = RelayStreamEntryForm(obj=stream)
+    form = RelayStreamForm(obj=stream)
 
     if method == 'POST' and form.validate_on_submit():
         stream = form.update_entry(stream)
@@ -36,7 +36,7 @@ def edit_relay_stream(method: str, stream: RelayStream):
 
 def _add_encode_stream(method: str):
     stream = service.make_encode_stream()
-    form = EncodeStreamEntryForm(obj=stream)
+    form = EncodeStreamForm(obj=stream)
     if method == 'POST' and form.validate_on_submit():
         new_entry = form.make_entry()
         service.add_stream(new_entry)
@@ -46,7 +46,7 @@ def _add_encode_stream(method: str):
 
 
 def edit_encode_stream(method: str, stream: EncodeStream):
-    form = EncodeStreamEntryForm(obj=stream)
+    form = EncodeStreamForm(obj=stream)
 
     if method == 'POST' and form.validate_on_submit():
         stream = form.update_entry(stream)
@@ -58,7 +58,7 @@ def edit_encode_stream(method: str, stream: EncodeStream):
 
 def _add_timeshift_recorder_stream(method: str):
     stream = service.make_timeshift_recorder_stream()
-    form = TimeshiftRecorderStreamEntryForm(obj=stream)
+    form = TimeshiftRecorderStreamForm(obj=stream)
     if method == 'POST':  # FIXME form.validate_on_submit()
         new_entry = form.make_entry()
         service.add_stream(new_entry)
@@ -69,7 +69,7 @@ def _add_timeshift_recorder_stream(method: str):
 
 
 def edit_timeshift_recorder_stream(method: str, stream: TimeshiftRecorderStream):
-    form = TimeshiftRecorderStreamEntryForm(obj=stream)
+    form = TimeshiftRecorderStreamForm(obj=stream)
 
     if method == 'POST':  # FIXME form.validate_on_submit()
         stream = form.update_entry(stream)
@@ -82,7 +82,7 @@ def edit_timeshift_recorder_stream(method: str, stream: TimeshiftRecorderStream)
 
 def _add_catchup_stream(method: str):
     stream = service.make_catchup_stream()
-    form = CatchupStreamEntryForm(obj=stream)
+    form = CatchupStreamForm(obj=stream)
     if method == 'POST':  # FIXME form.validate_on_submit()
         new_entry = form.make_entry()
         service.add_stream(new_entry)
@@ -93,7 +93,7 @@ def _add_catchup_stream(method: str):
 
 
 def edit_catchup_stream(method: str, stream: CatchupStream):
-    form = CatchupStreamEntryForm(obj=stream)
+    form = CatchupStreamForm(obj=stream)
 
     if method == 'POST':  # FIXME form.validate_on_submit()
         stream = form.update_entry(stream)
@@ -106,7 +106,7 @@ def edit_catchup_stream(method: str, stream: CatchupStream):
 
 def _add_timeshift_player_stream(method: str):
     stream = service.make_timeshift_player_stream()
-    form = TimeshiftPlayerStreamEntryForm(obj=stream)
+    form = TimeshiftPlayerStreamForm(obj=stream)
     if method == 'POST' and form.validate_on_submit():
         new_entry = form.make_entry()
         service.add_stream(new_entry)
@@ -116,7 +116,7 @@ def _add_timeshift_player_stream(method: str):
 
 
 def edit_timeshift_player_stream(method: str, stream: TimeshiftPlayerStream):
-    form = TimeshiftPlayerStreamEntryForm(obj=stream)
+    form = TimeshiftPlayerStreamForm(obj=stream)
 
     if method == 'POST' and form.validate_on_submit():
         stream = form.update_entry(stream)
@@ -227,6 +227,7 @@ class StreamView(FlaskView):
                 content = f.read()
                 return content
         except OSError as e:
+            print('Caught exception OSError : {0}'.format(e))
             return '''<pre>Not found, please use get log button firstly.</pre>'''
 
     @route('/log/<sid>', methods=['POST'])

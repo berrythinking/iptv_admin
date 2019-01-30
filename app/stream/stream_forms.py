@@ -10,7 +10,7 @@ from .stream_entry import Stream, RelayStream, EncodeStream, TimeshiftRecorderSt
 from .common_forms import UrlsForm, SizeForm, LogoForm, RationalForm
 
 
-class StreamEntryForm(FlaskForm):
+class StreamForm(FlaskForm):
     name = StringField(lazy_gettext(u'Name:'),
                        validators=[InputRequired(), Length(min=MIN_STREAM_NAME_LENGTH, max=MAX_STREAM_NAME_LENGTH)])
     input = FormField(UrlsForm, lazy_gettext(u'Input:'))
@@ -45,7 +45,7 @@ class StreamEntryForm(FlaskForm):
         return entry
 
 
-class RelayStreamEntryForm(StreamEntryForm):
+class RelayStreamForm(StreamForm):
     video_parser = SelectField(lazy_gettext(u'Video parser:'), validators=[],
                                choices=constants.AVAILABLE_VIDEO_PARSERS)
     audio_parser = SelectField(lazy_gettext(u'Audio parser:'), validators=[],
@@ -57,10 +57,10 @@ class RelayStreamEntryForm(StreamEntryForm):
     def update_entry(self, entry: RelayStream):
         entry.video_parser = self.video_parser.data
         entry.audio_parser = self.audio_parser.data
-        return super(RelayStreamEntryForm, self).update_entry(entry)
+        return super(RelayStreamForm, self).update_entry(entry)
 
 
-class EncodeStreamEntryForm(StreamEntryForm):
+class EncodeStreamForm(StreamForm):
     deinterlace = BooleanField(lazy_gettext(u'Deinterlace:'), validators=[])
     frame_rate = IntegerField(lazy_gettext(u'Frame rate:'),
                               validators=[InputRequired(),
@@ -95,10 +95,10 @@ class EncodeStreamEntryForm(StreamEntryForm):
         entry.audio_bit_rate = self.audio_bit_rate.data
         entry.logo = self.logo.get_data()
         entry.aspect_ratio = self.aspect_ratio.get_data()
-        return super(EncodeStreamEntryForm, self).update_entry(entry)
+        return super(EncodeStreamForm, self).update_entry(entry)
 
 
-class TimeshiftRecorderStreamEntryForm(RelayStreamEntryForm):
+class TimeshiftRecorderStreamForm(RelayStreamForm):
     timeshift_chunk_duration = IntegerField(lazy_gettext(u'Chunk duration:'),
                                             validators=[InputRequired(),
                                                         NumberRange(constants.MIN_TIMESHIFT_CHUNK_DURATION,
@@ -115,15 +115,15 @@ class TimeshiftRecorderStreamEntryForm(RelayStreamEntryForm):
     def update_entry(self, entry: TimeshiftRecorderStream):
         entry.timeshift_chunk_duration = self.timeshift_chunk_duration.data
         entry.timeshift_chunk_life_time = self.timeshift_chunk_life_time.data
-        return super(TimeshiftRecorderStreamEntryForm, self).update_entry(entry)
+        return super(TimeshiftRecorderStreamForm, self).update_entry(entry)
 
 
-class CatchupStreamEntryForm(TimeshiftRecorderStreamEntryForm):
+class CatchupStreamForm(TimeshiftRecorderStreamForm):
     def make_entry(self):
         return self.update_entry(CatchupStream())
 
 
-class TimeshiftPlayerStreamEntryForm(RelayStreamEntryForm):
+class TimeshiftPlayerStreamForm(RelayStreamForm):
     timeshift_dir = StringField(lazy_gettext(u'Chunks directory:'), validators=[InputRequired()])
     timeshift_delay = IntegerField(lazy_gettext(u'Delay:'), validators=[InputRequired(),
                                                                         NumberRange(constants.MIN_TIMESHIFT_DELAY,
@@ -135,4 +135,4 @@ class TimeshiftPlayerStreamEntryForm(RelayStreamEntryForm):
     def update_entry(self, entry: TimeshiftPlayerStream):
         entry.timeshift_delay = self.timeshift_delay.data
         entry.timeshift_dir = self.timeshift_dir.data
-        return super(TimeshiftPlayerStreamEntryForm, self).update_entry(entry)
+        return super(TimeshiftPlayerStreamForm, self).update_entry(entry)

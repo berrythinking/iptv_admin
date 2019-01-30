@@ -9,10 +9,6 @@ import app.constants as constants
 from .stream_handler import IStreamHandler
 
 
-class ServiceClientFields:
-    STATUS = 'status'
-
-
 class ServiceClient(IClientHandler):
     @staticmethod
     def get_log_service_path(sid: str):
@@ -30,6 +26,8 @@ class ServiceClient(IClientHandler):
 
     def set_settings(self, settings: ServiceSettings):
         self._service_settings = settings
+        if self._client:
+            self._client.disconnect()
         self._client = Client(settings.host, settings.port, self)
 
     def connect(self):
@@ -94,9 +92,6 @@ class ServiceClient(IClientHandler):
     def on_client_state_changed(self, status: Status):
         if self._handler:
             self._handler.on_client_state_changed(status)
-
-    def to_front(self) -> dict:
-        return {ServiceClientFields.STATUS: self.status()}
 
     # private
     def _prepare_service(self):

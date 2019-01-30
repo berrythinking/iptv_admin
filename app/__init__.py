@@ -8,7 +8,6 @@ from flask_bootstrap import Bootstrap
 from flask_babel import Babel
 from flask_socketio import SocketIO
 
-from app.service.service_settings import ServiceSettings
 from app.service.service import Service
 
 
