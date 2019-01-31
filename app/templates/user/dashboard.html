@@ -21,7 +21,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
     </div>
     </br>
     <div class="row">
-        {% if (service.status == 0) %}
+        {% if (service.status == service.status.INIT) %}
         <div class="col-md-1">
             <a href="{{ url_for('UserView:connect') }}" class="btn btn-info" role="button">{% trans %}Connect{% endtrans
                 %}</a>
@@ -35,7 +35,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         {% endif %}
         <div class="col-md-1">
             <a href="{{ url_for('UserView:activate') }}" role="button"
-               {% if (service.status== service.status.INIT) %}
+               {% if (service.status == service.status.INIT) %}
                class="btn btn-info disabled"
                {% else %}
                class="btn btn-info"
@@ -45,7 +45,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         </div>
         <div class="col-md-1">
             <a href="{{ url_for('UserView:ping_service') }}" role="button"
-               {% if (service.status== service.status.ACTIVE) %}
+               {% if (service.status == service.status.ACTIVE) %}
                class="btn btn-info"
                {% else %}
                class="btn btn-info disabled"
@@ -55,7 +55,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         </div>
         <div class="col-md-1">
             <a href="{{ url_for('UserView:get_log_service') }}" role="button"
-               {% if (service.status== service.status.ACTIVE) %}
+               {% if (service.status == service.status.ACTIVE) %}
                class="btn btn-info"
                {% else %}
                class="btn btn-info disabled"
@@ -70,7 +70,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         </div>
         <div class="col-md-1">
             <a href="{{ url_for('UserView:stop_service') }}" role="button"
-               {% if (service.status== service.status.ACTIVE) %}
+               {% if (service.status == service.status.ACTIVE) %}
                class="btn btn-info"
                {% else %}
                class="btn btn-info disabled"
@@ -159,7 +159,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                 <td>{{ rev.timestamp - rev.loop_start_time }}</td>
                 <td>
                     <button type="submit"
-                            {% if (service.status== service.status.ACTIVE) %}
+                            {% if (service.status == service.status.ACTIVE) %}
                             class="btn btn-success btn-xs"
                             {% else %}
                             class="btn btn-success btn-xs" disabled
@@ -168,7 +168,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                         {% trans %}Start{% endtrans %}
                     </button>
                     <button type="submit"
-                            {% if (service.status== service.status.ACTIVE) %}
+                            {% if (service.status == service.status.ACTIVE) %}
                             class="btn btn-success btn-xs"
                             {% else %}
                             class="btn btn-success btn-xs" disabled
@@ -177,7 +177,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                         {% trans %}Stop{% endtrans %}
                     </button>
                     <button type="submit"
-                            {% if (service.status== service.status.ACTIVE) %}
+                            {% if (service.status == service.status.ACTIVE) %}
                             class="btn btn-success btn-xs"
                             {% else %}
                             class="btn btn-success btn-xs" disabled
@@ -190,7 +190,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                         {% trans %}Edit{% endtrans %}
                     </button>
                     <button type="submit"
-                            {% if (service.status== service.status.ACTIVE) %}
+                            {% if (service.status == service.status.ACTIVE) %}
                             class="btn btn-success btn-xs"
                             {% else %}
                             class="btn btn-success btn-xs" disabled
@@ -399,7 +399,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             data: {"sid":sid},
             success: function (response) {
                 console.log(response);
-                window.location.reload();
+                // window.location.reload();
             },
             error: function (error) {
                 console.error(error);
@@ -414,7 +414,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             data: {"sid":sid},
             success: function (response) {
                 console.log(response);
-                window.location.reload();
+                // window.location.reload();
             },
             error: function (error) {
                 console.error(error);
@@ -429,7 +429,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             data: {"sid":sid},
             success: function (response) {
                 console.log(response);
-                window.location.reload();
+                // window.location.reload();
             },
             error: function (error) {
                 console.error(error);
@@ -444,7 +444,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             data: {"sid":sid},
             success: function (response) {
                 console.log(response);
-                window.location.reload();
+                // window.location.reload();
             },
             error: function (error) {
                 console.error(error);
@@ -459,7 +459,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             data: {"sid":sid},
             success: function (response) {
                 console.log(response);
-                window.location.reload();
+                // window.location.reload();
             },
             error: function (error) {
                 console.error(error);
