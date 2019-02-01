@@ -164,7 +164,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                             {% else %}
                             class="btn btn-success btn-xs" disabled
                             {% endif %}
-                            onclick="start_stream('{{ rev.id }}')">
+                            onclick="start_stream(this, '{{ rev.id }}')">
                         {% trans %}Start{% endtrans %}
                     </button>
                     <button type="submit"
@@ -173,7 +173,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                             {% else %}
                             class="btn btn-success btn-xs" disabled
                             {% endif %}
-                            onclick="stop_stream('{{ rev.id }}')">
+                            onclick="stop_stream(this, '{{ rev.id }}')">
                         {% trans %}Stop{% endtrans %}
                     </button>
                     <button type="submit"
@@ -182,7 +182,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                             {% else %}
                             class="btn btn-success btn-xs" disabled
                             {% endif %}
-                            onclick="restart_stream('{{ rev.id }}')">
+                            onclick="restart_stream(this, '{{ rev.id }}')">
                         {% trans %}Restart{% endtrans %}
                     </button>
                     <button type="submit" class="btn btn-success btn-xs"
@@ -414,14 +414,15 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             data: {"sid":sid},
             success: function (response) {
                 console.log(response);
-                // window.location.reload();
+                window.location.reload();
             },
             error: function (error) {
                 console.error(error);
             }
         });
     }
-    function start_stream(sid) {
+    function start_stream(button, sid) {
+        button.blur();
         $.ajax({
             url: "{{ url_for('StreamView:start_stream') }}",
             type: "POST",
@@ -436,7 +437,8 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             }
         });
     }
-    function stop_stream(sid) {
+    function stop_stream(button, sid) {
+        button.blur();
         $.ajax({
             url: "{{ url_for('StreamView:stop_stream') }}",
             type: "POST",
@@ -451,7 +453,8 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             }
         });
     }
-    function restart_stream(sid) {
+    function restart_stream(button, sid) {
+        button.blur();
         $.ajax({
             url: "{{ url_for('StreamView:restart_stream') }}",
             type: "POST",
