@@ -127,7 +127,7 @@ class Service(IStreamHandler):
                 ServiceFields.HDD_TOTAL: self._hdd_total, ServiceFields.HDD_FREE: self._hdd_free,
                 ServiceFields.BANDWIDTH_IN: self._bandwidth_in, ServiceFields.BANDWIDTH_OUT: self._bandwidth_out,
                 ServiceFields.UPTIME: self._uptime, ServiceFields.TIMESTAMP: self._timestamp,
-                ServiceFields.VERSION: self._version, ServiceFields.STATUS: self.status()}
+                ServiceFields.VERSION: self._version, ServiceFields.STATUS: self.status}
 
     def make_relay_stream(self) -> RelayStream:
         return make_relay_stream(self._settings.feedback_directory)
