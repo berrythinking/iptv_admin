@@ -116,7 +116,8 @@ class Service(IStreamHandler):
                 self._streams.remove(stream)
                 break
 
-    def status(self) -> ClientStatus:
+    @property
+    def status(self):
         self._client.status()
 
     def to_front(self) -> dict:
