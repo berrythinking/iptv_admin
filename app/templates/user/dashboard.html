@@ -315,7 +315,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
       var service_bandwidth_out = $('#service_bandwidth_ou');
       service_bandwidth_out.text(service.bandwidth_out);
       var service_status = $('#service_status');
-      const kStatuses = ['INIT', 'ACTIVE', 'CONNECTED'];
+      const kStatuses = ['INIT', 'CONNECTED', 'ACTIVE'];
       service_status.text(kStatuses[service.status]);
       var service_memory_total = $('#service_memory_total');
       service_memory_total.text(service.memory_total);

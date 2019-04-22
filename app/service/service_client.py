@@ -34,7 +34,7 @@ class ServiceClient(IClientHandler):
         self._client.connect()
 
     def status(self) -> ClientStatus:
-        return self._client.status
+        return self._client.status()
 
     def disconnect(self):
         self._client.disconnect()

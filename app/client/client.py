@@ -60,8 +60,7 @@ class Client:
 
         return closure
 
-    @property
-    def status(self):
+    def status(self) -> ClientStatus:
         return self._state
 
     def connect(self):
