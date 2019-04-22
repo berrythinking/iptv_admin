@@ -60,7 +60,6 @@ class Client:
 
         return closure
 
-    @property
     def status(self):
         return self._state
 
