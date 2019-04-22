@@ -168,7 +168,6 @@ class Client:
         data_to_send_bytes = array + data.encode()
         if not req.is_notification():
             self._request_queue[cid] = req
-        print('push: ' + str(self._request_queue))
         self._socket.send(data_to_send_bytes)
 
     def _send_notification(self, method: str, params):
@@ -192,7 +191,6 @@ class Client:
                 if self._handler:
                     self._handler.process_request(req)
             elif resp:
-                print('pop: ' + str(self._request_queue))
                 saved_req = self._request_queue.pop(resp.id, None)
                 if saved_req and saved_req.method == Commands.ACTIVATE_COMMAND and resp.is_message():
                     self._set_state(ClientStatus.ACTIVE)
