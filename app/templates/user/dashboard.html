@@ -108,7 +108,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             </div>
             <div class="col-md-2">
                 <b>{% trans %}State:{% endtrans %}</b>
-                <p id='service_status'>{{ ['INIT', 'ACTIVE', 'CONNECTED'][service.status] }}</p>
+                <p id='service_status'>{{ ['INIT', 'CONNECTED', 'ACTIVE'][service.status] }}</p>
             </div>
         </div>
         <div class="row">

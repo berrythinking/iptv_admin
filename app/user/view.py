@@ -64,7 +64,8 @@ class UserView(FlaskView):
         front_streams = []
         for stream in streams:
             front_streams.append(stream.to_front())
-        return render_template('user/dashboard.html', streams=front_streams, service=service.to_front())
+        serv = service.to_front()
+        return render_template('user/dashboard.html', streams=front_streams, service=serv)
 
     @route('/settings', methods=['POST', 'GET'])
     @login_required
