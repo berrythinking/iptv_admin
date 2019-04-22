@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from app.client.json_rpc import Request, Response
-from app.client.client_constants import Status
+from app.client.client_constants import ClientStatus
 
 
 # handler for client
@@ -14,5 +14,5 @@ class IClientHandler(ABC):
         pass
 
     @abstractmethod
-    def on_client_state_changed(self, status: Status):
+    def on_client_state_changed(self, status: ClientStatus):
         pass

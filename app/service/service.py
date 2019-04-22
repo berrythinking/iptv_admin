@@ -5,7 +5,7 @@ import app.constants as constants
 from app.stream.stream_entry import Stream, EncodeStream, RelayStream, TimeshiftRecorderStream, CatchupStream, \
     TimeshiftPlayerStream, TestLifeStream, make_encode_stream, make_relay_stream, make_timeshift_recorder_stream, \
     make_catchup_stream, make_timeshift_player_stream, make_test_life_stream
-from app.client.client_constants import Status
+from app.client.client_constants import ClientStatus
 from app.service.service_settings import ServiceSettings
 from app.service.service_client import ServiceClient
 
@@ -166,8 +166,8 @@ class Service(IStreamHandler):
             stream.reset()
             self._notify_front(Service.STREAM_DATA_CHANGED, stream.to_front())
 
-    def on_client_state_changed(self, status: Status):
-        if status == Status.ACTIVE:
+    def on_client_state_changed(self, status: ClientStatus):
+        if status == ClientStatus.ACTIVE:
             pass
         else:
             self._init_fields()

@@ -1,7 +1,7 @@
 from app.client.client import Client
 from app.client.client_handler import IClientHandler
 from app.client.json_rpc import Request, Response
-from app.client.client_constants import Commands, Status
+from app.client.client_constants import Commands, ClientStatus
 from app.service.service_settings import ServiceSettings
 
 import app.constants as constants
@@ -33,7 +33,7 @@ class ServiceClient(IClientHandler):
     def connect(self):
         self._client.connect()
 
-    def status(self) -> Status:
+    def status(self) -> ClientStatus:
         return self._client.status
 
     def disconnect(self):
@@ -89,7 +89,7 @@ class ServiceClient(IClientHandler):
         elif req.method == Commands.QUIT_STATUS_STREAM_COMMAND:
             self._handler.on_quit_status_stream(req.params)
 
-    def on_client_state_changed(self, status: Status):
+    def on_client_state_changed(self, status: ClientStatus):
         if self._handler:
             self._handler.on_client_state_changed(status)
 
