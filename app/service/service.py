@@ -3,8 +3,8 @@ from bson.objectid import ObjectId
 import app.constants as constants
 
 from app.stream.stream_entry import Stream, EncodeStream, RelayStream, TimeshiftRecorderStream, CatchupStream, \
-    TimeshiftPlayerStream, make_encode_stream, make_relay_stream, make_timeshift_recorder_stream, make_catchup_stream, \
-    make_timeshift_player_stream
+    TimeshiftPlayerStream, TestLifeStream, make_encode_stream, make_relay_stream, make_timeshift_recorder_stream, \
+    make_catchup_stream, make_timeshift_player_stream, make_test_life_stream
 from app.client.client_constants import Status
 from app.service.service_settings import ServiceSettings
 from app.service.service_client import ServiceClient
@@ -139,6 +139,9 @@ class Service(IStreamHandler):
 
     def make_timeshift_player_stream(self) -> TimeshiftPlayerStream:
         return make_timeshift_player_stream(self._settings.feedback_directory)
+
+    def make_test_life_stream(self) -> TestLifeStream:
+        return make_test_life_stream(self._settings.feedback_directory)
 
     # handler
     def on_stream_statistic_received(self, params: dict):

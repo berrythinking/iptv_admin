@@ -7,6 +7,7 @@ class StreamType(IntEnum):
     TIMESHIFT_PLAYER = 2
     TIMESHIFT_RECORDER = 3
     CATCHUP = 4
+    TEST_LIFE = 5
 
     @classmethod
     def choices(cls):
@@ -67,7 +68,8 @@ AVAILABLE_LOCALES_PAIRS = [(DEFAULT_LOCALE, 'English'), ('ru', 'Russian')]
 
 AVAILABLE_STREAM_TYPES_PAIRS = [(StreamType.RELAY, 'relay'), (StreamType.ENCODE, 'encode'),
                                 (StreamType.TIMESHIFT_PLAYER, 'timeshift_player'),
-                                (StreamType.TIMESHIFT_RECORDER, 'timeshift_record'), (StreamType.CATCHUP, 'catchup')]
+                                (StreamType.TIMESHIFT_RECORDER, 'timeshift_record'), (StreamType.CATCHUP, 'catchup'),
+                                (StreamType.TEST_LIFE, 'test_life')]
 AVAILABLE_LOG_LEVELS_PAIRS = [(StreamLogLevel.LOG_LEVEL_EMERG, 'EVERG'), (StreamLogLevel.LOG_LEVEL_ALERT, 'ALERT'),
                               (StreamLogLevel.LOG_LEVEL_CRIT, 'CRITICAL'),
                               (StreamLogLevel.LOG_LEVEL_ERR, 'ERROR'),
@@ -153,6 +155,8 @@ AVAILABLE_AUDIO_CODECS = [(LAME_MP3_ENC, 'mpe'), (FAAC, 'aac'), (VOAAC_ENC, 'voa
 DEFAULT_SERVICE_ROOT_DIR_PATH = '~/streamer'
 DEFAULT_SERVICE_LOG_PATH_TEMPLATE_1S = 'http://localhost:8080/service_log/{0}'
 DEFAULT_STREAM_LOG_PATH_TEMPLATE_1S = 'http://localhost:8080/stream/log/{0}'
+
+DEFAULT_TEST_URL = 'test'
 
 
 def round_value(value: float):

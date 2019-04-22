@@ -6,7 +6,7 @@ from wtforms.fields import StringField, SubmitField, SelectField, IntegerField, 
 
 import app.constants as constants
 from .stream_entry import Stream, RelayStream, EncodeStream, TimeshiftRecorderStream, CatchupStream, \
-    TimeshiftPlayerStream, MIN_STREAM_NAME_LENGTH, MAX_STREAM_NAME_LENGTH
+    TimeshiftPlayerStream, TestLifeStream, MIN_STREAM_NAME_LENGTH, MAX_STREAM_NAME_LENGTH
 from .common_forms import UrlsForm, SizeForm, LogoForm, RationalForm
 
 
@@ -136,3 +136,11 @@ class TimeshiftPlayerStreamForm(RelayStreamForm):
         entry.timeshift_delay = self.timeshift_delay.data
         entry.timeshift_dir = self.timeshift_dir.data
         return super(TimeshiftPlayerStreamForm, self).update_entry(entry)
+
+
+class TestLifeStreamForm(RelayStreamForm):
+    def make_entry(self):
+        return self.update_entry(TestLifeStream())
+
+    def update_entry(self, entry: TimeshiftRecorderStream):
+        return super(TestLifeStreamForm, self).update_entry(entry)

@@ -299,7 +299,6 @@ class TimeshiftRecorderStream(RelayStream):
         conf[TIMESHIFT_CHUNK_DURATION] = self.get_timeshift_chunk_duration()
         conf[TIMESHIFT_DIR] = self.generate_timeshift_dir()
         conf[TIMESHIFT_CHUNK_LIFE_TIME] = self.timeshift_chunk_life_time
-        del conf[OUTPUT_FIELD]
         return conf
 
     def get_timeshift_chunk_duration(self):
@@ -333,6 +332,18 @@ class TimeshiftPlayerStream(RelayStream):
         conf = super(TimeshiftPlayerStream, self).config()
         conf[TIMESHIFT_DIR] = self.timeshift_dir
         conf[TIMESHIFT_DELAY] = self.timeshift_delay
+        return conf
+
+
+class TestLifeStream(RelayStream):
+    def __init__(self, *args, **kwargs):
+        super(TestLifeStream, self).__init__(*args, **kwargs)
+
+    def get_type(self):
+        return constants.StreamType.TEST_LIFE
+
+    def config(self) -> dict:
+        conf = super(TestLifeStream, self).config()
         return conf
 
 
@@ -373,4 +384,12 @@ def make_timeshift_player_stream(feedback_dir: str) -> TimeshiftPlayerStream:
     stream._feedback_dir = feedback_dir
     stream.input = Urls(urls=[Url(id=Url.generate_id())])
     stream.output = Urls(urls=[Url(id=Url.generate_id())])
+    return stream
+
+
+def make_test_life_stream(feedback_dir: str) -> TestLifeStream:
+    stream = TestLifeStream()
+    stream._feedback_dir = feedback_dir
+    stream.input = Urls(urls=[Url(id=Url.generate_id())])
+    stream.output = Urls(urls=[Url(id=Url.generate_id(), uri=constants.DEFAULT_TEST_URL)])
     return stream

@@ -9,7 +9,7 @@ from app import service, get_runtime_stream_folder
 
 from .stream_entry import EncodeStream, RelayStream, TimeshiftRecorderStream, CatchupStream, TimeshiftPlayerStream
 from .stream_forms import EncodeStreamForm, RelayStreamForm, TimeshiftRecorderStreamForm, CatchupStreamForm, \
-    TimeshiftPlayerStreamForm
+    TimeshiftPlayerStreamForm, TestLifeStreamForm
 
 
 def _add_relay_stream(method: str):
@@ -126,6 +126,28 @@ def edit_timeshift_player_stream(method: str, stream: TimeshiftPlayerStream):
     return render_template('stream/timeshift_player/edit.html', form=form, feedback_dir=stream.generate_feedback_dir())
 
 
+def _add_test_life_stream(method: str):
+    stream = service.make_test_life_stream()
+    form = TestLifeStreamForm(obj=stream)
+    if method == 'POST':  # FIXME form.validate_on_submit()
+        new_entry = form.make_entry()
+        service.add_stream(new_entry)
+        return jsonify(status='ok'), 200
+
+    return render_template('stream/test_life/add.html', form=form, feedback_dir=stream.generate_feedback_dir())
+
+
+def edit_test_life_stream(method: str, stream: TimeshiftRecorderStream):
+    form = TestLifeStreamForm(obj=stream)
+
+    if method == 'POST':  # FIXME form.validate_on_submit()
+        stream = form.update_entry(stream)
+        service.update_stream(stream)
+        return jsonify(status='ok'), 200
+
+    return render_template('stream/test_life/edit.html', form=form, feedback_dir=stream.generate_feedback_dir())
+
+
 # routes
 class StreamView(FlaskView):
     route_base = "/stream/"
@@ -144,6 +166,11 @@ class StreamView(FlaskView):
     @route('/add/timeshift_recorder', methods=['GET', 'POST'])
     def add_timeshift_recorder_stream(self):
         return _add_timeshift_recorder_stream(request.method)
+
+    @login_required
+    @route('/add/test_life', methods=['GET', 'POST'])
+    def add_test_life_stream(self):
+        return _add_test_life_stream(request.method)
 
     @login_required
     @route('/add/catchup', methods=['GET', 'POST'])
@@ -171,6 +198,8 @@ class StreamView(FlaskView):
                 return edit_catchup_stream(request.method, stream)
             elif type == constants.StreamType.TIMESHIFT_PLAYER:
                 return edit_timeshift_player_stream(request.method, stream)
+            elif type == constants.StreamType.TEST_LIFE:
+                return edit_test_life_stream(request.method, stream)
 
         response = {"status": "failed"}
         return jsonify(response), 404

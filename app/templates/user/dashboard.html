@@ -170,7 +170,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             <tr id='{{ rev.id }}'>
                 <td>{{ loop.index }}</td>
                 <td>{{ rev.name }}</td>
-                <td>{{ ['RELAY', 'ENCODE', 'TIMESHIFT_PLAYER', 'TIMESHIFT_RECORDER', 'CATCHUP'][rev.type] }}</td>
+                <td>{{ ['RELAY', 'ENCODE', 'TIMESHIFT_PLAYER', 'TIMESHIFT_RECORDER', 'CATCHUP', 'TEST_LIFE'][rev.type] }}</td>
                 <td>{{ ['NEW', 'INIT', 'STARTED', 'READY', 'PLAYING', 'FROZEN', 'WAITING'][rev.status] }}</td>
                 <td>{{ rev.restarts }}</td>
                 <td>{{ rev.cpu }}</td>
@@ -249,6 +249,9 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         </button>
         <button class="btn btn-success btn-send col-md-2" onclick="add_timeshift_player_stream()">
             {% trans %}Add timeshift player{% endtrans %}
+        </button>
+        <button class="btn btn-success btn-send col-md-2" onclick="add_test_life_stream()">
+            {% trans %}Add test life{% endtrans %}
         </button>
     </div>
 </div>
@@ -406,6 +409,18 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
     }
     function add_catchup_stream() {
         var url = "{{ url_for('StreamView:add_catchup_stream') }}";
+        $.get(url, function(data) {
+            $('#stream_dialog .modal-content').html(data);
+            $('#stream_dialog').modal();
+
+            $('#submit').click(function(event) {
+                event.preventDefault();
+                add_stream_entry(url);
+            })
+        });
+    }
+    function add_test_life_stream() {
+        var url = "{{ url_for('StreamView:add_test_life_stream') }}";
         $.get(url, function(data) {
             $('#stream_dialog .modal-content').html(data);
             $('#stream_dialog').modal();
