@@ -33,7 +33,6 @@ def init_project(static_folder, *args):
         os.mkdir(runtime_stream_folder)
 
     app = Flask(__name__, static_folder=static_folder)
-
     for file in args:
         app.config.from_pyfile(file, silent=False)
 
@@ -46,7 +45,19 @@ def init_project(static_folder, *args):
 
     login_manager.login_view = "HomeView:signin"
 
-    service = Service(socketio)
+    # defaults flask
+    _host = '127.0.0.1'
+    _port = 5000
+    server_name = app.config.get('SERVER_NAME')
+    sn_host, sn_port = None, None
+
+    if server_name:
+        sn_host, _, sn_port = server_name.partition(':')
+
+    host = sn_host or _host
+    port = int(sn_port or _port)
+
+    service = Service(host, port, socketio)
 
     return app, bootstrap, babel, db, mail, socketio, login_manager, service
 

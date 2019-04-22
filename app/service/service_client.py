@@ -11,12 +11,12 @@ from .stream_handler import IStreamHandler
 
 class ServiceClient(IClientHandler):
     @staticmethod
-    def get_log_service_path(sid: str):
-        return constants.DEFAULT_SERVICE_LOG_PATH_TEMPLATE_1S.format(sid)
+    def get_log_service_path(host: str, port: int, sid: str):
+        return constants.DEFAULT_SERVICE_LOG_PATH_TEMPLATE_3SIS.format(host, port, sid)
 
     @staticmethod
-    def get_log_stream_path(stream_id: str):
-        return constants.DEFAULT_STREAM_LOG_PATH_TEMPLATE_1S.format(stream_id)
+    def get_log_stream_path(host: str, port: int, stream_id: str):
+        return constants.DEFAULT_STREAM_LOG_PATH_TEMPLATE_3SIS.format(host, port, stream_id)
 
     def __init__(self, handler: IStreamHandler):
         self._request_id = 0
@@ -48,8 +48,8 @@ class ServiceClient(IClientHandler):
     def stop_service(self, delay: int):
         return self._client.stop_service(self._gen_request_id(), delay)
 
-    def get_log_service(self, sid: str):
-        return self._client.get_log_service(self._gen_request_id(), ServiceClient.get_log_service_path(sid))
+    def get_log_service(self, host: str, port: int, sid: str):
+        return self._client.get_log_service(self._gen_request_id(), ServiceClient.get_log_service_path(host, port, sid))
 
     def start_stream(self, config: dict):
         return self._client.start_stream(self._gen_request_id(), config)
@@ -60,9 +60,9 @@ class ServiceClient(IClientHandler):
     def restart_stream(self, stream_id: str):
         return self._client.restart_stream(self._gen_request_id(), stream_id)
 
-    def get_log_stream(self, stream_id: str, feedback_directory: str):
+    def get_log_stream(self, host: str, port: int, stream_id: str, feedback_directory: str):
         return self._client.get_log_stream(self._gen_request_id(), stream_id, feedback_directory,
-                                           ServiceClient.get_log_stream_path(stream_id))
+                                           ServiceClient.get_log_stream_path(host, port, stream_id))
 
     # handler
     def process_response(self, req: Request, resp: Response):

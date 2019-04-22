@@ -35,12 +35,14 @@ class Service(IStreamHandler):
     SERVICE_DATA_CHANGED = 'service_data_changed'
     CALCULATE_VALUE = 'Calculate...'
 
-    def __init__(self, socketio):
+    def __init__(self, host, port, socketio):
         self._init_fields()
         self._settings = None
         self._socketio = socketio
         self._client = ServiceClient(self)
         self._streams = []
+        self._host = host
+        self._port = port
 
     def set_settings(self, settings: ServiceSettings):
         self._settings = settings
@@ -57,7 +59,7 @@ class Service(IStreamHandler):
         return self._client.stop_service(delay)
 
     def get_log_service(self):
-        return self._client.get_log_service(self.id)
+        return self._client.get_log_service(self._host, self._port, self.id)
 
     def ping(self):
         return self._client.ping_service()
@@ -68,7 +70,7 @@ class Service(IStreamHandler):
     def get_log_stream(self, sid: str):
         stream = self.find_stream_by_id(sid)
         if stream:
-            self._client.get_log_stream(sid, stream.generate_feedback_dir())
+            self._client.get_log_stream(self._host, self._port, sid, stream.generate_feedback_dir())
 
     def start_stream(self, sid: str):
         stream = self.find_stream_by_id(sid)
