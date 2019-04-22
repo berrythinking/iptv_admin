@@ -166,9 +166,10 @@ class Client:
         data_len = socket.ntohl(len(data))
         array = struct.pack("I", data_len)
         data_to_send_bytes = array + data.encode()
-        self._socket.send(data_to_send_bytes)
         if not req.is_notification():
             self._request_queue[cid] = req
+        
+        self._socket.send(data_to_send_bytes)
 
     def _send_notification(self, method: str, params):
         return self._send_request(None, method, params)
