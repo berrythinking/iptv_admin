@@ -124,6 +124,10 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                 <b>{% trans %}Network out:{% endtrans %}</b>
                 <p id='service_bandwidth_out'>{{ service.bandwidth_out }}</p>
             </div>
+            <div class="col-md-2">
+                <b>{% trans %}Network out:{% endtrans %}</b>
+                <p id='service_status'>{{ service.status }}</p>
+            </div>
         </div>
         <div class="row">
             <div class="col-md-2">
@@ -308,6 +312,8 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
       service_bandwidth_in.text(service.bandwidth_in);
       var service_bandwidth_out = $('#service_bandwidth_ou');
       service_bandwidth_out.text(service.bandwidth_out);
+      var service_status = $('#service_status');
+      service_status.text(service.status);
       var service_memory_total = $('#service_memory_total');
       service_memory_total.text(service.memory_total);
       var service_memory_free = $('#service_memory_free');
