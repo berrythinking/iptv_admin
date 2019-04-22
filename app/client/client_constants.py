@@ -21,7 +21,7 @@ class Commands:
     GET_LOG_SERVICE_COMMAND = 'get_log_service'
 
 
-class Status(IntEnum):
+class ClientStatus(IntEnum):
     INIT = 0
     CONNECTED = 1
     ACTIVE = 2

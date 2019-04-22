@@ -5,7 +5,7 @@ import threading
 import select
 
 from datetime import datetime
-from app.client.client_constants import Commands, Status
+from app.client.client_constants import Commands, ClientStatus
 from app.client.client_handler import IClientHandler
 from app.client.json_rpc import Request, Response, parse_response_or_request
 
@@ -47,10 +47,10 @@ class Client:
         self._listen_thread = None
         self._stop_listen = False
         self._request_queue = dict()
-        self._state = Status.INIT
+        self._state = ClientStatus.INIT
 
     def is_active(self):
-        return self._state == Status.ACTIVE
+        return self._state == ClientStatus.ACTIVE
 
     def is_active_decorator(func):
         def closure(self, *args, **kwargs):
@@ -79,10 +79,10 @@ class Client:
         thread = threading.Thread(target=self._listen_commands, daemon=True)
         thread.start()
         self._listen_thread = thread
-        self._set_state(Status.CONNECTED)
+        self._set_state(ClientStatus.CONNECTED)
 
     def is_connected(self):
-        return self._state != Status.INIT
+        return self._state != ClientStatus.INIT
 
     def disconnect(self):
         if not self.is_connected():
@@ -93,7 +93,7 @@ class Client:
         self._listen_thread = None
         self._socket.close()
         self._socket = None
-        self._set_state(Status.INIT)
+        self._set_state(ClientStatus.INIT)
         self._stop_listen = False
 
     def activate(self, command_id: int, license_key: str):
@@ -148,7 +148,7 @@ class Client:
         self._send_request(command_id, Commands.GET_LOG_STREAM_COMMAND, command_args)
 
     # private
-    def _set_state(self, status: Status):
+    def _set_state(self, status: ClientStatus):
         self._state = status
         if self._handler:
             self._handler.on_client_state_changed(status)
@@ -194,7 +194,7 @@ class Client:
             elif resp:
                 saved_req = self._request_queue.pop(resp.id, None)
                 if saved_req and saved_req.method == Commands.ACTIVATE_COMMAND and resp.is_message():
-                    self._set_state(Status.ACTIVE)
+                    self._set_state(ClientStatus.ACTIVE)
 
                 if self._handler:
                     self._handler.process_response(saved_req, resp)

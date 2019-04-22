@@ -106,6 +106,10 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                 <b>{% trans %}Load:{% endtrans %}</b>
                 <p id='service_load_average'>{{ service.load_average }}</p>
             </div>
+            <div class="col-md-2">
+                <b>{% trans %}State:{% endtrans %}</b>
+                <p id='service_status'>{{ service.status }}</p>
+            </div>
         </div>
         <div class="row">
             <div class="col-md-2">
@@ -123,10 +127,6 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             <div class="col-md-2">
                 <b>{% trans %}Network out:{% endtrans %}</b>
                 <p id='service_bandwidth_out'>{{ service.bandwidth_out }}</p>
-            </div>
-            <div class="col-md-2">
-                <b>{% trans %}Network out:{% endtrans %}</b>
-                <p id='service_status'>{{ service.status }}</p>
             </div>
         </div>
         <div class="row">
@@ -174,7 +174,9 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             <tr id='{{ rev.id }}'>
                 <td>{{ loop.index }}</td>
                 <td>{{ rev.name }}</td>
-                <td>{{ ['RELAY', 'ENCODE', 'TIMESHIFT_PLAYER', 'TIMESHIFT_RECORDER', 'CATCHUP', 'TEST_LIFE'][rev.type] }}</td>
+                <td>{{ ['RELAY', 'ENCODE', 'TIMESHIFT_PLAYER', 'TIMESHIFT_RECORDER', 'CATCHUP', 'TEST_LIFE'][rev.type]
+                    }}
+                </td>
                 <td>{{ ['NEW', 'INIT', 'STARTED', 'READY', 'PLAYING', 'FROZEN', 'WAITING'][rev.status] }}</td>
                 <td>{{ rev.restarts }}</td>
                 <td>{{ rev.cpu }}</td>
@@ -313,7 +315,8 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
       var service_bandwidth_out = $('#service_bandwidth_ou');
       service_bandwidth_out.text(service.bandwidth_out);
       var service_status = $('#service_status');
-      service_status.text(service.status);
+      const kStatuses = ['INIT', 'ACTIVE', 'CONNECTED'];
+      service_status.text(kStatuses[service.status]);
       var service_memory_total = $('#service_memory_total');
       service_memory_total.text(service.memory_total);
       var service_memory_free = $('#service_memory_free');
@@ -530,6 +533,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             }
         });
     }
+
 
 
 
