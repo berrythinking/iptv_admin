@@ -116,6 +116,9 @@ class Service(IStreamHandler):
                 self._streams.remove(stream)
                 break
 
+    def status(self) -> ClientStatus:
+        self._client.status()
+
     def to_front(self) -> dict:
         return {ServiceFields.ID: self.id, ServiceFields.CPU: self._cpu, ServiceFields.GPU: self._gpu,
                 ServiceFields.LOAD_AVERAGE: self._load_average, ServiceFields.MEMORY_TOTAL: self._memory_total,
@@ -123,7 +126,7 @@ class Service(IStreamHandler):
                 ServiceFields.HDD_TOTAL: self._hdd_total, ServiceFields.HDD_FREE: self._hdd_free,
                 ServiceFields.BANDWIDTH_IN: self._bandwidth_in, ServiceFields.BANDWIDTH_OUT: self._bandwidth_out,
                 ServiceFields.UPTIME: self._uptime, ServiceFields.TIMESTAMP: self._timestamp,
-                ServiceFields.VERSION: self._version, ServiceFields.STATUS: self._client.status()}
+                ServiceFields.VERSION: self._version, ServiceFields.STATUS: self.status()}
 
     def make_relay_stream(self) -> RelayStream:
         return make_relay_stream(self._settings.feedback_directory)
