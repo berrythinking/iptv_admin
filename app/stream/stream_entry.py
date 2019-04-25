@@ -60,7 +60,7 @@ class StreamFields:
 
 DEFAULT_STREAM_NAME = 'Stream'
 MIN_STREAM_NAME_LENGTH = 3
-MAX_STREAM_NAME_LENGTH = 30
+MAX_STREAM_NAME_LENGTH = 64
 
 
 class Stream(EmbeddedDocument):
