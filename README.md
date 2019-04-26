@@ -6,7 +6,8 @@ Admin for ![IPTV cloud](https://github.com/fastogt/iptv)
 
 ### Test life streams:
 ![](https://fastotv.com/images/iptv_admin/16_channels.png)
-Note: Every channel take about 1% CPU.
+
+#### Note: Every channel take about 1% CPU.
 
 ### Requirements
 <ul>
