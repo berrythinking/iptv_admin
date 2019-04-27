@@ -12,20 +12,24 @@
 {% block content %}
 
 <main>
-    <!--Section About-->
-    <section id="about-main" class="vertical-align">
-        <div class="container">
-            <a href={{ url_for('HomeView:signin') }}>Sign In</a>
-            <a href={{ url_for('HomeView:signup') }}>Sign Up</a>
+    <div class="container">
+        <div class="jumbotron text-center">
+            <div class="col-md-6">
+                <a href={{ url_for('HomeView:signin') }} class="btn btn-warning">Sign In</a>
+            </div>
+            <div class="col-md-6">
+                <a href={{ url_for('HomeView:signup') }} class="btn btn-warning">Sign Up</a>
+            </div>
         </div>
-    </section>
+    </div>
 </main>
 <footer>
     <div class="container">
         <div class="jumbotron text-center">
             <p class="keep-left">Address: {{config['PUBLIC_CONFIG'].support.contact_address }}</p>
             <p class="keep-left">Copyright © 2014-2018 <a
-                    href="{{ config['PUBLIC_CONFIG'].company.domain }}">{{ config['PUBLIC_CONFIG'].company.title }}</a>. All rights reserved.</p>
+                    href="{{ config['PUBLIC_CONFIG'].company.domain }}">{{ config['PUBLIC_CONFIG'].company.title }}</a>.
+                All rights reserved.</p>
             <p> Website development -
                 <a href="/">
                     <img src="{{ url_for('static', filename='assets/images/fastogt.png') }}">

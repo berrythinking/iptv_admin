@@ -9,7 +9,7 @@ from app.client.client_constants import ClientStatus
 from app.service.service_settings import ServiceSettings
 from app.service.service_client import ServiceClient
 
-from .stream_handler import IStreamHandler
+from app.service.stream_handler import IStreamHandler
 
 
 class ServiceFields:
