@@ -26,7 +26,7 @@ def _add_service(method: str):
     form = ServiceSettingsForm(obj=server)
     if method == 'POST' and form.validate_on_submit():
         new_entry = form.make_settings()
-        new_entry.save()
+        current_user.add_server(new_entry)
         return jsonify(status='ok'), 200
 
     return render_template('service/add.html', form=form)
@@ -48,24 +48,22 @@ class UserView(FlaskView):
     route_base = "/"
 
     def __init__(self):
-        service_settings = ServiceSettings.objects().first()  # FIXME
-        if not service_settings:
-            service_settings = ServiceSettings()
-        service.set_settings(service_settings)
+        pass
 
     @login_required
     def dashboard(self):
-        # services = ServiceSettings.objects()
-        # services_choices = []
-        # for serv in services:
-        #    services_choices.append((str(serv.id), serv.name))
+        if current_user.settings.servers:
+            service_settings = current_user.settings.servers[0]
+            service.set_settings(service_settings)
 
-        streams = service.get_streams()
-        front_streams = []
-        for stream in streams:
-            front_streams.append(stream.to_front())
-        serv = service.to_front()
-        return render_template('user/dashboard.html', streams=front_streams, service=serv)
+            streams = service.get_streams()
+            front_streams = []
+            for stream in streams:
+                front_streams.append(stream.to_front())
+            serv = service.to_front()
+            return render_template('user/dashboard.html', streams=front_streams, service=serv)
+
+        return redirect(url_for('UserView:settings'))
 
     @route('/settings', methods=['POST', 'GET'])
     @login_required
@@ -139,7 +137,7 @@ class UserView(FlaskView):
     @route('/edit/<sid>', methods=['GET', 'POST'])
     @login_required
     def edit_service(self, sid):
-        server = ServiceSettings.objects(id=sid).first()
+        server = current_user.settings.find_server(sid)
         if server:
             return edit_service(request.method, server)
 

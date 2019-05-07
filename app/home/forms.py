@@ -1,16 +1,18 @@
 from flask_wtf import FlaskForm
 from flask_babel import lazy_gettext
 
-from wtforms.fields import StringField, PasswordField, SubmitField, TextAreaField, SelectField
+from wtforms.fields import StringField, PasswordField, SubmitField, TextAreaField, SelectField, FieldList, FormField
 from wtforms.validators import InputRequired, Length, Email
 
 import app.constants as constants
-from .settings import Settings
+from .settings import Settings, make_servers_from_data
+from app.service.forms import ServiceSettingsForm
 
 
 class SettingsForm(FlaskForm):
     locale = SelectField(lazy_gettext(u'Locale:'), coerce=str, validators=[InputRequired()],
                          choices=constants.AVAILABLE_LOCALES_PAIRS)
+    servers = FieldList(FormField(ServiceSettingsForm, lazy_gettext(u'Servers:')), min_entries=0, max_entries=10)
     submit = SubmitField(lazy_gettext(u'Apply'))
 
     def make_settings(self):
@@ -18,6 +20,7 @@ class SettingsForm(FlaskForm):
 
     def update_settings(self, settings: Settings):
         settings.locale = self.locale.data
+        settings.servers = make_servers_from_data(self.servers.data)
         return settings
 
 

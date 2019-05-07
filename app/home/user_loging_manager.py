@@ -4,6 +4,7 @@ from enum import IntEnum
 from flask_login import UserMixin
 
 from .settings import Settings
+from app.service.service_settings import ServiceSettings
 
 
 class User(UserMixin, Document):
@@ -19,3 +20,7 @@ class User(UserMixin, Document):
     status = IntField(default=Status.NO_ACTIVE)
 
     settings = EmbeddedDocumentField(Settings, default=Settings)
+
+    def add_server(self, server: ServiceSettings):
+        self.settings.servers.append(server)
+        self.settings.save()

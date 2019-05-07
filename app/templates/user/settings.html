@@ -10,6 +10,15 @@
 </div>
 {% endmacro %}
 
+{% macro render_bootstrap_form(form) %}
+<div class="row">
+    <label class="col-md-4">{{ form.label }}</label>
+    <div class="col-md-8">
+        {{ form() }}
+    </div>
+</div>
+{% endmacro %}
+
 {% block title %}
 Settings | {{ config['PUBLIC_CONFIG'].site.title }}
 {% endblock %}
@@ -30,12 +39,12 @@ Settings | {{ config['PUBLIC_CONFIG'].site.title }}
     <form action="" method="post" class="form" role="form">
         {{ form.hidden_tag() }}
         {{ render_bootstrap_field(form.locale) }}
+        {{ render_bootstrap_form(form.servers) }}
         {{ form_field(form.submit, class="btn btn-success") }}
     </form>
-    </br>
     <div class="row">
         <div class="col-md-1">
-            <button type="submit" class="btn btn-success" disabled onclick="add_server()">
+            <button type="submit" class="btn btn-success" onclick="add_server()">
                 {% trans %}Add server{% endtrans %}
             </button>
         </div>
@@ -115,5 +124,8 @@ Settings | {{ config['PUBLIC_CONFIG'].site.title }}
             })
         });
     }
+
+
+
 </script>
 {% endblock %}
