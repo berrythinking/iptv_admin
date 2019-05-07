@@ -153,38 +153,79 @@ class StreamView(FlaskView):
     route_base = "/stream/"
 
     @login_required
+    @route('/start', methods=['POST'])
+    def start(self):
+        sid = request.form['sid']
+        service.start_stream(sid)
+        return jsonify(status='ok'), 200
+
+    @login_required
+    @route('/stop', methods=['POST'])
+    def stop(self):
+        sid = request.form['sid']
+        service.stop_stream(sid)
+        return jsonify(status='ok'), 200
+
+    @login_required
+    @route('/restart', methods=['POST'])
+    def restart(self):
+        sid = request.form['sid']
+        service.restart_stream(sid)
+        return jsonify(status='ok'), 200
+
+    @login_required
+    @route('/get_log', methods=['POST'])
+    def get_log(self):
+        sid = request.form['sid']
+        service.get_log_stream(sid)
+        return jsonify(status='ok'), 200
+
+    @login_required
+    def view_log(self, sid):
+        path = os.path.join(get_runtime_stream_folder(), sid)
+        try:
+            with open(path, "r") as f:
+                content = f.read()
+                return content
+        except OSError as e:
+            print('Caught exception OSError : {0}'.format(e))
+            return '''<pre>Not found, please use get log button firstly.</pre>'''
+
+    # broadcast routes
+
+    @login_required
     @route('/add/relay', methods=['GET', 'POST'])
-    def add_relay_stream(self):
+    def add_relay(self):
         return _add_relay_stream(request.method)
 
     @login_required
     @route('/add/encode', methods=['GET', 'POST'])
-    def add_encode_stream(self):
+    def add_encode(self):
         return _add_encode_stream(request.method)
 
     @login_required
     @route('/add/timeshift_recorder', methods=['GET', 'POST'])
-    def add_timeshift_recorder_stream(self):
+    def add_timeshift_recorder(self):
         return _add_timeshift_recorder_stream(request.method)
 
     @login_required
     @route('/add/test_life', methods=['GET', 'POST'])
-    def add_test_life_stream(self):
+    def add_test_life(self):
         return _add_test_life_stream(request.method)
 
     @login_required
     @route('/add/catchup', methods=['GET', 'POST'])
-    def add_catchup_stream(self):
+    def add_catchup(self):
         return _add_catchup_stream(request.method)
 
     @login_required
     @route('/add/timeshift_player', methods=['GET', 'POST'])
-    def add_timeshift_player_stream(self):
+    def add_timeshift_player(self):
         return _add_timeshift_player_stream(request.method)
 
-    @route('/edit/<sid>', methods=['GET', 'POST'])
     @login_required
-    def edit_stream(self, sid):
+    @route('/edit/<sid>', methods=['GET', 'POST'])
+    def edit(self, sid):
         stream = service.find_stream_by_id(sid)
         if stream:
             type = stream.get_type()
@@ -204,60 +245,12 @@ class StreamView(FlaskView):
         response = {"status": "failed"}
         return jsonify(response), 404
 
-    @route('/remove', methods=['POST'])
     @login_required
-    def remove_stream(self):
+    @route('/remove', methods=['POST'])
+    def remove(self):
         sid = request.form['sid']
         service.remove_stream(sid)
-        response = {"sid": sid}
-        return jsonify(response), 200
-
-    @route('/get_log', methods=['POST'])
-    @login_required
-    def get_log_stream(self):
-        sid = request.form['sid']
-        service.get_log_stream(sid)
-
-        response = {"sid": sid}
-        return jsonify(response), 200
-
-    @route('/start', methods=['POST'])
-    @login_required
-    def start_stream(self):
-        sid = request.form['sid']
-        service.start_stream(sid)
-
-        response = {"sid": sid}
-        return jsonify(response), 200
-
-    @route('/stop', methods=['POST'])
-    @login_required
-    def stop_stream(self):
-        sid = request.form['sid']
-        service.stop_stream(sid)
-
-        response = {"sid": sid}
-        return jsonify(response), 200
-
-    @route('/restart', methods=['POST'])
-    @login_required
-    def restart_stream(self):
-        sid = request.form['sid']
-        service.restart_stream(sid)
-
-        response = {"sid": sid}
-        return jsonify(response), 200
-
-    @login_required
-    def view_log_stream(self, sid):
-        path = os.path.join(get_runtime_stream_folder(), sid)
-        try:
-            with open(path, "r") as f:
-                content = f.read()
-                return content
-        except OSError as e:
-            print('Caught exception OSError : {0}'.format(e))
-            return '''<pre>Not found, please use get log button firstly.</pre>'''
+        return jsonify(status='ok'), 200
 
     @route('/log/<sid>', methods=['POST'])
     def log(self, sid):
@@ -270,5 +263,4 @@ class StreamView(FlaskView):
             f.write(b'</pre>')
             f.close()
 
-        response = {"sid": sid}
-        return jsonify(response), 200
+        return jsonify(status='ok'), 200

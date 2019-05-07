@@ -71,10 +71,12 @@ app, bootstrap, babel, db, mail, socketio, login_manager, service = init_project
 from app.home.view import HomeView
 from app.user.view import UserView
 from app.stream.view import StreamView
+from app.service.view import ServiceView
 
 HomeView.register(app)
 UserView.register(app)
 StreamView.register(app)
+ServiceView.register(app)
 
 
 # socketio

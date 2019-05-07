@@ -23,18 +23,18 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
     <div class="row">
         {% if (service.status == service.status.INIT) %}
         <div class="col-md-1">
-            <a href="{{ url_for('UserView:connect') }}" class="btn btn-info" role="button">{% trans %}Connect{% endtrans
+            <a href="{{ url_for('ServiceView:connect') }}" class="btn btn-info" role="button">{% trans %}Connect{% endtrans
                 %}</a>
         </div>
         {% else %}
         <div class="col-md-1">
-            <a href="{{ url_for('UserView:disconnect') }}" class="btn btn-info" role="button">{% trans %}Disconnect{%
+            <a href="{{ url_for('ServiceView:disconnect') }}" class="btn btn-info" role="button">{% trans %}Disconnect{%
                 endtrans
                 %}</a>
         </div>
         {% endif %}
         <div class="col-md-1">
-            <a href="{{ url_for('UserView:activate') }}" role="button"
+            <a href="{{ url_for('ServiceView:activate') }}" role="button"
                {% if (service.status== service.status.INIT) %}
                class="btn btn-info disabled"
                {% else %}
@@ -44,7 +44,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             </a>
         </div>
         <div class="col-md-1">
-            <a href="{{ url_for('UserView:ping_service') }}" role="button"
+            <a href="{{ url_for('ServiceView:ping') }}" role="button"
                {% if (service.status== service.status.ACTIVE) %}
                class="btn btn-info"
                {% else %}
@@ -54,7 +54,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             </a>
         </div>
         <div class="col-md-1">
-            <a href="{{ url_for('UserView:get_log_service') }}" role="button"
+            <a href="{{ url_for('ServiceView:get_log') }}" role="button"
                {% if (service.status== service.status.ACTIVE) %}
                class="btn btn-info"
                {% else %}
@@ -64,12 +64,12 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             </a>
         </div>
         <div class="col-md-1">
-            <a href="{{ url_for('UserView:view_log_service') }}" role="button" class="btn btn-info">
+            <a href="{{ url_for('ServiceView:view_log') }}" role="button" class="btn btn-info">
                 {% trans %}View log{% endtrans %}
             </a>
         </div>
         <div class="col-md-1">
-            <a href="{{ url_for('UserView:stop_service') }}" role="button"
+            <a href="{{ url_for('ServiceView:stop') }}" role="button"
                {% if (service.status== service.status.ACTIVE) %}
                class="btn btn-info"
                {% else %}
@@ -226,7 +226,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                             onclick="get_log_stream('{{ rev.id }}')">
                         {% trans %}Get log{% endtrans %}
                     </button>
-                    <a href="{{ url_for('StreamView:view_log_stream', sid=rev.id) }}" class="btn btn-info btn-xs"
+                    <a href="{{ url_for('StreamView:view_log', sid=rev.id) }}" class="btn btn-info btn-xs"
                        role="button">{% trans %}View log{%
                         endtrans
                         %}</a>
@@ -369,7 +369,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         });
     }
     function add_relay_stream() {
-        var url = "{{ url_for('StreamView:add_relay_stream') }}";
+        var url = "{{ url_for('StreamView:add_relay') }}";
         $.get(url, function(data) {
             $('#stream_dialog .modal-content').html(data);
             $('#stream_dialog').modal();
@@ -381,7 +381,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         });
     }
     function add_encode_stream() {
-        var url = "{{ url_for('StreamView:add_encode_stream') }}";
+        var url = "{{ url_for('StreamView:add_encode') }}";
         $.get(url, function(data) {
             $('#stream_dialog .modal-content').html(data);
             $('#stream_dialog').modal();
@@ -393,7 +393,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         });
     }
     function add_timeshift_recorder_stream() {
-        var url = "{{ url_for('StreamView:add_timeshift_recorder_stream') }}";
+        var url = "{{ url_for('StreamView:add_timeshift_recorder') }}";
         $.get(url, function(data) {
             $('#stream_dialog .modal-content').html(data);
             $('#stream_dialog').modal();
@@ -405,7 +405,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         });
     }
     function add_timeshift_player_stream() {
-        var url = "{{ url_for('StreamView:add_timeshift_player_stream') }}";
+        var url = "{{ url_for('StreamView:add_timeshift_player') }}";
         $.get(url, function(data) {
             $('#stream_dialog .modal-content').html(data);
             $('#stream_dialog').modal();
@@ -417,7 +417,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         });
     }
     function add_catchup_stream() {
-        var url = "{{ url_for('StreamView:add_catchup_stream') }}";
+        var url = "{{ url_for('StreamView:add_catchup') }}";
         $.get(url, function(data) {
             $('#stream_dialog .modal-content').html(data);
             $('#stream_dialog').modal();
@@ -429,7 +429,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         });
     }
     function add_test_life_stream() {
-        var url = "{{ url_for('StreamView:add_test_life_stream') }}";
+        var url = "{{ url_for('StreamView:add_test_life') }}";
         $.get(url, function(data) {
             $('#stream_dialog .modal-content').html(data);
             $('#stream_dialog').modal();
@@ -457,7 +457,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
 
     function remove_stream(sid) {
         $.ajax({
-            url: "{{ url_for('StreamView:remove_stream') }}",
+            url: "{{ url_for('StreamView:remove') }}",
             type: "POST",
             dataType: 'json',
             data: {"sid":sid},
@@ -472,7 +472,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
     }
     function get_log_stream(sid) {
         $.ajax({
-            url: "{{ url_for('StreamView:get_log_stream') }}",
+            url: "{{ url_for('StreamView:get_log') }}",
             type: "POST",
             dataType: 'json',
             data: {"sid":sid},
@@ -488,7 +488,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
     function start_stream(button, sid) {
         button.blur();
         $.ajax({
-            url: "{{ url_for('StreamView:start_stream') }}",
+            url: "{{ url_for('StreamView:start') }}",
             type: "POST",
             dataType: 'json',
             data: {"sid":sid},
@@ -504,7 +504,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
     function stop_stream(button, sid) {
         button.blur();
         $.ajax({
-            url: "{{ url_for('StreamView:stop_stream') }}",
+            url: "{{ url_for('StreamView:stop') }}",
             type: "POST",
             dataType: 'json',
             data: {"sid":sid},
@@ -520,7 +520,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
     function restart_stream(button, sid) {
         button.blur();
         $.ajax({
-            url: "{{ url_for('StreamView:restart_stream') }}",
+            url: "{{ url_for('StreamView:restart') }}",
             type: "POST",
             dataType: 'json',
             data: {"sid":sid},
@@ -533,11 +533,5 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             }
         });
     }
-
-
-
-
-
-
 </script>
 {% endblock %}

@@ -10,14 +10,6 @@
 </div>
 {% endmacro %}
 
-{% macro render_bootstrap_form(form) %}
-<div class="row">
-    <label class="col-md-4">{{ form.label }}</label>
-    <div class="col-md-8">
-        {{ form() }}
-    </div>
-</div>
-{% endmacro %}
 
 {% block title %}
 Settings | {{ config['PUBLIC_CONFIG'].site.title }}
@@ -31,6 +23,9 @@ Settings | {{ config['PUBLIC_CONFIG'].site.title }}
         <div class="col-md-11">
             <p>{% trans %}Settings{% endtrans %}</p>
         </div>
+        <a href="{{ url_for('UserView:dashboard') }}" role="button" class="btn btn-info">
+            {% trans %}Dashboard{% endtrans %}
+        </a>
     </div>
 </div>
 <br>
@@ -39,9 +34,36 @@ Settings | {{ config['PUBLIC_CONFIG'].site.title }}
     <form action="" method="post" class="form" role="form">
         {{ form.hidden_tag() }}
         {{ render_bootstrap_field(form.locale) }}
-        {{ render_bootstrap_form(form.servers) }}
         {{ form_field(form.submit, class="btn btn-success") }}
     </form>
+    <div class="row">
+        <table id='servers_table' class="table">
+            <thead>
+            <tr>
+                <th class="number">#</th>
+                <th class="value">{% trans %}Name{% endtrans %}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for server in servers %}
+            <tr id='{{ server.id }}'>
+                <td>{{ loop.index }}</td>
+                <td>{{ server.name }}</td>
+                <td>
+                    <button type="submit" class="btn btn-danger btn-xs"
+                            onclick="edit_server('{{ server.id }}')">
+                        {% trans %}Edit{% endtrans %}
+                    </button>
+                    <button type="submit" class="btn btn-danger btn-xs"
+                            onclick="remove_server('{{ server.id }}')">
+                        {% trans %}Remove{% endtrans %}
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
     <div class="row">
         <div class="col-md-1">
             <button type="submit" class="btn btn-success" onclick="add_server()">
@@ -82,7 +104,7 @@ Settings | {{ config['PUBLIC_CONFIG'].site.title }}
     }
 
     function add_server() {
-        var url = "{{ url_for('UserView:add_service') }}";
+        var url = "{{ url_for('ServiceView:add') }}";
         $.get(url, function(data) {
             $('#service_dialog .modal-content').html(data);
             $('#service_dialog').modal();
@@ -113,7 +135,7 @@ Settings | {{ config['PUBLIC_CONFIG'].site.title }}
     }
 
     function edit_server(sid) {
-        var url = "/server/edit/" + sid;
+        var url = "/service/edit/" + sid;
         $.get(url, function(data) {
             $('#service_dialog .modal-content').html(data);
             $('#service_dialog').modal();
@@ -125,6 +147,22 @@ Settings | {{ config['PUBLIC_CONFIG'].site.title }}
         });
     }
 
+
+    function remove_server(sid) {
+        $.ajax({
+            url: "{{ url_for('ServiceView:remove') }}",
+            type: "POST",
+            dataType: 'json',
+            data: {"sid":sid},
+            success: function (response) {
+                console.log(response);
+                window.location.reload();
+            },
+            error: function (error) {
+                console.error(error);
+            }
+        });
+    }
 
 
 </script>

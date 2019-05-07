@@ -1,10 +1,9 @@
-from mongoengine import EmbeddedDocument, StringField, IntField, ListField, EmbeddedDocumentField, ObjectIdField
+from mongoengine import Document, StringField, IntField, ListField, EmbeddedDocumentField
 import app.constants as constants
 from app.stream.stream_entry import Stream
-from bson.objectid import ObjectId
 
 
-class ServiceSettings(EmbeddedDocument):
+class ServiceSettings(Document):
     DEFAULT_SERVICE_NAME = 'Service'
     MIN_SERVICE_NAME_LENGTH = 3
     MAX_SERVICE_NAME_LENGTH = 30
@@ -19,8 +18,6 @@ class ServiceSettings(EmbeddedDocument):
     DEFAULT_SERVICE_PORT = 6317
 
     meta = {'collection': 'service', 'auto_create_index': False}
-    id = ObjectIdField(required=True, default=ObjectId,
-                       unique=True, primary_key=True)
 
     name = StringField(unique=True, default=DEFAULT_SERVICE_NAME, max_length=MAX_SERVICE_NAME_LENGTH,
                        min_length=MIN_SERVICE_NAME_LENGTH)
