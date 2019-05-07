@@ -44,3 +44,8 @@ class UserView(FlaskView):
     def logout(self):
         logout_user()
         return redirect(url_for('HomeView:index'))
+
+    @login_required
+    def remove(self):
+        current_user.delete()
+        return redirect(url_for('HomeView:index'))

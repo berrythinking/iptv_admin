@@ -82,6 +82,10 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             <a href="{{ url_for('UserView:logout') }}" class="btn btn-info" role="button">{% trans %}Logout{% endtrans
                 %}</a>
         </div>
+        <div class="col-md-1">
+            <a href="{{ url_for('UserView:remove') }}" class="btn btn-danger" role="button">{% trans %}Delete{% endtrans
+                %}</a>
+        </div>
     </div>
     </br>
     <div class="row well">

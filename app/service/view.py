@@ -2,7 +2,7 @@ import os
 
 from flask_classy import FlaskView, route
 from flask import render_template, redirect, url_for, request, jsonify
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from app import service, get_runtime_folder
 from app.service.forms import ServiceSettingsForm
@@ -11,7 +11,7 @@ from .forms import ActivateForm
 
 
 # activate license
-def activate_service(form: ActivateForm):
+def _activate_service(form: ActivateForm):
     if not form.validate_on_submit():
         return render_template('user/activate.html', form=form)
 
@@ -20,18 +20,25 @@ def activate_service(form: ActivateForm):
     return redirect(url_for('UserView:dashboard'))
 
 
+def _remove_server(server: ServiceSettings):
+    server.delete()
+    return jsonify(status='ok'), 200
+
+
 def _add_service(method: str):
     server = ServiceSettings()
     form = ServiceSettingsForm(obj=server)
     if method == 'POST' and form.validate_on_submit():
         new_entry = form.make_entry()
+        new_entry.users.append(current_user.id)
         new_entry.save()
+        current_user.add_server(new_entry)
         return jsonify(status='ok'), 200
 
     return render_template('service/add.html', form=form)
 
 
-def edit_service(method: str, server: ServiceSettings):
+def _edit_service(method: str, server: ServiceSettings):
     form = ServiceSettingsForm(obj=server)
 
     if method == 'POST' and form.validate_on_submit():
@@ -61,7 +68,7 @@ class ServiceView(FlaskView):
     def activate(self):
         form = ActivateForm()
         if request.method == 'POST':
-            return activate_service(form)
+            return _activate_service(form)
 
         return render_template('user/activate.html', form=form)
 
@@ -105,18 +112,18 @@ class ServiceView(FlaskView):
         sid = request.form['sid']
         server = ServiceSettings.objects(id=sid).first()
         if server:
-            server.delete()
-        return jsonify(status='ok'), 200
+            return _remove_server(server)
+
+        return jsonify(status='failed'), 404
 
     @login_required
     @route('/edit/<sid>', methods=['GET', 'POST'])
     def edit(self, sid):
         server = ServiceSettings.objects(id=sid).first()
         if server:
-            return edit_service(request.method, server)
+            return _edit_service(request.method, server)
 
-        response = {"status": "failed"}
-        return jsonify(response), 404
+        return jsonify(status='failed'), 404
 
     @route('/log/<sid>', methods=['POST'])
     def log(self, sid):

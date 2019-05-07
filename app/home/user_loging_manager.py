@@ -1,4 +1,5 @@
-from mongoengine import Document, StringField, DateTimeField, IntField, EmbeddedDocumentField
+from mongoengine import Document, StringField, DateTimeField, IntField, EmbeddedDocumentField, ListField, \
+    ReferenceField, PULL
 from datetime import datetime
 from enum import IntEnum
 from flask_login import UserMixin
@@ -20,7 +21,11 @@ class User(UserMixin, Document):
     status = IntField(default=Status.NO_ACTIVE)
 
     settings = EmbeddedDocumentField(Settings, default=Settings)
+    servers = ListField(ReferenceField(ServiceSettings, reverse_delete_rule=PULL), default=[])
 
     def add_server(self, server: ServiceSettings):
-        self.settings.servers.append(server)
-        self.settings.save()
+        self.servers.append(server)
+        self.save()
+
+
+User.register_delete_rule(ServiceSettings, "users", PULL)

@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, IntField, ListField, EmbeddedDocumentField
+from mongoengine import Document, StringField, IntField, ListField, EmbeddedDocumentField, ReferenceField
 import app.constants as constants
 from app.stream.stream_entry import Stream
 
@@ -32,3 +32,5 @@ class ServiceSettings(Document):
     capture_card_directory = StringField(default=DEFAULT_CAPTURE_DIR_PATH)
 
     streams = ListField(EmbeddedDocumentField(Stream), default=[])
+
+    users = ListField(ReferenceField('User'), default=[])
