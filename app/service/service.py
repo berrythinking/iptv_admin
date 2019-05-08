@@ -233,23 +233,3 @@ class Service(IStreamHandler):
         for stream in streams:
             self.__init_stream_runtime_fields(stream)
             self._streams.append(stream)
-
-
-class ServiceManager(object):
-    def __init__(self, host: str, port: int, socketio):
-        self._host = host
-        self._port = port
-        self._socketio = socketio
-        self._servers_pool = []
-
-    def find_or_create_server(self, settings: ServiceSettings) -> Service:
-        for server in self._servers_pool:
-            if server._settings == settings:
-                return server
-
-        server = Service(self._host, self._port, self._socketio, settings)
-        self.__add_server(server)
-        return server
-
-    def __add_server(self, server: Service):
-        self._servers_pool.append(server)

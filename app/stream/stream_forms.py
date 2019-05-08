@@ -5,9 +5,9 @@ from wtforms.validators import InputRequired, Length, NumberRange
 from wtforms.fields import StringField, SubmitField, SelectField, IntegerField, FormField, BooleanField, FloatField
 
 import app.constants as constants
-from .stream_entry import Stream, RelayStream, EncodeStream, TimeshiftRecorderStream, CatchupStream, \
+from app.stream.stream_entry import Stream, RelayStream, EncodeStream, TimeshiftRecorderStream, CatchupStream, \
     TimeshiftPlayerStream, TestLifeStream, MIN_STREAM_NAME_LENGTH, MAX_STREAM_NAME_LENGTH
-from .common_forms import UrlsForm, SizeForm, LogoForm, RationalForm
+from app.stream.common_forms import UrlsForm, SizeForm, LogoForm, RationalForm
 
 
 class StreamForm(FlaskForm):

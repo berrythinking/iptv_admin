@@ -3,10 +3,9 @@ from app.client.client_handler import IClientHandler
 from app.client.json_rpc import Request, Response
 from app.client.client_constants import Commands, ClientStatus
 from app.service.service_entry import ServiceSettings
+from app.service.stream_handler import IStreamHandler
 
 import app.constants as constants
-
-from .stream_handler import IStreamHandler
 
 
 class ServiceClient(IClientHandler):

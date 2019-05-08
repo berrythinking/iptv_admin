@@ -5,7 +5,7 @@ from wtforms.fields import StringField, PasswordField, SubmitField, TextAreaFiel
 from wtforms.validators import InputRequired, Length, Email
 
 import app.constants as constants
-from .settings import Settings
+from app.home.settings import Settings
 
 
 class SettingsForm(FlaskForm):

@@ -1,6 +1,6 @@
 from mongoengine import EmbeddedDocument, StringField
-import app.constants as constants
+from app.constants import DEFAULT_LOCALE
 
 
 class Settings(EmbeddedDocument):
-    locale = StringField(default=constants.DEFAULT_LOCALE)
+    locale = StringField(default=DEFAULT_LOCALE)

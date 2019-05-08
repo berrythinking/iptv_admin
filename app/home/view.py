@@ -3,16 +3,14 @@ from flask import render_template, request, redirect, url_for, flash, session, s
 from flask_login import login_user, current_user
 from flask_mail import Message
 from flask_babel import gettext
-
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import SignatureExpired, URLSafeTimedSerializer
 
-import app.constants as constants
-import app.utils as utils
-
+from app.constants import AVAILABLE_LOCALES_PAIRS, DEFAULT_LOCALE, AVAILABLE_LOCALES
+from app.utils import is_valid_email
 from app import app, mail, login_manager, babel
-from .user_loging_manager import User
-from .forms import SignupForm, SigninForm, ContactForm
+from app.home.user_loging_manager import User
+from app.home.forms import SignupForm, SigninForm, ContactForm
 
 
 def flash_success(text: str):
@@ -61,7 +59,7 @@ class HomeView(FlaskView):
         self._confirm_link_generator = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
     def index(self):
-        languages = constants.AVAILABLE_LOCALES_PAIRS
+        languages = AVAILABLE_LOCALES_PAIRS
         return render_template('index.html', languages=languages)
 
     @route('/robots.txt')
@@ -85,8 +83,8 @@ class HomeView(FlaskView):
             return render_template('contact.html', form=form)
 
     @route('/language/<language>')
-    def set_language(self, language=constants.DEFAULT_LOCALE):
-        founded = next((x for x in constants.AVAILABLE_LOCALES if x == language), None)
+    def set_language(self, language=DEFAULT_LOCALE):
+        founded = next((x for x in AVAILABLE_LOCALES if x == language), None)
         if founded:
             session['language'] = founded
 
@@ -136,7 +134,7 @@ class HomeView(FlaskView):
                 return render_template('home/register.html', form=form)
 
             email = form.email.data
-            if not utils.is_valid_email(email, False):
+            if not is_valid_email(email, False):
                 flash_error(gettext(u'Invalid email.'))
                 return render_template('home/register.html', form=form)
 
@@ -182,7 +180,7 @@ def get_locale():
     # otherwise try to guess the language from the user accept
     # header the browser transmits.  We support de/fr/en in this
     # example.  The best match wins.
-    return request.accept_languages.best_match(constants.AVAILABLE_LOCALES)
+    return request.accept_languages.best_match(AVAILABLE_LOCALES)
 
 
 def page_not_found(e):

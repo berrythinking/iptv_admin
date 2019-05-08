@@ -1,14 +1,14 @@
 import os
+
 from flask_classy import FlaskView, route
 from flask import render_template, request, jsonify
 from flask_login import login_required, current_user
 
-import app.constants as constants
-
+from app.constants import StreamType
 from app import get_runtime_stream_folder, get_first_user_server
-
-from .stream_entry import EncodeStream, RelayStream, TimeshiftRecorderStream, CatchupStream, TimeshiftPlayerStream
-from .stream_forms import EncodeStreamForm, RelayStreamForm, TimeshiftRecorderStreamForm, CatchupStreamForm, \
+from app.stream.stream_entry import EncodeStream, RelayStream, TimeshiftRecorderStream, CatchupStream, \
+    TimeshiftPlayerStream
+from app.stream.stream_forms import EncodeStreamForm, RelayStreamForm, TimeshiftRecorderStreamForm, CatchupStreamForm, \
     TimeshiftPlayerStreamForm, TestLifeStreamForm
 
 
@@ -261,17 +261,17 @@ class StreamView(FlaskView):
             stream = server.find_stream_by_id(sid)
             if stream:
                 type = stream.get_type()
-                if type == constants.StreamType.RELAY:
+                if type == StreamType.RELAY:
                     return _edit_relay_stream(server, request.method, stream)
-                elif type == constants.StreamType.ENCODE:
+                elif type == StreamType.ENCODE:
                     return _edit_encode_stream(server, request.method, stream)
-                elif type == constants.StreamType.TIMESHIFT_RECORDER:
+                elif type == StreamType.TIMESHIFT_RECORDER:
                     return _edit_timeshift_recorder_stream(server, request.method, stream)
-                elif type == constants.StreamType.CATCHUP:
+                elif type == StreamType.CATCHUP:
                     return _edit_catchup_stream(server, request.method, stream)
-                elif type == constants.StreamType.TIMESHIFT_PLAYER:
+                elif type == StreamType.TIMESHIFT_PLAYER:
                     return _edit_timeshift_player_stream(server, request.method, stream)
-                elif type == constants.StreamType.TEST_LIFE:
+                elif type == StreamType.TEST_LIFE:
                     return _edit_test_life_stream(server, request.method, stream)
 
         return jsonify(status='failed'), 404

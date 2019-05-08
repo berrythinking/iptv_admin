@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+
 from app.client.client_constants import ClientStatus
 
 

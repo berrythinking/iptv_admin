@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import IntEnum
 from flask_login import UserMixin
 
-from .settings import Settings
+from app.home.settings import Settings
 from app.service.service_entry import ServiceSettings
 
 

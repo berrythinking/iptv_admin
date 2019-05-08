@@ -7,7 +7,8 @@ from flask_mail import Mail
 from flask_bootstrap import Bootstrap
 from flask_babel import Babel
 from flask_socketio import SocketIO
-from app.service.service import ServiceManager
+
+from app.service.service_manager import ServiceManager
 
 
 def get_app_folder():

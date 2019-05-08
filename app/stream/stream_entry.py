@@ -4,8 +4,7 @@ from mongoengine import StringField, IntField, EmbeddedDocumentField, EmbeddedDo
 from datetime import datetime
 
 import app.constants as constants
-
-from .common_entry import Urls, Rational, Size, Logo, Url
+from app.stream.common_entry import Urls, Rational, Size, Logo, Url
 
 ID_FIELD = "id"
 TYPE_FIELD = "type"
