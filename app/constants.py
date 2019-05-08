@@ -153,7 +153,7 @@ AVAILABLE_VIDEO_CODECS = [(EAVC_ENC, 'eav'), (OPEN_H264_ENC, 'openh264'), (X264_
 AVAILABLE_AUDIO_CODECS = [(LAME_MP3_ENC, 'mpe'), (FAAC, 'aac'), (VOAAC_ENC, 'voaac')]
 
 DEFAULT_SERVICE_ROOT_DIR_PATH = '~/streamer'
-DEFAULT_SERVICE_LOG_PATH_TEMPLATE_3SIS = 'http://{0}:{1}/service_log/{2}'
+DEFAULT_SERVICE_LOG_PATH_TEMPLATE_3SIS = 'http://{0}:{1}/service/log/{2}'
 DEFAULT_STREAM_LOG_PATH_TEMPLATE_3SIS = 'http://{0}:{1}/stream/log/{2}'
 
 DEFAULT_TEST_URL = 'test'

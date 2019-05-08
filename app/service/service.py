@@ -53,7 +53,7 @@ class Service(IStreamHandler):
 
     def __init__(self, host, port, socketio, settings: ServiceSettings):
         self._settings = settings
-        self._reload_from_db()
+        self.__reload_from_db()
         # other fields
         self._client = ServiceClient(self, settings)
         self._host = host
@@ -99,7 +99,7 @@ class Service(IStreamHandler):
             self._client.restart_stream(sid)
 
     @property
-    def id(self):
+    def id(self) -> str:
         return str(self._settings.id)
 
     def get_streams(self):
@@ -113,7 +113,7 @@ class Service(IStreamHandler):
         return None
 
     def add_stream(self, stream):
-        self._init_stream_runtime_fields(stream)
+        self.__init_stream_runtime_fields(stream)
         self._streams.append(stream)
         self._settings.streams.append(stream)
         self._settings.save()
@@ -162,34 +162,34 @@ class Service(IStreamHandler):
         stream = self.find_stream_by_id(sid)
         if stream:
             stream.update_runtime_fields(params)
-            self._notify_front(Service.STREAM_DATA_CHANGED, stream.to_front())
+            self.__notify_front(Service.STREAM_DATA_CHANGED, stream.to_front())
 
     def on_stream_sources_changed(self, params: dict):
         pass
 
     def on_service_statistic_received(self, params: dict):
         # nid = params['id']
-        self._refresh_stats(params)
-        self._notify_front(Service.SERVICE_DATA_CHANGED, self.to_front())
+        self.__refresh_stats(params)
+        self.__notify_front(Service.SERVICE_DATA_CHANGED, self.to_front())
 
     def on_quit_status_stream(self, params: dict):
         sid = params['id']
         stream = self.find_stream_by_id(sid)
         if stream:
             stream.reset()
-            self._notify_front(Service.STREAM_DATA_CHANGED, stream.to_front())
+            self.__notify_front(Service.STREAM_DATA_CHANGED, stream.to_front())
 
     def on_client_state_changed(self, status: ClientStatus):
         if status == ClientStatus.ACTIVE:
             pass
         else:
-            self._reset()
+            self.__reset()
 
     # private
-    def _notify_front(self, channel: str, params: dict):
+    def __notify_front(self, channel: str, params: dict):
         self._socketio.emit(channel, params)
 
-    def _reset(self):
+    def __reset(self):
         self._node_id = Service.CALCULATE_VALUE
         self._cpu = Service.CALCULATE_VALUE
         self._gpu = Service.CALCULATE_VALUE
@@ -205,7 +205,7 @@ class Service(IStreamHandler):
         self._timestamp = Service.CALCULATE_VALUE
         self._version = Service.CALCULATE_VALUE
 
-    def _refresh_stats(self, stats: dict):
+    def __refresh_stats(self, stats: dict):
         self._node_id = stats[ServiceFields.ID]
         self._cpu = stats[ServiceFields.CPU]
         self._gpu = stats[ServiceFields.GPU]
@@ -221,17 +221,17 @@ class Service(IStreamHandler):
         self._timestamp = stats[ServiceFields.TIMESTAMP]
         self._version = stats[ServiceFields.VERSION]
 
-    def _init_stream_runtime_fields(self, stream: Stream):
+    def __init_stream_runtime_fields(self, stream: Stream):
         type = stream.get_type()
         stream.set_feedback_dir(self._settings.feedback_directory)
         if type == constants.StreamType.TIMESHIFT_RECORDER or type == constants.StreamType.CATCHUP:
             stream.set_timeshift_dir(self._settings.timeshifts_directory)
 
-    def _reload_from_db(self):
+    def __reload_from_db(self):
         self._streams = []
         streams = self._settings.streams
         for stream in streams:
-            self._init_stream_runtime_fields(stream)
+            self.__init_stream_runtime_fields(stream)
             self._streams.append(stream)
 
 
@@ -244,12 +244,12 @@ class ServiceManager(object):
 
     def find_or_create_server(self, settings: ServiceSettings) -> Service:
         for server in self._servers_pool:
-            if server.id == settings.id:
+            if server._settings == settings:
                 return server
 
         server = Service(self._host, self._port, self._socketio, settings)
-        self._add_server(server)
+        self.__add_server(server)
         return server
 
-    def _add_server(self, server: Service):
+    def __add_server(self, server: Service):
         self._servers_pool.append(server)
