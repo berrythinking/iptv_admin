@@ -7,8 +7,7 @@ from flask_mail import Mail
 from flask_bootstrap import Bootstrap
 from flask_babel import Babel
 from flask_socketio import SocketIO
-
-from app.service.service import Service
+from app.service.service import ServiceManager
 
 
 def get_app_folder():
@@ -56,17 +55,28 @@ def init_project(static_folder, *args):
 
     host = sn_host or _host
     port = int(sn_port or _port)
+    servers_manager = ServiceManager(host, port, socketio)
 
-    service = Service(host, port, socketio)
-
-    return app, bootstrap, babel, db, mail, socketio, login_manager, service
+    return app, bootstrap, babel, db, mail, socketio, login_manager, servers_manager
 
 
-app, bootstrap, babel, db, mail, socketio, login_manager, service = init_project(
+app, bootstrap, babel, db, mail, socketio, login_manager, servers_manager = init_project(
     'static',
     'config/public_config.py',
     'config/config.py',
 )
+
+
+def get_first_user_server(user):
+    if not user or not user.servers:
+        return None
+
+    server_settings = user.servers[0]
+    if server_settings:
+        return servers_manager.find_or_create_server(server_settings)
+
+    return None
+
 
 from app.home.view import HomeView
 from app.user.view import UserView

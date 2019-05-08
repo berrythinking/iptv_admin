@@ -4,19 +4,19 @@ from flask_classy import FlaskView, route
 from flask import render_template, redirect, url_for, request, jsonify
 from flask_login import login_required, current_user
 
-from app import service, get_runtime_folder
+from app import get_runtime_folder, get_first_user_server
 from app.service.forms import ServiceSettingsForm
-from app.service.service_settings import ServiceSettings
+from app.service.service_entry import ServiceSettings
 from .forms import ActivateForm
 
 
 # activate license
-def _activate_service(form: ActivateForm):
+def _activate_server(server, form: ActivateForm):
     if not form.validate_on_submit():
         return render_template('user/activate.html', form=form)
 
     lic = form.license.data
-    service.activate(lic)
+    server.activate(lic)
     return redirect(url_for('UserView:dashboard'))
 
 
@@ -55,12 +55,16 @@ class ServiceView(FlaskView):
 
     @login_required
     def connect(self):
-        service.connect()
+        server = get_first_user_server(current_user)
+        if server:
+            server.connect()
         return redirect(url_for('UserView:dashboard'))
 
     @login_required
     def disconnect(self):
-        service.disconnect()
+        server = get_first_user_server(current_user)
+        if server:
+            server.disconnect()
         return redirect(url_for('UserView:dashboard'))
 
     @route('/activate', methods=['POST', 'GET'])
@@ -68,36 +72,47 @@ class ServiceView(FlaskView):
     def activate(self):
         form = ActivateForm()
         if request.method == 'POST':
-            return _activate_service(form)
+            server = get_first_user_server(current_user)
+            if server:
+                return _activate_server(server, form)
 
         return render_template('user/activate.html', form=form)
 
     @login_required
     def stop(self):
-        service.stop(1)
+        server = get_first_user_server(current_user)
+        if server:
+            server.stop(1)
         return redirect(url_for('UserView:dashboard'))
 
     @login_required
     def ping(self):
-        service.ping()
+        server = get_first_user_server(current_user)
+        if server:
+            server.ping()
         return redirect(url_for('UserView:dashboard'))
 
     @login_required
     def get_log(self):
-        service.get_log_service()
+        server = get_first_user_server(current_user)
+        if server:
+            server.get_log_service()
         return redirect(url_for('UserView:dashboard'))
 
     @login_required
     def view_log(self):
-        path = os.path.join(get_runtime_folder(), service.id)
-        try:
-            with open(path, "r") as f:
-                content = f.read()
+        server = get_first_user_server(current_user)
+        if server:
+            path = os.path.join(get_runtime_folder(), server.id)
+            try:
+                with open(path, "r") as f:
+                    content = f.read()
 
-            return content
-        except OSError as e:
-            print('Caught exception OSError : {0}'.format(e))
-            return '''<pre>Not found, please use get log button firstly.</pre>'''
+                return content
+            except OSError as e:
+                print('Caught exception OSError : {0}'.format(e))
+                return '''<pre>Not found, please use get log button firstly.</pre>'''
+        return '''<pre>Not found, please create server firstly.</pre>'''
 
     # broadcast routes
 

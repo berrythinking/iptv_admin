@@ -6,7 +6,7 @@ from app.stream.stream_entry import Stream, EncodeStream, RelayStream, Timeshift
     TimeshiftPlayerStream, TestLifeStream, make_encode_stream, make_relay_stream, make_timeshift_recorder_stream, \
     make_catchup_stream, make_timeshift_player_stream, make_test_life_stream
 from app.client.client_constants import ClientStatus
-from app.service.service_settings import ServiceSettings
+from app.service.service_entry import ServiceSettings
 from app.service.service_client import ServiceClient
 
 from app.service.stream_handler import IStreamHandler
@@ -35,19 +35,30 @@ class Service(IStreamHandler):
     SERVICE_DATA_CHANGED = 'service_data_changed'
     CALCULATE_VALUE = 'Calculate...'
 
-    def __init__(self, host, port, socketio):
-        self._init_fields()
-        self._settings = None
-        self._socketio = socketio
-        self._client = ServiceClient(self)
-        self._streams = []
+    # runtime
+    _cpu = CALCULATE_VALUE
+    _gpu = CALCULATE_VALUE
+    _load_average = CALCULATE_VALUE
+    _memory_total = CALCULATE_VALUE
+    _memory_free = CALCULATE_VALUE
+    _memory_available = CALCULATE_VALUE
+    _hdd_total = CALCULATE_VALUE
+    _hdd_free = CALCULATE_VALUE
+    _bandwidth_in = CALCULATE_VALUE
+    _bandwidth_out = CALCULATE_VALUE
+    _uptime = CALCULATE_VALUE
+    _timestamp = CALCULATE_VALUE
+    _version = CALCULATE_VALUE
+    _streams = []
+
+    def __init__(self, host, port, socketio, settings: ServiceSettings):
+        self._settings = settings
+        self._reload_from_db()
+        # other fields
+        self._client = ServiceClient(self, settings)
         self._host = host
         self._port = port
-
-    def set_settings(self, settings: ServiceSettings):
-        self._settings = settings
-        self._client.set_settings(settings)
-        self._reload_from_db()
+        self._socketio = socketio
 
     def connect(self):
         return self._client.connect()
@@ -172,13 +183,13 @@ class Service(IStreamHandler):
         if status == ClientStatus.ACTIVE:
             pass
         else:
-            self._init_fields()
+            self._reset()
 
     # private
     def _notify_front(self, channel: str, params: dict):
         self._socketio.emit(channel, params)
 
-    def _init_fields(self):
+    def _reset(self):
         self._node_id = Service.CALCULATE_VALUE
         self._cpu = Service.CALCULATE_VALUE
         self._gpu = Service.CALCULATE_VALUE
@@ -222,3 +233,23 @@ class Service(IStreamHandler):
         for stream in streams:
             self._init_stream_runtime_fields(stream)
             self._streams.append(stream)
+
+
+class ServiceManager(object):
+    def __init__(self, host: str, port: int, socketio):
+        self._host = host
+        self._port = port
+        self._socketio = socketio
+        self._servers_pool = []
+
+    def find_or_create_server(self, settings: ServiceSettings) -> Service:
+        for server in self._servers_pool:
+            if server.id == settings.id:
+                return server
+
+        server = Service(self._host, self._port, self._socketio, settings)
+        self._add_server(server)
+        return server
+
+    def _add_server(self, server: Service):
+        self._servers_pool.append(server)

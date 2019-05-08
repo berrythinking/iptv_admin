@@ -2,9 +2,8 @@ from flask_classy import FlaskView, route
 from flask import render_template, redirect, url_for, request
 from flask_login import logout_user, login_required, current_user
 
-from app import service
+from app import get_first_user_server
 from app.home.forms import SettingsForm
-from app.service.service_settings import ServiceSettings
 
 
 # routes
@@ -13,23 +12,21 @@ class UserView(FlaskView):
 
     @login_required
     def dashboard(self):
-        server = ServiceSettings.objects().first()
+        server = get_first_user_server(current_user)
         if server:
-            service.set_settings(server)
-
-            streams = service.get_streams()
+            streams = server.get_streams()
             front_streams = []
             for stream in streams:
                 front_streams.append(stream.to_front())
-            serv = service.to_front()
-            return render_template('user/dashboard.html', streams=front_streams, service=serv)
+            service = server.to_front()
+            return render_template('user/dashboard.html', streams=front_streams, service=service)
 
         return redirect(url_for('UserView:settings'))
 
     @route('/settings', methods=['POST', 'GET'])
     @login_required
     def settings(self):
-        servers = ServiceSettings.objects()
+        servers = current_user.servers
         form = SettingsForm(obj=current_user.settings)
 
         if request.method == 'POST':

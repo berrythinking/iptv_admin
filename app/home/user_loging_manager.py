@@ -5,7 +5,7 @@ from enum import IntEnum
 from flask_login import UserMixin
 
 from .settings import Settings
-from app.service.service_settings import ServiceSettings
+from app.service.service_entry import ServiceSettings
 
 
 class User(UserMixin, Document):

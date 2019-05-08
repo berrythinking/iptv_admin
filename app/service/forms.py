@@ -4,7 +4,7 @@ from flask_babel import lazy_gettext
 from wtforms.fields import StringField, IntegerField, SubmitField
 from wtforms.validators import InputRequired, Length
 
-from .service_settings import ServiceSettings
+from .service_entry import ServiceSettings
 
 
 class ServiceSettingsForm(FlaskForm):

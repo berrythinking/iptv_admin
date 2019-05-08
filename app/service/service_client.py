@@ -2,7 +2,7 @@ from app.client.client import Client
 from app.client.client_handler import IClientHandler
 from app.client.json_rpc import Request, Response
 from app.client.client_constants import Commands, ClientStatus
-from app.service.service_settings import ServiceSettings
+from app.service.service_entry import ServiceSettings
 
 import app.constants as constants
 
@@ -18,16 +18,10 @@ class ServiceClient(IClientHandler):
     def get_log_stream_path(host: str, port: int, stream_id: str):
         return constants.DEFAULT_STREAM_LOG_PATH_TEMPLATE_3SIS.format(host, port, stream_id)
 
-    def __init__(self, handler: IStreamHandler):
+    def __init__(self, handler: IStreamHandler, settings: ServiceSettings):
         self._request_id = 0
         self._handler = handler
-        self._service_settings = None
-        self._client = None
-
-    def set_settings(self, settings: ServiceSettings):
         self._service_settings = settings
-        if self._client:
-            self._client.disconnect()
         self._client = Client(settings.host, settings.port, self)
 
     def connect(self):

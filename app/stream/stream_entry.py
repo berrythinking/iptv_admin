@@ -66,9 +66,6 @@ MAX_STREAM_NAME_LENGTH = 64
 class Stream(EmbeddedDocument):
     meta = {'allow_inheritance': True, 'auto_create_index': True}
 
-    def __init__(self, *args, **kwargs):
-        super(Stream, self).__init__(*args, **kwargs)
-
     id = ObjectIdField(required=True, default=ObjectId,
                        unique=True, primary_key=True)
     name = StringField(default=DEFAULT_STREAM_NAME, max_length=MAX_STREAM_NAME_LENGTH,
@@ -96,6 +93,9 @@ class Stream(EmbeddedDocument):
     _input_streams = str()
     _output_streams = str()
     _feedback_dir = str()
+
+    def __init__(self, *args, **kwargs):
+        super(Stream, self).__init__(*args, **kwargs)
 
     def set_feedback_dir(self, feedback_dir):
         self._feedback_dir = feedback_dir
