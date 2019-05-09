@@ -10,6 +10,9 @@ from flask_socketio import SocketIO
 
 from app.service.service_manager import ServiceManager
 
+HOST = '127.0.0.1'
+PORT = 8080
+
 
 def get_app_folder():
     return os.path.dirname(__file__)
@@ -45,18 +48,7 @@ def init_project(static_folder, *args):
 
     login_manager.login_view = "HomeView:signin"
 
-    # defaults flask
-    _host = '127.0.0.1'
-    _port = 5000
-    server_name = app.config.get('SERVER_NAME')
-    sn_host, sn_port = None, None
-
-    if server_name:
-        sn_host, _, sn_port = server_name.partition(':')
-
-    host = sn_host or _host
-    port = int(sn_port or _port)
-    servers_manager = ServiceManager(host, port, socketio)
+    servers_manager = ServiceManager(HOST, PORT, socketio)
 
     return app, bootstrap, babel, db, mail, socketio, login_manager, servers_manager
 
