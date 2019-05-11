@@ -18,4 +18,4 @@ Admin for ![IPTV cloud](https://github.com/fastogt/iptv)
 `pip3 install -r requirements.txt`
 
 ### Test server
-[Server 5$](http://157.230.17.216)
+[Server](http://157.230.17.216)
