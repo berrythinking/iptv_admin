@@ -48,7 +48,7 @@ def init_project(static_folder, *args):
     # defaults flask
     _host = '127.0.0.1'
     _port = 5000
-    server_name = app.config.get('SERVER_NAME')
+    server_name = app.config.get('SERVER_NAME_FOR_POST')
     sn_host, sn_port = None, None
 
     if server_name:

@@ -8,7 +8,7 @@ from app import app
 import argparse
 
 PROJECT_NAME = 'iptv_admin'
-HOST = '127.0.0.1'
+HOST = '0.0.0.0'
 PORT = 8080
 
 if __name__ == '__main__':
