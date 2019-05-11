@@ -36,6 +36,11 @@ Settings | {{ config['PUBLIC_CONFIG'].site.title }}
         {{ render_bootstrap_field(form.locale) }}
         {{ form_field(form.submit, class="btn btn-success") }}
     </form>
+    <span>
+        {% if servers|length == 0 %}
+        <div class="alert alert-info">To open dashboard you should have at least 1 server, please add it.</div>
+        {% endif %}
+    </span>
     <div class="row">
         <table id='servers_table' class="table">
             <thead>
@@ -163,6 +168,8 @@ Settings | {{ config['PUBLIC_CONFIG'].site.title }}
             }
         });
     }
+
+
 
 
 </script>
