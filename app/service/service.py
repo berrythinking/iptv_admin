@@ -1,7 +1,5 @@
 from bson.objectid import ObjectId
 
-import app.constants as constants
-
 from app.stream.stream_entry import Stream, EncodeStream, RelayStream, TimeshiftRecorderStream, CatchupStream, \
     TimeshiftPlayerStream, TestLifeStream, make_encode_stream, make_relay_stream, make_timeshift_recorder_stream, \
     make_catchup_stream, make_timeshift_player_stream, make_test_life_stream
@@ -139,22 +137,22 @@ class Service(IStreamHandler):
                 ServiceFields.VERSION: self._version, ServiceFields.STATUS: self._client.status()}
 
     def make_relay_stream(self) -> RelayStream:
-        return make_relay_stream(self._settings.feedback_directory)
+        return make_relay_stream(self._settings)
 
     def make_encode_stream(self) -> EncodeStream:
-        return make_encode_stream(self._settings.feedback_directory)
+        return make_encode_stream(self._settings)
 
     def make_timeshift_recorder_stream(self) -> TimeshiftRecorderStream:
-        return make_timeshift_recorder_stream(self._settings.feedback_directory, self._settings.timeshifts_directory)
+        return make_timeshift_recorder_stream(self._settings)
 
     def make_catchup_stream(self) -> CatchupStream:
-        return make_catchup_stream(self._settings.feedback_directory, self._settings.timeshifts_directory)
+        return make_catchup_stream(self._settings)
 
     def make_timeshift_player_stream(self) -> TimeshiftPlayerStream:
-        return make_timeshift_player_stream(self._settings.feedback_directory)
+        return make_timeshift_player_stream(self._settings)
 
     def make_test_life_stream(self) -> TestLifeStream:
-        return make_test_life_stream(self._settings.feedback_directory)
+        return make_test_life_stream(self._settings)
 
     # handler
     def on_stream_statistic_received(self, params: dict):
@@ -222,10 +220,7 @@ class Service(IStreamHandler):
         self._version = stats[ServiceFields.VERSION]
 
     def __init_stream_runtime_fields(self, stream: Stream):
-        type = stream.get_type()
-        stream.set_feedback_dir(self._settings.feedback_directory)
-        if type == constants.StreamType.TIMESHIFT_RECORDER or type == constants.StreamType.CATCHUP:
-            stream.set_timeshift_dir(self._settings.timeshifts_directory)
+        stream.set_server_settings(self._settings)
 
     def __reload_from_db(self):
         self._streams = []

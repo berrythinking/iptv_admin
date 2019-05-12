@@ -7,14 +7,14 @@ from wtforms.fields import StringField, SubmitField, SelectField, IntegerField, 
 import app.constants as constants
 from app.stream.stream_entry import Stream, RelayStream, EncodeStream, TimeshiftRecorderStream, CatchupStream, \
     TimeshiftPlayerStream, TestLifeStream, MIN_STREAM_NAME_LENGTH, MAX_STREAM_NAME_LENGTH
-from app.stream.common_forms import UrlsForm, SizeForm, LogoForm, RationalForm
+from app.stream.common_forms import InputUrlsForm, OutputUrlsForm, SizeForm, LogoForm, RationalForm, Urls
 
 
 class StreamForm(FlaskForm):
     name = StringField(lazy_gettext(u'Name:'),
                        validators=[InputRequired(), Length(min=MIN_STREAM_NAME_LENGTH, max=MAX_STREAM_NAME_LENGTH)])
-    input = FormField(UrlsForm, lazy_gettext(u'Input:'))
-    output = FormField(UrlsForm, lazy_gettext(u'Output:'))
+    input = FormField(InputUrlsForm, lazy_gettext(u'Input:'))
+    output = FormField(OutputUrlsForm, lazy_gettext(u'Output:'))
     log_level = SelectField(lazy_gettext(u'Log level:'), validators=[],
                             choices=constants.AVAILABLE_LOG_LEVELS_PAIRS, coerce=constants.StreamLogLevel.coerce)
     audio_select = IntegerField(lazy_gettext(u'Audio select:'),
@@ -33,7 +33,11 @@ class StreamForm(FlaskForm):
     def update_entry(self, entry: Stream):
         entry.name = self.name.data
         entry.input = self.input.get_data()
-        entry.output = self.output.get_data()
+        output_url_raw = self.output.get_data()
+        output_url = Urls()
+        for url in output_url_raw.urls:
+            output_url.urls.append(entry.make_output_url(url))
+        entry.output = output_url
 
         entry.audio_select = self.audio_select.data
         entry.have_video = self.have_video.data
@@ -142,5 +146,5 @@ class TestLifeStreamForm(RelayStreamForm):
     def make_entry(self):
         return self.update_entry(TestLifeStream())
 
-    def update_entry(self, entry: TimeshiftRecorderStream):
+    def update_entry(self, entry: TestLifeStream):
         return super(TestLifeStreamForm, self).update_entry(entry)

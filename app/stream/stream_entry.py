@@ -1,10 +1,13 @@
+from urllib.parse import urlparse
+
 from bson.objectid import ObjectId
 from mongoengine import StringField, IntField, EmbeddedDocumentField, EmbeddedDocument, DateTimeField, BooleanField, \
     FloatField, ObjectIdField
 from datetime import datetime
 
 import app.constants as constants
-from app.stream.common_entry import Urls, Rational, Size, Logo, Url
+from app.stream.common_entry import Urls, Rational, Size, Logo, Url, HttpUrl
+from app.service.server_entry import ServerSettings
 
 ID_FIELD = "id"
 TYPE_FIELD = "type"
@@ -91,13 +94,13 @@ class Stream(EmbeddedDocument):
     _start_time = 0
     _input_streams = str()
     _output_streams = str()
-    _feedback_dir = str()
+    _settings = ServerSettings()
 
     def __init__(self, *args, **kwargs):
         super(Stream, self).__init__(*args, **kwargs)
 
-    def set_feedback_dir(self, feedback_dir):
-        self._feedback_dir = feedback_dir
+    def set_server_settings(self, settings: ServerSettings):
+        self._settings = settings
 
     def reset(self):
         self._status = constants.StreamStatus.NEW
@@ -151,7 +154,17 @@ class Stream(EmbeddedDocument):
         return conf
 
     def generate_feedback_dir(self):
-        return '{0}/{1}/{2}'.format(self._feedback_dir, self.get_type(), self.get_id())
+        return '{0}/{1}/{2}'.format(self._settings.feedback_directory, self.get_type(), self.get_id())
+
+    def make_output_url(self, url: Url):
+        parsed_uri = urlparse(url.uri)
+        if parsed_uri.scheme == 'http':
+            return HttpUrl(url.id, url.uri, self.generate_http_root_dir())
+
+        return url
+
+    def generate_http_root_dir(self):
+        return '{0}/{1}/{2}'.format(self._settings.hls_directory, self.get_type(), self.get_id())
 
     def get_log_level(self):
         return self.log_level
@@ -284,14 +297,8 @@ class TimeshiftRecorderStream(RelayStream):
     timeshift_chunk_duration = IntField(default=constants.DEFAULT_TIMESHIFT_CHUNK_DURATION, required=True)
     timeshift_chunk_life_time = IntField(default=constants.DEFAULT_TIMESHIFT_CHUNK_LIFE_TIME, required=True)
 
-    # runtime
-    _timeshift_dir = str()
-
     def get_type(self):
         return constants.StreamType.TIMESHIFT_RECORDER
-
-    def set_timeshift_dir(self, timeshift_dir):
-        self._timeshift_dir = timeshift_dir
 
     def config(self) -> dict:
         conf = super(TimeshiftRecorderStream, self).config()
@@ -304,7 +311,7 @@ class TimeshiftRecorderStream(RelayStream):
         return self.timeshift_chunk_duration
 
     def generate_timeshift_dir(self):
-        return '{0}/{1}'.format(self._timeshift_dir, self.get_id())
+        return '{0}/{1}'.format(self._settings.timeshifts_directory, self.get_id())
 
 
 class CatchupStream(TimeshiftRecorderStream):
@@ -346,49 +353,47 @@ class TestLifeStream(RelayStream):
         return conf
 
 
-def make_relay_stream(feedback_dir: str) -> RelayStream:
+def make_relay_stream(settings: ServerSettings) -> RelayStream:
     stream = RelayStream()
-    stream._feedback_dir = feedback_dir
+    stream._settings = settings
     stream.input = Urls(urls=[Url(id=Url.generate_id())])
     stream.output = Urls(urls=[Url(id=Url.generate_id())])
     return stream
 
 
-def make_encode_stream(feedback_dir: str) -> EncodeStream:
+def make_encode_stream(settings: ServerSettings) -> EncodeStream:
     stream = EncodeStream()
-    stream._feedback_dir = feedback_dir
+    stream._settings = settings
     stream.input = Urls(urls=[Url(id=Url.generate_id())])
     stream.output = Urls(urls=[Url(id=Url.generate_id())])
     return stream
 
 
-def make_timeshift_recorder_stream(feedback_dir: str, timeshift_dir: str) -> TimeshiftRecorderStream:
+def make_timeshift_recorder_stream(settings: ServerSettings) -> TimeshiftRecorderStream:
     stream = TimeshiftRecorderStream()
-    stream._feedback_dir = feedback_dir
-    stream._timeshift_dir = timeshift_dir
+    stream._settings = settings
     stream.input = Urls(urls=[Url(id=Url.generate_id())])
     return stream
 
 
-def make_catchup_stream(feedback_dir: str, timeshift_dir: str) -> CatchupStream:
+def make_catchup_stream(settings: ServerSettings) -> CatchupStream:
     stream = CatchupStream()
-    stream._feedback_dir = feedback_dir
-    stream._timeshift_dir = timeshift_dir
+    stream._settings = settings
     stream.input = Urls(urls=[Url(id=Url.generate_id())])
     return stream
 
 
-def make_timeshift_player_stream(feedback_dir: str) -> TimeshiftPlayerStream:
+def make_timeshift_player_stream(settings: ServerSettings) -> TimeshiftPlayerStream:
     stream = TimeshiftPlayerStream()
-    stream._feedback_dir = feedback_dir
+    stream._settings = settings
     stream.input = Urls(urls=[Url(id=Url.generate_id())])
     stream.output = Urls(urls=[Url(id=Url.generate_id())])
     return stream
 
 
-def make_test_life_stream(feedback_dir: str) -> TestLifeStream:
+def make_test_life_stream(settings: ServerSettings) -> TestLifeStream:
     stream = TestLifeStream()
-    stream._feedback_dir = feedback_dir
+    stream._settings = settings
     stream.input = Urls(urls=[Url(id=Url.generate_id())])
     stream.output = Urls(urls=[Url(id=Url.generate_id(), uri=constants.DEFAULT_TEST_URL)])
     return stream

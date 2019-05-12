@@ -5,6 +5,8 @@ import app.constants as constants
 
 # {"urls": [{"id": 81,"uri": "tcp://localhost:1935"}]}
 class Url(EmbeddedDocument):
+    meta = {'allow_inheritance': True, 'auto_create_index': False}
+
     _next_url_id = 0
 
     id = IntField(default=lambda: Url.generate_id(), required=True)
@@ -15,6 +17,13 @@ class Url(EmbeddedDocument):
         current_value = Url._next_url_id
         Url._next_url_id += 1
         return current_value
+
+
+class HttpUrl(Url):
+    http_root = StringField(default='/', max_length=constants.MAX_PATH_LENGTH, required=True)
+
+    def __init__(self, *args, **kwargs):
+        super(Url, self).__init__(*args, **kwargs)
 
 
 class Urls(EmbeddedDocument):

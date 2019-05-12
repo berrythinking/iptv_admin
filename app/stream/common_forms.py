@@ -15,7 +15,7 @@ class UrlForm(Form):
                                   Length(min=MIN_URL_LENGTH, max=MAX_URL_LENGTH)])
 
 
-class UrlsForm(Form):
+class InputUrlsForm(Form):
     urls = FieldList(FormField(UrlForm, lazy_gettext(u'Urls:')), min_entries=1, max_entries=10)
 
     def get_data(self) -> Urls:
@@ -24,6 +24,10 @@ class UrlsForm(Form):
             urls.urls.append(Url(url['id'], url['uri']))
 
         return urls
+
+
+class OutputUrlsForm(InputUrlsForm):
+    pass
 
 
 class LogoForm(Form):
