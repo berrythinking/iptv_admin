@@ -279,7 +279,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
 <script type="text/javascript"
         src="{{ url_for('static', filename='assets/js/socket.io/1.7.4/socket.io.min.js') }}"></script>
 <script type="text/javascript" charset="utf-8">
-    var socket = io.connect({{ config['PREFERRED_URL_SCHEME'] }} + '://' + document.domain + ':' + location.port);
+    var socket = io.connect('{{ config['PREFERRED_URL_SCHEME'] }}' + '://' + document.domain + ':' + location.port);
     socket.on('connect', function() {
     });
     socket.on('stream_data_changed', function(stream) {
