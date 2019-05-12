@@ -3,7 +3,6 @@ from mongoengine import EmbeddedDocument, StringField, IntField, ListField, Embe
 import app.constants as constants
 
 
-# {"urls": [{"id": 81,"uri": "tcp://localhost:1935"}]}
 class Url(EmbeddedDocument):
     meta = {'allow_inheritance': True, 'auto_create_index': False}
 
@@ -26,6 +25,7 @@ class HttpUrl(Url):
         super(Url, self).__init__(*args, **kwargs)
 
 
+# {"urls": [{"id": 81,"uri": "tcp://localhost:1935"}]}
 class Urls(EmbeddedDocument):
     urls = ListField(EmbeddedDocumentField(Url))
 

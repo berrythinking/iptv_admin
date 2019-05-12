@@ -1,5 +1,3 @@
-from urllib.parse import urlparse
-
 from bson.objectid import ObjectId
 from mongoengine import StringField, IntField, EmbeddedDocumentField, EmbeddedDocument, DateTimeField, BooleanField, \
     FloatField, ObjectIdField
@@ -65,6 +63,15 @@ MIN_STREAM_NAME_LENGTH = 3
 MAX_STREAM_NAME_LENGTH = 64
 
 
+def _make_output_url(url: Url, http_root: str):
+    from urllib.parse import urlparse
+    parsed_uri = urlparse(url.uri)
+    if parsed_uri.scheme == 'http':
+        return HttpUrl(url.id, url.uri, http_root)
+
+    return url
+
+
 class Stream(EmbeddedDocument):
     meta = {'allow_inheritance': True, 'auto_create_index': True}
 
@@ -101,6 +108,10 @@ class Stream(EmbeddedDocument):
 
     def set_server_settings(self, settings: ServerSettings):
         self._settings = settings
+        urls = Urls()
+        for out in self.output.urls:
+            urls.urls.append(_make_output_url(out, self.generate_http_root_dir()))
+        self.output = urls
 
     def reset(self):
         self._status = constants.StreamStatus.NEW
@@ -155,13 +166,6 @@ class Stream(EmbeddedDocument):
 
     def generate_feedback_dir(self):
         return '{0}/{1}/{2}'.format(self._settings.feedback_directory, self.get_type(), self.get_id())
-
-    def make_output_url(self, url: Url):
-        parsed_uri = urlparse(url.uri)
-        if parsed_uri.scheme == 'http':
-            return HttpUrl(url.id, url.uri, self.generate_http_root_dir())
-
-        return url
 
     def generate_http_root_dir(self):
         return '{0}/{1}/{2}'.format(self._settings.hls_directory, self.get_type(), self.get_id())

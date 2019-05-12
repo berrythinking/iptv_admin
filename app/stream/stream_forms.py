@@ -33,11 +33,7 @@ class StreamForm(FlaskForm):
     def update_entry(self, entry: Stream):
         entry.name = self.name.data
         entry.input = self.input.get_data()
-        output_url_raw = self.output.get_data()
-        output_url = Urls()
-        for url in output_url_raw.urls:
-            output_url.urls.append(entry.make_output_url(url))
-        entry.output = output_url
+        entry.output = self.output.get_data()
 
         entry.audio_select = self.audio_select.data
         entry.have_video = self.have_video.data

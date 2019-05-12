@@ -122,7 +122,10 @@ class Service(IStreamHandler):
     def remove_stream(self, sid: str):
         for stream in self._streams:
             if stream.id == ObjectId(sid):
-                self._settings.update(pull__streams__id=stream.id)
+                for set_stream in self._settings.streams:
+                    if set_stream.id == stream.id:
+                        self._settings.streams.remove(set_stream)
+                        break
                 self._settings.save()
                 self._streams.remove(stream)
                 break
