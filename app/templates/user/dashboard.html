@@ -10,19 +10,19 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
 {% block content %}
 <div class="container">
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-6">
             <p>{% trans %}Welcome{% endtrans %} {{ current_user.email }}</p>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <a href="{{ url_for('UserView:settings') }}" class="btn btn-info" role="button">{% trans %}Settings{%
                 endtrans
                 %}</a>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <a href="{{ url_for('UserView:logout') }}" class="btn btn-info" role="button">{% trans %}Logout{% endtrans
                 %}</a>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <a href="{{ url_for('UserView:remove') }}" class="btn btn-danger" role="button">{% trans %}Delete{% endtrans
                 %}</a>
         </div>
