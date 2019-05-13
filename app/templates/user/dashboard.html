@@ -10,30 +10,39 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
 {% block content %}
 <div class="container">
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-3">
             <p>{% trans %}Welcome{% endtrans %} {{ current_user.email }}</p>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-3">
             <a href="{{ url_for('UserView:settings') }}" class="btn btn-info" role="button">{% trans %}Settings{%
                 endtrans
+                %}</a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ url_for('UserView:logout') }}" class="btn btn-info" role="button">{% trans %}Logout{% endtrans
+                %}</a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ url_for('UserView:remove') }}" class="btn btn-danger" role="button">{% trans %}Delete{% endtrans
                 %}</a>
         </div>
     </div>
     </br>
     <div class="row">
         {% if (service.status == service.status.INIT) %}
-        <div class="col-md-1">
-            <a href="{{ url_for('ServiceView:connect') }}" class="btn btn-info" role="button">{% trans %}Connect{% endtrans
+        <div class="col-md-2">
+            <a href="{{ url_for('ServiceView:connect') }}" class="btn btn-info" role="button">{% trans %}Connect{%
+                endtrans
                 %}</a>
         </div>
         {% else %}
-        <div class="col-md-1">
+        <div class="col-md-2">
             <a href="{{ url_for('ServiceView:disconnect') }}" class="btn btn-info" role="button">{% trans %}Disconnect{%
                 endtrans
                 %}</a>
         </div>
         {% endif %}
-        <div class="col-md-1">
+        <div class="col-md-2">
             <a href="{{ url_for('ServiceView:activate') }}" role="button"
                {% if (service.status== service.status.INIT) %}
                class="btn btn-info disabled"
@@ -43,7 +52,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                 {% trans %}Activate{% endtrans %}
             </a>
         </div>
-        <div class="col-md-1">
+        <div class="col-md-2">
             <a href="{{ url_for('ServiceView:ping') }}" role="button"
                {% if (service.status== service.status.ACTIVE) %}
                class="btn btn-info"
@@ -53,7 +62,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                 {% trans %}Ping{% endtrans %}
             </a>
         </div>
-        <div class="col-md-1">
+        <div class="col-md-2">
             <a href="{{ url_for('ServiceView:get_log') }}" role="button"
                {% if (service.status== service.status.ACTIVE) %}
                class="btn btn-info"
@@ -63,12 +72,12 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                 {% trans %}Get log{% endtrans %}
             </a>
         </div>
-        <div class="col-md-1">
+        <div class="col-md-2">
             <a href="{{ url_for('ServiceView:view_log') }}" role="button" class="btn btn-info">
                 {% trans %}View log{% endtrans %}
             </a>
         </div>
-        <div class="col-md-1">
+        <div class="col-md-2">
             <a href="{{ url_for('ServiceView:stop') }}" role="button"
                {% if (service.status== service.status.ACTIVE) %}
                class="btn btn-info"
@@ -77,14 +86,6 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                {% endif %}>
                 {% trans %}Stop{% endtrans %}
             </a>
-        </div>
-        <div class="col-md-1">
-            <a href="{{ url_for('UserView:logout') }}" class="btn btn-info" role="button">{% trans %}Logout{% endtrans
-                %}</a>
-        </div>
-        <div class="col-md-1">
-            <a href="{{ url_for('UserView:remove') }}" class="btn btn-danger" role="button">{% trans %}Delete{% endtrans
-                %}</a>
         </div>
     </div>
     </br>
@@ -537,5 +538,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             }
         });
     }
+
+
 </script>
 {% endblock %}
