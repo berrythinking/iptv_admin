@@ -9,7 +9,7 @@ from mongoengine import connect
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from app.stream.stream_entry import make_test_life_stream
-from app.service.service_settings import ServiceSettings
+from app.service.service import ServiceSettings
 
 PROJECT_NAME = 'test_life'
 

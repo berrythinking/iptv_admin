@@ -9,6 +9,7 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
 
 {% block content %}
 <div class="container">
+    </br>
     <div class="row">
         <div class="col-md-6">
             <p>{% trans %}Welcome{% endtrans %} {{ current_user.email }}</p>
@@ -80,9 +81,9 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         <div class="col-md-2">
             <a href="{{ url_for('ServiceView:stop') }}" role="button"
                {% if (service.status== service.status.ACTIVE) %}
-               class="btn btn-info"
+               class="btn btn-warning"
                {% else %}
-               class="btn btn-info disabled"
+               class="btn btn-warning disabled"
                {% endif %}>
                 {% trans %}Stop{% endtrans %}
             </a>
