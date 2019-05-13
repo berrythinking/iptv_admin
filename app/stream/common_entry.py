@@ -18,16 +18,24 @@ class Url(EmbeddedDocument):
         return current_value
 
 
-class HttpUrl(Url):
-    http_root = StringField(default='/', max_length=constants.MAX_PATH_LENGTH, required=True)
+class InputUrl(Url):
+    pass
+
+
+class OutputUrl(Url):
+    http_root = StringField(default='/', max_length=constants.MAX_PATH_LENGTH, required=False)
 
     def __init__(self, *args, **kwargs):
-        super(Url, self).__init__(*args, **kwargs)
+        super(OutputUrl, self).__init__(*args, **kwargs)
 
 
 # {"urls": [{"id": 81,"uri": "tcp://localhost:1935"}]}
-class Urls(EmbeddedDocument):
-    urls = ListField(EmbeddedDocumentField(Url))
+class InputUrls(EmbeddedDocument):
+    urls = ListField(EmbeddedDocumentField(InputUrl))
+
+
+class OutputUrls(EmbeddedDocument):
+    urls = ListField(EmbeddedDocumentField(OutputUrl))
 
 
 class Logo(EmbeddedDocument):

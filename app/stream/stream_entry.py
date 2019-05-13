@@ -4,7 +4,7 @@ from mongoengine import StringField, IntField, EmbeddedDocumentField, EmbeddedDo
 from datetime import datetime
 
 import app.constants as constants
-from app.stream.common_entry import Urls, Rational, Size, Logo, Url, HttpUrl
+from app.stream.common_entry import Rational, Size, Logo, InputUrls, InputUrl, OutputUrls, OutputUrl
 from app.service.server_entry import ServerSettings
 
 ID_FIELD = "id"
@@ -63,13 +63,14 @@ MIN_STREAM_NAME_LENGTH = 3
 MAX_STREAM_NAME_LENGTH = 64
 
 
-def _make_output_url(url: Url, http_root: str):
-    from urllib.parse import urlparse
-    parsed_uri = urlparse(url.uri)
-    if parsed_uri.scheme == 'http':
-        return HttpUrl(url.id, url.uri, http_root)
+def _make_output_url(id: int, uri: str, http_root: str):
+    if uri != constants.DEFAULT_TEST_URL:
+        from urllib.parse import urlparse
+        parsed_uri = urlparse(uri)
+        if parsed_uri.scheme == 'http':
+            return OutputUrl(id, uri, http_root)
 
-    return url
+    return OutputUrl(id, uri)
 
 
 class Stream(EmbeddedDocument):
@@ -82,8 +83,8 @@ class Stream(EmbeddedDocument):
     created_date = DateTimeField(default=datetime.now)  # for inner use
     log_level = IntField(default=constants.StreamLogLevel.LOG_LEVEL_INFO, required=True)
 
-    input = EmbeddedDocumentField(Urls, default=Urls())
-    output = EmbeddedDocumentField(Urls, default=Urls())
+    input = EmbeddedDocumentField(InputUrls, default=InputUrls())
+    output = EmbeddedDocumentField(OutputUrls, default=OutputUrls())
     have_video = BooleanField(default=constants.DEFAULT_HAVE_VIDEO, required=True)
     have_audio = BooleanField(default=constants.DEFAULT_HAVE_AUDIO, required=True)
     audio_select = IntField(default=constants.INVALID_AUDIO_SELECT, required=True)
@@ -108,9 +109,10 @@ class Stream(EmbeddedDocument):
 
     def set_server_settings(self, settings: ServerSettings):
         self._settings = settings
-        urls = Urls()
+        urls = OutputUrls()
+        http_root = self.generate_http_root_dir()
         for out in self.output.urls:
-            urls.urls.append(_make_output_url(out, self.generate_http_root_dir()))
+            urls.urls.append(_make_output_url(out.id, out.uri, '{0}/{1}'.format(http_root, out.id)))
         self.output = urls
 
     def reset(self):
@@ -360,44 +362,44 @@ class TestLifeStream(RelayStream):
 def make_relay_stream(settings: ServerSettings) -> RelayStream:
     stream = RelayStream()
     stream._settings = settings
-    stream.input = Urls(urls=[Url(id=Url.generate_id())])
-    stream.output = Urls(urls=[Url(id=Url.generate_id())])
+    stream.input = InputUrls(urls=[InputUrl(id=InputUrl.generate_id())])
+    stream.output = OutputUrls(urls=[OutputUrl(id=OutputUrl.generate_id())])
     return stream
 
 
 def make_encode_stream(settings: ServerSettings) -> EncodeStream:
     stream = EncodeStream()
     stream._settings = settings
-    stream.input = Urls(urls=[Url(id=Url.generate_id())])
-    stream.output = Urls(urls=[Url(id=Url.generate_id())])
+    stream.input = InputUrls(urls=[InputUrl(id=InputUrl.generate_id())])
+    stream.output = OutputUrls(urls=[OutputUrl(id=OutputUrl.generate_id())])
     return stream
 
 
 def make_timeshift_recorder_stream(settings: ServerSettings) -> TimeshiftRecorderStream:
     stream = TimeshiftRecorderStream()
     stream._settings = settings
-    stream.input = Urls(urls=[Url(id=Url.generate_id())])
+    stream.input = InputUrls(urls=[InputUrl(id=InputUrl.generate_id())])
     return stream
 
 
 def make_catchup_stream(settings: ServerSettings) -> CatchupStream:
     stream = CatchupStream()
     stream._settings = settings
-    stream.input = Urls(urls=[Url(id=Url.generate_id())])
+    stream.input = InputUrls(urls=[InputUrl(id=InputUrl.generate_id())])
     return stream
 
 
 def make_timeshift_player_stream(settings: ServerSettings) -> TimeshiftPlayerStream:
     stream = TimeshiftPlayerStream()
     stream._settings = settings
-    stream.input = Urls(urls=[Url(id=Url.generate_id())])
-    stream.output = Urls(urls=[Url(id=Url.generate_id())])
+    stream.input = InputUrls(urls=[InputUrl(id=InputUrl.generate_id())])
+    stream.output = OutputUrls(urls=[OutputUrl(id=OutputUrl.generate_id())])
     return stream
 
 
 def make_test_life_stream(settings: ServerSettings) -> TestLifeStream:
     stream = TestLifeStream()
     stream._settings = settings
-    stream.input = Urls(urls=[Url(id=Url.generate_id())])
-    stream.output = Urls(urls=[Url(id=Url.generate_id(), uri=constants.DEFAULT_TEST_URL)])
+    stream.input = InputUrls(urls=[InputUrl(id=InputUrl.generate_id())])
+    stream.output = OutputUrls(urls=[OutputUrl(id=OutputUrl.generate_id(), uri=constants.DEFAULT_TEST_URL)])
     return stream

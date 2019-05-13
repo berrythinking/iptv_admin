@@ -3,8 +3,8 @@ from flask_babel import lazy_gettext
 from wtforms.fields import StringField, FieldList, IntegerField, FormField, FloatField
 from wtforms.validators import InputRequired, Length, NumberRange
 
-from app.constants import MIN_URL_LENGTH, MAX_URL_LENGTH, MIN_ALPHA, MAX_ALPHA
-from app.stream.common_entry import Urls, Rational, Size, Logo, Url
+from app.constants import MIN_URL_LENGTH, MAX_URL_LENGTH, MIN_ALPHA, MAX_ALPHA, MIN_PATH_LENGTH, MAX_PATH_LENGTH
+from app.stream.common_entry import Rational, Size, Logo, InputUrls, InputUrl, OutputUrls, OutputUrl
 
 
 class UrlForm(Form):
@@ -15,19 +15,37 @@ class UrlForm(Form):
                                   Length(min=MIN_URL_LENGTH, max=MAX_URL_LENGTH)])
 
 
-class InputUrlsForm(Form):
-    urls = FieldList(FormField(UrlForm, lazy_gettext(u'Urls:')), min_entries=1, max_entries=10)
+class InputUrlForm(UrlForm):
+    pass
 
-    def get_data(self) -> Urls:
-        urls = Urls()
+
+class InputUrlsForm(Form):
+    urls = FieldList(FormField(InputUrlForm, lazy_gettext(u'Urls:')), min_entries=1, max_entries=10)
+
+    def get_data(self) -> InputUrls:
+        urls = InputUrls()
         for url in self.data['urls']:
-            urls.urls.append(Url(url['id'], url['uri']))
+            urls.urls.append(InputUrl(url['id'], url['uri']))
 
         return urls
 
 
-class OutputUrlsForm(InputUrlsForm):
-    pass
+class OutputUrlForm(UrlForm):
+    http_root = StringField(lazy_gettext(u'Http root:'),
+                            validators=[InputRequired(),
+                                        Length(min=MIN_PATH_LENGTH, max=MAX_PATH_LENGTH)],
+                            render_kw={'readonly': 'true'})
+
+
+class OutputUrlsForm(Form):
+    urls = FieldList(FormField(OutputUrlForm, lazy_gettext(u'Urls:')), min_entries=1, max_entries=10)
+
+    def get_data(self) -> OutputUrls:
+        urls = OutputUrls()
+        for url in self.data['urls']:
+            urls.urls.append(OutputUrl(url['id'], url['uri'], url['http_root']))
+
+        return urls
 
 
 class LogoForm(Form):

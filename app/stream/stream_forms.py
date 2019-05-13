@@ -7,7 +7,7 @@ from wtforms.fields import StringField, SubmitField, SelectField, IntegerField, 
 import app.constants as constants
 from app.stream.stream_entry import Stream, RelayStream, EncodeStream, TimeshiftRecorderStream, CatchupStream, \
     TimeshiftPlayerStream, TestLifeStream, MIN_STREAM_NAME_LENGTH, MAX_STREAM_NAME_LENGTH
-from app.stream.common_forms import InputUrlsForm, OutputUrlsForm, SizeForm, LogoForm, RationalForm, Urls
+from app.stream.common_forms import InputUrlsForm, OutputUrlsForm, SizeForm, LogoForm, RationalForm
 
 
 class StreamForm(FlaskForm):
