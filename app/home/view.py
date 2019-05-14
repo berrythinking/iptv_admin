@@ -147,7 +147,6 @@ class HomeView(FlaskView):
             new_user.save()
 
             token = self._confirm_link_generator.dumps(email, salt=HomeView.SALT_LINK)
-
             confirm_url = url_for('HomeView:confirm_email', token=token, _external=True)
             config = app.config['PUBLIC_CONFIG']
             html = render_template('home/email/activate.html', confirm_url=confirm_url,

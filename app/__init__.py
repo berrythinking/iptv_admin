@@ -65,6 +65,7 @@ app, bootstrap, babel, db, mail, socketio, login_manager, servers_manager = init
     'static',
     'config/public_config.py',
     'config/config.py',
+    'config/mail_config.py'
 )
 
 
