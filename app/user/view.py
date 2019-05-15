@@ -1,8 +1,7 @@
 from flask_classy import FlaskView, route
 from flask import render_template, redirect, url_for, request
-from flask_login import logout_user, login_required, current_user
+from flask_login import login_required, current_user
 
-from app import get_first_user_server
 from app.home.forms import SettingsForm
 
 
@@ -12,14 +11,15 @@ class UserView(FlaskView):
 
     @login_required
     def dashboard(self):
-        server = get_first_user_server(current_user)
+        server = current_user.get_current_server()
         if server:
             streams = server.get_streams()
             front_streams = []
             for stream in streams:
                 front_streams.append(stream.to_front())
-            service = server.to_front()
-            return render_template('user/dashboard.html', streams=front_streams, service=service)
+            front_server = server.to_front()
+            return render_template('user/dashboard.html', streams=front_streams, service=front_server,
+                                   servers=current_user.servers)
 
         return redirect(url_for('UserView:settings'))
 
@@ -38,8 +38,14 @@ class UserView(FlaskView):
         return render_template('user/settings.html', form=form, servers=servers)
 
     @login_required
+    def change_current_server(self, position):
+        if position.isdigit():
+            current_user.set_current_server_position(int(position))
+        return self.dashboard()
+
+    @login_required
     def logout(self):
-        logout_user()
+        current_user.logout()
         return redirect(url_for('HomeView:index'))
 
     @login_required

@@ -30,20 +30,31 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
     </div>
     </br>
     <div class="row">
-        {% if (service.status == service.status.INIT) %}
         <div class="col-md-2">
+            <select class="form-control" name="servers" onchange=OnServerChanged(this);>
+                {% for server in servers %}
+                {% if (service.id == server.id | string) %}
+                <option value="{{ loop.index }}" selected>{{ server.name }}</option>
+                {% else %}
+                <option value="{{ loop.index }}">{{ server.name }}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        {% if (service.status == service.status.INIT) %}
+        <div class="col-md-1">
             <a href="{{ url_for('ServiceView:connect') }}" class="btn btn-info" role="button">{% trans %}Connect{%
                 endtrans
                 %}</a>
         </div>
         {% else %}
-        <div class="col-md-2">
+        <div class="col-md-1">
             <a href="{{ url_for('ServiceView:disconnect') }}" class="btn btn-info" role="button">{% trans %}Disconnect{%
                 endtrans
                 %}</a>
         </div>
         {% endif %}
-        <div class="col-md-2">
+        <div class="col-md-1">
             <a href="{{ url_for('ServiceView:activate') }}" role="button"
                {% if (service.status== service.status.INIT) %}
                class="btn btn-info disabled"
@@ -283,6 +294,14 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
 <script type="text/javascript"
         src="{{ url_for('static', filename='assets/js/socket.io/1.7.4/socket.io.min.js') }}"></script>
 <script type="text/javascript" charset="utf-8">
+    // service
+    function OnServerChanged(item){
+        var url = '/change_current_server/' + item.selectedIndex;
+        $.get(url, function(data) {
+            window.location.reload();
+        });
+    }
+
     var socket = io.connect('{{ config['PREFERRED_URL_SCHEME'] }}' + '://' + document.domain + ':' + location.port);
     socket.on('connect', function() {
     });
@@ -541,9 +560,6 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             }
         });
     }
-
-
-
 
 
 </script>

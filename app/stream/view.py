@@ -5,9 +5,9 @@ from flask import render_template, request, jsonify
 from flask_login import login_required, current_user
 
 from app.constants import StreamType
-from app import get_runtime_stream_folder, get_first_user_server
+from app import get_runtime_stream_folder
 from app.stream.stream_entry import EncodeStream, RelayStream, TimeshiftRecorderStream, CatchupStream, \
-    TimeshiftPlayerStream
+    TimeshiftPlayerStream, TestLifeStream
 from app.stream.stream_forms import EncodeStreamForm, RelayStreamForm, TimeshiftRecorderStreamForm, CatchupStreamForm, \
     TimeshiftPlayerStreamForm, TestLifeStreamForm
 
@@ -137,7 +137,7 @@ def _add_test_life_stream(server, method: str):
     return render_template('stream/test_life/add.html', form=form, feedback_dir=stream.generate_feedback_dir())
 
 
-def _edit_test_life_stream(server, method: str, stream: TimeshiftRecorderStream):
+def _edit_test_life_stream(server, method: str, stream: TestLifeStream):
     form = TestLifeStreamForm(obj=stream)
 
     if method == 'POST':  # FIXME form.validate_on_submit()
@@ -155,7 +155,7 @@ class StreamView(FlaskView):
     @login_required
     @route('/start', methods=['POST'])
     def start(self):
-        server = get_first_user_server(current_user)
+        server = current_user.get_current_server()
         if server:
             sid = request.form['sid']
             server.start_stream(sid)
@@ -165,7 +165,7 @@ class StreamView(FlaskView):
     @login_required
     @route('/stop', methods=['POST'])
     def stop(self):
-        server = get_first_user_server(current_user)
+        server = current_user.get_current_server()
         if server:
             sid = request.form['sid']
             server.stop_stream(sid)
@@ -175,7 +175,7 @@ class StreamView(FlaskView):
     @login_required
     @route('/restart', methods=['POST'])
     def restart(self):
-        server = get_first_user_server(current_user)
+        server = current_user.get_current_server()
         if server:
             sid = request.form['sid']
             server.restart_stream(sid)
@@ -185,7 +185,7 @@ class StreamView(FlaskView):
     @login_required
     @route('/get_log', methods=['POST'])
     def get_log(self):
-        server = get_first_user_server(current_user)
+        server = current_user.get_current_server()
         if server:
             sid = request.form['sid']
             server.get_log_stream(sid)
@@ -208,7 +208,7 @@ class StreamView(FlaskView):
     @login_required
     @route('/add/relay', methods=['GET', 'POST'])
     def add_relay(self):
-        server = get_first_user_server(current_user)
+        server = current_user.get_current_server()
         if server:
             return _add_relay_stream(server, request.method)
         return jsonify(status='failed'), 404
@@ -216,7 +216,7 @@ class StreamView(FlaskView):
     @login_required
     @route('/add/encode', methods=['GET', 'POST'])
     def add_encode(self):
-        server = get_first_user_server(current_user)
+        server = current_user.get_current_server()
         if server:
             return _add_encode_stream(server, request.method)
         return jsonify(status='failed'), 404
@@ -224,7 +224,7 @@ class StreamView(FlaskView):
     @login_required
     @route('/add/timeshift_recorder', methods=['GET', 'POST'])
     def add_timeshift_recorder(self):
-        server = get_first_user_server(current_user)
+        server = current_user.get_current_server()
         if server:
             return _add_timeshift_recorder_stream(server, request.method)
         return jsonify(status='failed'), 404
@@ -232,7 +232,7 @@ class StreamView(FlaskView):
     @login_required
     @route('/add/test_life', methods=['GET', 'POST'])
     def add_test_life(self):
-        server = get_first_user_server(current_user)
+        server = current_user.get_current_server()
         if server:
             return _add_test_life_stream(server, request.method)
         return jsonify(status='failed'), 404
@@ -240,7 +240,7 @@ class StreamView(FlaskView):
     @login_required
     @route('/add/catchup', methods=['GET', 'POST'])
     def add_catchup(self):
-        server = get_first_user_server(current_user)
+        server = current_user.get_current_server()
         if server:
             return _add_catchup_stream(server, request.method)
         return jsonify(status='failed'), 404
@@ -248,7 +248,7 @@ class StreamView(FlaskView):
     @login_required
     @route('/add/timeshift_player', methods=['GET', 'POST'])
     def add_timeshift_player(self):
-        server = get_first_user_server(current_user)
+        server = current_user.get_current_server()
         if server:
             return _add_timeshift_player_stream(server, request.method)
         return jsonify(status='failed'), 404
@@ -256,7 +256,7 @@ class StreamView(FlaskView):
     @login_required
     @route('/edit/<sid>', methods=['GET', 'POST'])
     def edit(self, sid):
-        server = get_first_user_server(current_user)
+        server = current_user.get_current_server()
         if server:
             stream = server.find_stream_by_id(sid)
             if stream:
@@ -279,7 +279,7 @@ class StreamView(FlaskView):
     @login_required
     @route('/remove', methods=['POST'])
     def remove(self):
-        server = get_first_user_server(current_user)
+        server = current_user.get_current_server()
         if server:
             sid = request.form['sid']
             server.remove_stream(sid)

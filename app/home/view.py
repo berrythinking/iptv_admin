@@ -1,6 +1,6 @@
 from flask_classy import FlaskView, route
 from flask import render_template, request, redirect, url_for, flash, session, send_from_directory
-from flask_login import login_user, current_user
+from flask_login import current_user
 from flask_mail import Message
 from flask_babel import gettext
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -9,7 +9,7 @@ from itsdangerous import SignatureExpired, URLSafeTimedSerializer
 from app.constants import AVAILABLE_LOCALES_PAIRS, DEFAULT_LOCALE, AVAILABLE_LOCALES
 from app.utils import is_valid_email
 from app import app, mail, login_manager, babel
-from app.home.user_loging_manager import User
+from app.home.user_loging_manager import User, login_user_wrap
 from app.home.forms import SignupForm, SigninForm, ContactForm
 
 
@@ -45,7 +45,7 @@ def post_login(form: SigninForm):
         flash_error(gettext(u'Invalid password.'))
         return render_template('home/login.html', form=form)
 
-    login_user(check_user)
+    login_user_wrap(check_user)
     return redirect(url_for('UserView:dashboard'))
 
 
@@ -98,7 +98,7 @@ class HomeView(FlaskView):
             if confirm_user:
                 confirm_user.status = User.Status.ACTIVE
                 confirm_user.save()
-                login_user(confirm_user)
+                login_user_wrap(confirm_user)
                 return redirect(url_for('HomeView:signin'))
             else:
                 return '<h1>We can\'t find user.</h1>'

@@ -45,6 +45,15 @@ def init_project(static_folder, *args):
 
     login_manager.login_view = "HomeView:signin"
 
+    # socketio
+    @socketio.on('connect')
+    def connect():
+        print('Client connected')
+
+    @socketio.on('disconnect')
+    def disconnect():
+        print('Client disconnected')
+
     # defaults flask
     _host = '127.0.0.1'
     _port = 5000
@@ -58,27 +67,15 @@ def init_project(static_folder, *args):
     port = int(sn_port or _port)
     servers_manager = ServiceManager(host, port, socketio)
 
-    return app, bootstrap, babel, db, mail, socketio, login_manager, servers_manager
+    return app, bootstrap, babel, db, mail, login_manager, servers_manager
 
 
-app, bootstrap, babel, db, mail, socketio, login_manager, servers_manager = init_project(
+app, bootstrap, babel, db, mail, login_manager, servers_manager = init_project(
     'static',
     'config/public_config.py',
     'config/config.py',
     'config/mail_config.py'
 )
-
-
-def get_first_user_server(user):
-    if not user or not user.servers:
-        return None
-
-    server_settings = user.servers[0]
-    if server_settings:
-        return servers_manager.find_or_create_server(server_settings)
-
-    return None
-
 
 from app.home.view import HomeView
 from app.user.view import UserView
@@ -89,14 +86,3 @@ HomeView.register(app)
 UserView.register(app)
 StreamView.register(app)
 ServiceView.register(app)
-
-
-# socketio
-@socketio.on('connect')
-def connect():
-    print('Client connected')
-
-
-@socketio.on('disconnect')
-def disconnect():
-    print('Client disconnected')
