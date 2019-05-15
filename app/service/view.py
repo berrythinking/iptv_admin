@@ -100,6 +100,13 @@ class ServiceView(FlaskView):
         return redirect(url_for('UserView:dashboard'))
 
     @login_required
+    def view_playlist(self):
+        server = get_first_user_server(current_user)
+        if server:
+            return '<pre>{0}</pre>'.format(server.view_playlist())
+        return '''<pre>Not found, please create server firstly.</pre>'''
+
+    @login_required
     def view_log(self):
         server = get_first_user_server(current_user)
         if server:

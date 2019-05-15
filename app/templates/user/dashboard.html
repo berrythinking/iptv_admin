@@ -175,6 +175,8 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                 <th class="value">{% trans %}Live time{% endtrans %}</th>
             </tr>
             </thead>
+            <a href="{{ url_for('ServiceView:view_playlist') }}" class="btn btn-success" role="button">{% trans %}GET
+                Playlist{% endtrans %}</a>
             <tbody>
             {% for rev in streams %}
             <tr id='{{ rev.id }}'>
@@ -539,6 +541,9 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             }
         });
     }
+
+
+
 
 
 </script>
