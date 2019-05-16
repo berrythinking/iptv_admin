@@ -2,20 +2,20 @@ from app.client.client import Client
 from app.client.client_handler import IClientHandler
 from app.client.json_rpc import Request, Response
 from app.client.client_constants import Commands, ClientStatus
+
 from app.service.service_entry import ServiceSettings
 from app.service.stream_handler import IStreamHandler
-
-import app.constants as constants
+from app.constants import DEFAULT_SERVICE_LOG_PATH_TEMPLATE_3SIS, DEFAULT_STREAM_LOG_PATH_TEMPLATE_3SIS
 
 
 class ServiceClient(IClientHandler):
     @staticmethod
     def get_log_service_path(host: str, port: int, sid: str):
-        return constants.DEFAULT_SERVICE_LOG_PATH_TEMPLATE_3SIS.format(host, port, sid)
+        return DEFAULT_SERVICE_LOG_PATH_TEMPLATE_3SIS.format(host, port, sid)
 
     @staticmethod
     def get_log_stream_path(host: str, port: int, stream_id: str):
-        return constants.DEFAULT_STREAM_LOG_PATH_TEMPLATE_3SIS.format(host, port, stream_id)
+        return DEFAULT_STREAM_LOG_PATH_TEMPLATE_3SIS.format(host, port, stream_id)
 
     def __init__(self, handler: IStreamHandler, settings: ServiceSettings):
         self._request_id = 0

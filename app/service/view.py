@@ -5,9 +5,8 @@ from flask import render_template, redirect, url_for, request, jsonify
 from flask_login import login_required, current_user
 
 from app import get_runtime_folder
-from app.service.forms import ServiceSettingsForm
+from app.service.forms import ServiceSettingsForm, ActivateForm
 from app.service.service_entry import ServiceSettings
-from .forms import ActivateForm
 
 
 # activate license
