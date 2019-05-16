@@ -14,7 +14,6 @@ class ServiceSettings(Document, ServerSettings):
     meta = {'collection': 'service', 'auto_create_index': False}
 
     streams = ListField(EmbeddedDocumentField(Stream), default=[])
-
     users = ListField(ReferenceField('User'), default=[])
 
     def generate_playlist(self) -> str:

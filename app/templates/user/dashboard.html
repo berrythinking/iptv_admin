@@ -9,99 +9,105 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
 
 {% block content %}
 <div class="container">
-    </br>
-    <div class="row">
-        <div class="col-md-6">
-            <p>{% trans %}Welcome{% endtrans %} {{ current_user.email }}</p>
-        </div>
-        <div class="col-md-2">
-            <a href="{{ url_for('UserView:settings') }}" class="btn btn-info" role="button">{% trans %}Settings{%
-                endtrans
-                %}</a>
-        </div>
-        <div class="col-md-2">
-            <a href="{{ url_for('UserView:logout') }}" class="btn btn-info" role="button">{% trans %}Logout{% endtrans
-                %}</a>
-        </div>
-        <div class="col-md-2">
-            <a href="{{ url_for('UserView:remove') }}" class="btn btn-danger" role="button">{% trans %}Delete{% endtrans
-                %}</a>
-        </div>
-    </div>
-    </br>
-    <div class="row">
-        <div class="col-md-2">
-            <select class="form-control" name="servers" onchange=OnServerChanged(this);>
-                {% for server in servers %}
-                {% if (service.id == server.id | string) %}
-                <option value="{{ loop.index }}" selected>{{ server.name }}</option>
-                {% else %}
-                <option value="{{ loop.index }}">{{ server.name }}</option>
-                {% endif %}
-                {% endfor %}
-            </select>
-        </div>
-        {% if (service.status == service.status.INIT) %}
-        <div class="col-md-1">
-            <a href="{{ url_for('ServiceView:connect') }}" class="btn btn-info" role="button">{% trans %}Connect{%
-                endtrans
-                %}</a>
-        </div>
-        {% else %}
-        <div class="col-md-1">
-            <a href="{{ url_for('ServiceView:disconnect') }}" class="btn btn-info" role="button">{% trans %}Disconnect{%
-                endtrans
-                %}</a>
-        </div>
-        {% endif %}
-        <div class="col-md-1">
-            <a href="{{ url_for('ServiceView:activate') }}" role="button"
-               {% if (service.status== service.status.INIT) %}
-               class="btn btn-info disabled"
-               {% else %}
-               class="btn btn-info"
-               {% endif %}>
-                {% trans %}Activate{% endtrans %}
-            </a>
-        </div>
-        <div class="col-md-2">
-            <a href="{{ url_for('ServiceView:ping') }}" role="button"
-               {% if (service.status== service.status.ACTIVE) %}
-               class="btn btn-info"
-               {% else %}
-               class="btn btn-info disabled"
-               {% endif %}>
-                {% trans %}Ping{% endtrans %}
-            </a>
-        </div>
-        <div class="col-md-2">
-            <a href="{{ url_for('ServiceView:get_log') }}" role="button"
-               {% if (service.status== service.status.ACTIVE) %}
-               class="btn btn-info"
-               {% else %}
-               class="btn btn-info disabled"
-               {% endif %}>
-                {% trans %}Get log{% endtrans %}
-            </a>
-        </div>
-        <div class="col-md-2">
-            <a href="{{ url_for('ServiceView:view_log') }}" role="button" class="btn btn-info">
-                {% trans %}View log{% endtrans %}
-            </a>
-        </div>
-        <div class="col-md-2">
-            <a href="{{ url_for('ServiceView:stop') }}" role="button"
-               {% if (service.status== service.status.ACTIVE) %}
-               class="btn btn-warning"
-               {% else %}
-               class="btn btn-warning disabled"
-               {% endif %}>
-                {% trans %}Stop{% endtrans %}
-            </a>
-        </div>
-    </div>
-    </br>
     <div class="row well">
+        <div class="row">
+            <div class="col-md-8">
+                <p>{% trans %}Welcome{% endtrans %} {{ current_user.email }}</p>
+            </div>
+            <div class="col-md-1">
+                <a href="{{ url_for('UserView:settings') }}" class="btn btn-info" role="button">{% trans %}Settings{%
+                    endtrans
+                    %}</a>
+            </div>
+            <div class="col-md-1">
+                <a href="{{ url_for('UserView:logout') }}" class="btn btn-info" role="button">{% trans %}Logout{%
+                    endtrans
+                    %}</a>
+            </div>
+            <div class="col-md-1">
+                <a href="{{ url_for('UserView:remove') }}" class="btn btn-danger" role="button">{% trans %}Delete{%
+                    endtrans
+                    %}</a>
+            </div>
+        </div>
+    </div>
+    <div class="row well">
+        <div class="row">
+            <div class="col-md-2">
+                <select class="form-control" name="servers" onchange=OnServerChanged(this.value);>
+                    {% for server in servers %}
+                    {% if (service.id == server.id | string) %}
+                    <option value="{{ loop.index0 }}" selected>{{ server.name }}</option>
+                    {% else %}
+                    <option value="{{ loop.index0 }}">{{ server.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-1">
+                {% if (service.status == service.status.INIT) %}
+                <a href="{{ url_for('ServiceView:connect') }}" class="btn btn-info" role="button">{% trans %}Connect{%
+                    endtrans
+                    %}</a>
+                {% else %}
+                <a href="{{ url_for('ServiceView:disconnect') }}" class="btn btn-info" role="button">{% trans
+                    %}Disconnect{%
+                    endtrans
+                    %}</a>
+                {% endif %}
+            </div>
+            <div class="col-md-1">
+                <a href="{{ url_for('ServiceView:activate') }}" role="button"
+                   {% if (service.status== service.status.INIT) %}
+                   class="btn btn-info disabled"
+                   {% else %}
+                   class="btn btn-info"
+                   {% endif %}>
+                    {% trans %}Activate{% endtrans %}
+                </a>
+            </div>
+            <div class="col-md-1">
+                <a href="{{ url_for('ServiceView:view_playlist') }}" class="btn btn-success" role="button">
+                    {% trans %}Playlist{% endtrans %}
+                </a>
+            </div>
+            <div class="col-md-1">
+                <a href="{{ url_for('ServiceView:ping') }}" role="button"
+                   {% if (service.status== service.status.ACTIVE) %}
+                   class="btn btn-info"
+                   {% else %}
+                   class="btn btn-info disabled"
+                   {% endif %}>
+                    {% trans %}Ping{% endtrans %}
+                </a>
+            </div>
+            <div class="col-md-2">
+                <a href="{{ url_for('ServiceView:get_log') }}" role="button"
+                   {% if (service.status== service.status.ACTIVE) %}
+                   class="btn btn-success"
+                   {% else %}
+                   class="btn btn-success disabled"
+                   {% endif %}>
+                    {% trans %}Get log{% endtrans %}
+                </a>
+            </div>
+            <div class="col-md-2">
+                <a href="{{ url_for('ServiceView:view_log') }}" role="button" class="btn btn-info">
+                    {% trans %}View log{% endtrans %}
+                </a>
+            </div>
+            <div class="col-md-2">
+                <a href="{{ url_for('ServiceView:stop') }}" role="button"
+                   {% if (service.status== service.status.ACTIVE) %}
+                   class="btn btn-warning"
+                   {% else %}
+                   class="btn btn-warning disabled"
+                   {% endif %}>
+                    {% trans %}Stop{% endtrans %}
+                </a>
+            </div>
+        </div>
+        </br>
         <div class="row">
             <div class="col-md-2">
                 <b>{% trans %}ID:{% endtrans %}</b>
@@ -186,8 +192,6 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
                 <th class="value">{% trans %}Live time{% endtrans %}</th>
             </tr>
             </thead>
-            <a href="{{ url_for('ServiceView:view_playlist') }}" class="btn btn-success" role="button">{% trans %}GET
-                Playlist{% endtrans %}</a>
             <tbody>
             {% for rev in streams %}
             <tr id='{{ rev.id }}'>
@@ -295,8 +299,8 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
         src="{{ url_for('static', filename='assets/js/socket.io/1.7.4/socket.io.min.js') }}"></script>
 <script type="text/javascript" charset="utf-8">
     // service
-    function OnServerChanged(item){
-        var url = '/change_current_server/' + item.selectedIndex;
+    function OnServerChanged(value){
+        var url = '/change_current_server/' + value;
         $.get(url, function(data) {
             window.location.reload();
         });
@@ -560,7 +564,5 @@ Dashboard | {{ config['PUBLIC_CONFIG'].site.title }}
             }
         });
     }
-
-
 </script>
 {% endblock %}

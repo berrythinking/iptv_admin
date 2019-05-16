@@ -1,5 +1,4 @@
 {% extends 'layouts/layout_user.html' %}
-{% import "bootstrap/utils.html" as util %}
 {% from 'bootstrap/wtf.html' import form_field %}
 {% macro render_bootstrap_field(field) %}
 <div class="row">
@@ -19,65 +18,66 @@ Settings | {{ config['PUBLIC_CONFIG'].site.title }}
 {% endblock %}
 {% block content %}
 <div class="container">
-    <div class="row">
-        <div class="col-md-11">
+    <div class="row well">
+        <div class="col-md-10">
             <p>{% trans %}Settings{% endtrans %}</p>
         </div>
-        <a href="{{ url_for('UserView:dashboard') }}" role="button" class="btn btn-info">
-            {% trans %}Dashboard{% endtrans %}
-        </a>
+        <div class="col-md-2">
+            <a href="{{ url_for('UserView:dashboard') }}" role="button" class="btn btn-info">
+                {% trans %}Dashboard{% endtrans %}
+            </a>
+        </div>
     </div>
-</div>
-<br>
-{{ util.flashed_messages(dismissible=True, container=False) }}
-<div class="container well">
-    <form action="" method="post" class="form" role="form">
-        {{ form.hidden_tag() }}
-        {{ render_bootstrap_field(form.locale) }}
-        {{ form_field(form.submit, class="btn btn-success") }}
-    </form>
-    <span>
+    <div class="row well">
+        <form action="" method="post" class="form" role="form">
+            {{ form.hidden_tag() }}
+            {{ render_bootstrap_field(form.locale) }}
+            {{ form_field(form.submit, class="btn btn-success") }}
+        </form>
+    </div>
+    <div class="row well">
+        <span>
         {% if servers|length == 0 %}
-        <div class="alert alert-info">To open dashboard you should have at least 1 server, please add it.</div>
+        <span class="alert alert-info">To open dashboard you should have at least 1 server, please add it.</span>
         {% endif %}
-    </span>
-    <div class="row">
-        <table id='servers_table' class="table">
-            <thead>
-            <tr>
-                <th class="number">#</th>
-                <th class="value">{% trans %}Name{% endtrans %}</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for server in servers %}
-            <tr id='{{ server.id }}'>
-                <td>{{ loop.index }}</td>
-                <td>{{ server.name }}</td>
-                <td>
-                    <button type="submit" class="btn btn-danger btn-xs"
-                            onclick="edit_server('{{ server.id }}')">
-                        {% trans %}Edit{% endtrans %}
-                    </button>
-                    <button type="submit" class="btn btn-danger btn-xs"
-                            onclick="remove_server('{{ server.id }}')">
-                        {% trans %}Remove{% endtrans %}
-                    </button>
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+        </span>
+        <div class="row">
+            <table id='servers_table' class="table">
+                <thead>
+                <tr>
+                    <th class="number">#</th>
+                    <th class="value">{% trans %}Name{% endtrans %}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for server in servers %}
+                <tr id='{{ server.id }}'>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ server.name }}</td>
+                    <td>
+                        <button type="submit" class="btn btn-danger btn-xs"
+                                onclick="edit_server('{{ server.id }}')">
+                            {% trans %}Edit{% endtrans %}
+                        </button>
+                        <button type="submit" class="btn btn-danger btn-xs"
+                                onclick="remove_server('{{ server.id }}')">
+                            {% trans %}Remove{% endtrans %}
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
     <div class="row">
-        <div class="col-md-1">
+        <div class="col-md-2">
             <button type="submit" class="btn btn-success" onclick="add_server()">
                 {% trans %}Add server{% endtrans %}
             </button>
         </div>
     </div>
 </div>
-
 <div id="service_dialog" class="modal fade" tabindex=-1 role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -168,9 +168,5 @@ Settings | {{ config['PUBLIC_CONFIG'].site.title }}
             }
         });
     }
-
-
-
-
 </script>
 {% endblock %}
