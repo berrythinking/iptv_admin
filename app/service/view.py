@@ -9,45 +9,6 @@ from app.service.forms import ServiceSettingsForm, ActivateForm
 from app.service.service_entry import ServiceSettings
 
 
-# activate license
-def _activate_server(server, form: ActivateForm):
-    if not form.validate_on_submit():
-        return render_template('user/activate.html', form=form)
-
-    lic = form.license.data
-    server.activate(lic)
-    return redirect(url_for('UserView:dashboard'))
-
-
-def _remove_server(server: ServiceSettings):
-    server.delete()
-    return jsonify(status='ok'), 200
-
-
-def _add_service(method: str):
-    server = ServiceSettings()
-    form = ServiceSettingsForm(obj=server)
-    if method == 'POST' and form.validate_on_submit():
-        new_entry = form.make_entry()
-        new_entry.users.append(current_user.id)
-        new_entry.save()
-        current_user.add_server(new_entry)
-        return jsonify(status='ok'), 200
-
-    return render_template('service/add.html', form=form)
-
-
-def _edit_service(method: str, server: ServiceSettings):
-    form = ServiceSettingsForm(obj=server)
-
-    if method == 'POST' and form.validate_on_submit():
-        server = form.update_entry(server)
-        server.save()
-        return jsonify(status='ok'), 200
-
-    return render_template('service/edit.html', form=form)
-
-
 # routes
 class ServiceView(FlaskView):
     route_base = "/service"
@@ -73,7 +34,12 @@ class ServiceView(FlaskView):
         if request.method == 'POST':
             server = current_user.get_current_server()
             if server:
-                return _activate_server(server, form)
+                if not form.validate_on_submit():
+                    return render_template('user/activate.html', form=form)
+
+                lic = form.license.data
+                server.activate(lic)
+                return redirect(url_for('UserView:dashboard'))
 
         return render_template('user/activate.html', form=form)
 
@@ -125,7 +91,15 @@ class ServiceView(FlaskView):
     @login_required
     @route('/add', methods=['GET', 'POST'])
     def add(self):
-        return _add_service(request.method)
+        model = ServiceSettings()
+        form = ServiceSettingsForm(request.form, obj=model)
+        if request.method == 'POST' and form.validate_on_submit():
+            form.populate_obj(model)
+            model = model.save()
+            current_user.add_server(model)
+            return jsonify(status='ok'), 200
+
+        return render_template('service/add.html', form=form)
 
     @login_required
     @route('/remove', methods=['POST'])
@@ -133,7 +107,8 @@ class ServiceView(FlaskView):
         sid = request.form['sid']
         server = ServiceSettings.objects(id=sid).first()
         if server:
-            return _remove_server(server)
+            server.delete()
+            return jsonify(status='ok'), 200
 
         return jsonify(status='failed'), 404
 
@@ -141,10 +116,13 @@ class ServiceView(FlaskView):
     @route('/edit/<sid>', methods=['GET', 'POST'])
     def edit(self, sid):
         server = ServiceSettings.objects(id=sid).first()
-        if server:
-            return _edit_service(request.method, server)
+        form = ServiceSettingsForm(request.form, obj=server)
 
-        return jsonify(status='failed'), 404
+        if request.method == 'POST' and form.validate_on_submit():
+            form.save()
+            return jsonify(status='ok'), 200
+
+        return render_template('service/edit.html', form=form)
 
     @route('/log/<sid>', methods=['POST'])
     def log(self, sid):

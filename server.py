@@ -13,6 +13,8 @@ PORT = 8080
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=PROJECT_NAME, usage='%(prog)s [options]')
+    parser.add_argument('--port', help='port (default: {0})'.format(PORT), default=PORT)
+    parser.add_argument('--host', help='host (default: {0})'.format(HOST), default=HOST)
     argv = parser.parse_args()
 
-    app.run(host=HOST, port=PORT, debug=True, use_reloader=False)  # debug=True, use_reloader=False
+    app.run(host=argv.host, port=argv.port, debug=True, use_reloader=False)  # debug=True, use_reloader=False
