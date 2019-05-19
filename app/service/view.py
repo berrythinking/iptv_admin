@@ -11,7 +11,7 @@ from app.service.service_entry import ServiceSettings
 
 # routes
 class ServiceView(FlaskView):
-    route_base = "/service"
+    route_base = "/service/"
 
     @login_required
     def connect(self):
